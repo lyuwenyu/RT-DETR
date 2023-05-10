@@ -8,25 +8,6 @@ import numpy as np
 import tensorrt as trt
 
 
-class TimeProfiler(contextlib.ContextDecorator):
-    def __init__(self, ):
-        self.total = 0
-        
-    def __enter__(self, ):
-        self.start = self.time()
-        return self 
-    
-    def __exit__(self, type, value, traceback):
-        self.total += self.time() - self.start
-    
-    def reset(self, ):
-        self.total = 0
-    
-    def time(self, ):
-        if torch.cuda.is_available():
-            torch.cuda.synchronize()
-        return time.time()
-
 class TRTInference(object):
     def __init__(self, engine_path, device='cuda:0', backend='torch', max_batch_size=32, verbose=False):
         self.engine_path = engine_path
@@ -54,14 +35,12 @@ class TRTInference(object):
     def init(self, ):
         self.dynamic = False 
 
-        
     def load_engine(self, path):
         '''load engine
         '''
         trt.init_libnvinfer_plugins(self.logger, '')
         with open(path, 'rb') as f, trt.Runtime(self.logger) as runtime:
             return runtime.deserialize_cuda_engine(f.read())
-    
     
     def get_input_names(self, ):
         names = []
@@ -70,7 +49,6 @@ class TRTInference(object):
                 names.append(name)
         return names
     
-
     def get_output_names(self, ):
         names = []
         for _, name in enumerate(self.engine):
@@ -78,7 +56,6 @@ class TRTInference(object):
                 names.append(name)
         return names
 
-    
     def get_bindings(self, engine, context, max_batch_size=32, device=None):
         '''build binddings
         '''
@@ -112,7 +89,6 @@ class TRTInference(object):
 
         return bindings
 
-    
     def run_torch(self, blob):
         '''torch input
         '''
@@ -146,15 +122,13 @@ class TRTInference(object):
         
         return outputs
     
-
     def __call__(self, blob):
         if self.backend == 'torch':
             return self.run_torch(blob)
 
         elif self.backend == 'cuda':
             return self.async_run_cuda(blob)
-                
-    
+
     def synchronize(self, ):
         if self.backend == 'torch' and torch.cuda.is_available():
             torch.cuda.synchronize()
@@ -162,11 +136,9 @@ class TRTInference(object):
         elif self.backend == 'cuda':
             self.stream.synchronize()
     
-
     def warmup(self, blob, n):
         for _ in range(n):
             _ = self(blob)
-
 
     def speed(self, blob, n):
         self.time_profile.reset()
@@ -175,3 +147,24 @@ class TRTInference(object):
                 _ = self(blob)
 
         return self.time_profile.total / n 
+
+
+
+class TimeProfiler(contextlib.ContextDecorator):
+    def __init__(self, ):
+        self.total = 0
+        
+    def __enter__(self, ):
+        self.start = self.time()
+        return self 
+    
+    def __exit__(self, type, value, traceback):
+        self.total += self.time() - self.start
+    
+    def reset(self, ):
+        self.total = 0
+    
+    def time(self, ):
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+        return time.time()
