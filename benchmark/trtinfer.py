@@ -148,23 +148,3 @@ class TRTInference(object):
 
         return self.time_profile.total / n 
 
-
-
-class TimeProfiler(contextlib.ContextDecorator):
-    def __init__(self, ):
-        self.total = 0
-        
-    def __enter__(self, ):
-        self.start = self.time()
-        return self 
-    
-    def __exit__(self, type, value, traceback):
-        self.total += self.time() - self.start
-    
-    def reset(self, ):
-        self.total = 0
-    
-    def time(self, ):
-        if torch.cuda.is_available():
-            torch.cuda.synchronize()
-        return time.time()

@@ -10,7 +10,7 @@ def to_binary_data(path, size=(640, 640), output_name='input_tensor.bin'):
     '''--loadInputs='image:input_tensor.bin'
     '''
     im = Image.open(path).resize(size)
-    data = np.asarray(im, dtype=np.float32).transpose(2, 0, 2)[None] / 255.
+    data = np.asarray(im, dtype=np.float32).transpose(2, 0, 1)[None] / 255.
     data.tofile(output_name)
 
 
