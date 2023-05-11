@@ -7,6 +7,7 @@ import torch
 import numpy as np
 import tensorrt as trt
 
+from utils import TimeProfiler
 
 class TRTInference(object):
     def __init__(self, engine_path, device='cuda:0', backend='torch', max_batch_size=32, verbose=False):

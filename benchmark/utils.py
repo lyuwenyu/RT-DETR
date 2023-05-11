@@ -1,10 +1,12 @@
+import time 
+import contextlib
 import numpy as np
 from PIL import Image
 from collections import OrderedDict
 
 import onnx
+import torch 
 import onnx_graphsurgeon
-
 
 def to_binary_data(path, size=(640, 640), output_name='input_tensor.bin'):
     '''--loadInputs='image:input_tensor.bin'
@@ -55,3 +57,23 @@ def yolo_insert_nms(path, score_threshold=0.01, iou_threshold=0.7, max_output_bo
     graph.cleanup().toposort()
 
     onnx.save(onnx_graphsurgeon.export_onnx(graph), f'yolo_w_nms.onnx')
+
+
+class TimeProfiler(contextlib.ContextDecorator):
+    def __init__(self, ):
+        self.total = 0
+        
+    def __enter__(self, ):
+        self.start = self.time()
+        return self 
+    
+    def __exit__(self, type, value, traceback):
+        self.total += self.time() - self.start
+    
+    def reset(self, ):
+        self.total = 0
+    
+    def time(self, ):
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+        return time.time()
