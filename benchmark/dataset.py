@@ -3,6 +3,7 @@
 
 import os
 import glob
+from PIL import Image
 
 import torch
 import torch.utils.data as data
@@ -19,7 +20,6 @@ class ToTensor(T.ToTensor):
         if isinstance(pic, torch.Tensor):
             return pic 
         return super().__call__(pic)
-
 
 class PadToSize(T.Pad):
     def __init__(self, size, fill=0, padding_mode='constant'):
@@ -62,7 +62,6 @@ class Dataset(data.Dataset):
     def __len__(self, ):
         return len(self.im_path_list)
 
-
     def __getitem__(self, index):
         # im = Image.open(self.img_path_list[index]).convert('RGB')
         im = torchvision.io.read_file(self.im_path_list[index])
@@ -80,7 +79,6 @@ class Dataset(data.Dataset):
 
         return blob
 
-
     @staticmethod
     def post_process():
         pass
@@ -88,3 +86,17 @@ class Dataset(data.Dataset):
     @staticmethod
     def collate_fn():
         pass
+
+
+def draw_nms_result(blob, outputs, draw_score_threshold=0.25, name=''):
+    '''show result
+    Keys:
+        'num_dets', 'det_boxes', 'det_scores', 'det_classes'
+    '''    
+    for i in range(blob['image'].shape[0]):
+        det_scores = outputs['det_scores'][i]
+        det_boxes = outputs['det_boxes'][i][det_scores > draw_score_threshold]
+        
+        im = (blob['image'][i] * 255).to(torch.uint8)
+        im = torchvision.utils.draw_bounding_boxes(im, boxes=det_boxes, width=2)
+        Image.fromarray(im.permute(1, 2, 0).cpu().numpy()).save(f'test_{name}_{i}.jpg')

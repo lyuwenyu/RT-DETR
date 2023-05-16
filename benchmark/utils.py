@@ -8,6 +8,7 @@ import onnx
 import torch 
 import onnx_graphsurgeon
 
+
 def to_binary_data(path, size=(640, 640), output_name='input_tensor.bin'):
     '''--loadInputs='image:input_tensor.bin'
     '''
