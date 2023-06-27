@@ -1,21 +1,5 @@
 # DETRs Beat YOLOs on Real-time Object Detection
 
-## 最新动态
-
-- 发布RT-DETR-R50和RT-DETR-R101的代码和预训练模型
-- 发布RT-DETR-L和RT-DETR-X的代码和预训练模型
-- 发布RT-DETR-R50-m模型（scale模型的范例）
-- 发布RT-DETR-R34模型
-- 发布RT-DETR-R18模型
-
-## 简介
-<!-- We propose a **R**eal-**T**ime **DE**tection **TR**ansformer (RT-DETR), the first real-time end-to-end object detector to our best knowledge. Specifically, we design an efficient hybrid encoder to efficiently process multi-scale features by decoupling the intra-scale interaction and cross-scale fusion, and propose IoU-aware query selection to improve the initialization of object queries. In addition, our proposed detector supports flexibly adjustment of the inference speed by using different decoder layers without the need for retraining, which facilitates the practical application of real-time object detectors. Our RT-DETR-L achieves 53.0% AP on COCO val2017 and 114 FPS on T4 GPU, while RT-DETR-X achieves 54.8% AP and 74 FPS, outperforming all YOLO detectors of the same scale in both speed and accuracy. Furthermore, our RT-DETR-R50 achieves 53.1% AP and 108 FPS, outperforming DINO-Deformable-DETR-R50 by 2.2% AP in accuracy and by about 21 times in FPS.  -->
-RT-DETR是第一个实时端到端目标检测器。具体而言，我们设计了一个高效的混合编码器，通过解耦尺度内交互和跨尺度融合来高效处理多尺度特征，并提出了IoU感知的查询选择机制，以优化解码器查询的初始化。此外，RT-DETR支持通过使用不同的解码器层来灵活调整推理速度，而不需要重新训练，这有助于实时目标检测器的实际应用。RT-DETR-L在COCO val2017上实现了53.0%的AP，在T4 GPU上实现了114FPS，RT-DETR-X实现了54.8%的AP和74FPS，在速度和精度方面都优于相同规模的所有YOLO检测器。RT-DETR-R50实现了53.1%的AP和108FPS，RT-DETR-R101实现了54.3%的AP和74FPS，在精度上超过了全部使用相同骨干网络的DETR检测器。
-若要了解更多细节，请参考我们的论文[paper](https://arxiv.org/abs/2304.08069).
-
-<div align="center">
-  <img src="https://github.com/PaddlePaddle/PaddleDetection/assets/17582080/3184a08e-aa4d-49cf-9079-f3695c4cc1c3" width=500 />
-</div>
 
 ## 模型
 
@@ -124,7 +108,7 @@ paddle2onnx --model_dir=./output_inference/rtdetr_r50vd_6x_coco/ \
 </details>
 
 <details>
-<summary>3. 转换成TensorRT（可选） </summary>
+<summary>3. 转换成TensorRT </summary>
 
 - 确保TensorRT的版本>=8.5.1
 - TRT推理可以参考[RT-DETR](https://github.com/lyuwenyu/RT-DETR)的部分代码或者其他网络资源
