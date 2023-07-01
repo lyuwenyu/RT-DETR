@@ -24,17 +24,9 @@ except Exception:
     from collections import Sequence
 
 import cv2
-import copy
-import math
 import numpy as np
 from .operators import register_op, BaseOperator, Resize
-from .op_helper import jaccard_overlap, gaussian2D, gaussian_radius, draw_umich_gaussian
-# from .atss_assigner import ATSSAssigner
-from scipy import ndimage
-
-from ppdet.modeling import bbox_utils
 from ppdet.utils.logger import setup_logger
-from ppdet.modeling.keypoint_utils import get_affine_transform, affine_transform
 logger = setup_logger(__name__)
 
 __all__ = [

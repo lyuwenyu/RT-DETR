@@ -40,18 +40,15 @@ import pickle
 import threading
 MUTEX = threading.Lock()
 
-import paddle
 from ppdet.core.workspace import serializable
 from ..reader import Compose
 
 from .op_helper import (satisfy_sample_constraint, filter_and_process,
                         generate_sample_bbox, clip_bbox, data_anchor_sampling,
                         satisfy_sample_constraint_coverage, crop_image_sampling,
-                        generate_sample_bbox_square, bbox_area_sampling,
-                        is_poly, get_border)
+                        generate_sample_bbox_square, bbox_area_sampling, is_poly)
 
 from ppdet.utils.logger import setup_logger
-from ppdet.modeling.keypoint_utils import get_affine_transform
 logger = setup_logger(__name__)
 
 registered_ops = []
@@ -3106,200 +3103,6 @@ class RandomSizeCrop(BaseOperator):
 
         region = self.get_crop_params(sample['image'].shape[:2], [h, w])
         return self.crop(sample, region)
-
-
-@register_op
-class WarpAffine(BaseOperator):
-    def __init__(self,
-                 keep_res=False,
-                 pad=31,
-                 input_h=512,
-                 input_w=512,
-                 scale=0.4,
-                 shift=0.1,
-                 down_ratio=4):
-        """WarpAffine
-        Warp affine the image
-        The code is based on https://github.com/xingyizhou/CenterNet/blob/master/src/lib/datasets/sample/ctdet.py
-        """
-        super(WarpAffine, self).__init__()
-        self.keep_res = keep_res
-        self.pad = pad
-        self.input_h = input_h
-        self.input_w = input_w
-        self.scale = scale
-        self.shift = shift
-        self.down_ratio = down_ratio
-
-    def apply(self, sample, context=None):
-        img = sample['image']
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-
-        h, w = img.shape[:2]
-
-        if self.keep_res:
-            # True in detection eval/infer
-            input_h = (h | self.pad) + 1
-            input_w = (w | self.pad) + 1
-            s = np.array([input_w, input_h], dtype=np.float32)
-            c = np.array([w // 2, h // 2], dtype=np.float32)
-        else:
-            # False in centertrack eval_mot/eval_mot
-            s = max(h, w) * 1.0
-            input_h, input_w = self.input_h, self.input_w
-            c = np.array([w / 2., h / 2.], dtype=np.float32)
-
-        trans_input = get_affine_transform(c, s, 0, [input_w, input_h])
-        img = cv2.resize(img, (w, h))
-        inp = cv2.warpAffine(
-            img, trans_input, (input_w, input_h), flags=cv2.INTER_LINEAR)
-        sample['image'] = inp
-
-        if not self.keep_res:
-            out_h = input_h // self.down_ratio
-            out_w = input_w // self.down_ratio
-            trans_output = get_affine_transform(c, s, 0, [out_w, out_h])
-
-            sample.update({
-                'center': c,
-                'scale': s,
-                'out_height': out_h,
-                'out_width': out_w,
-                'inp_height': input_h,
-                'inp_width': input_w,
-                'trans_input': trans_input,
-                'trans_output': trans_output,
-            })
-        return sample
-
-
-@register_op
-class FlipWarpAffine(BaseOperator):
-    def __init__(self,
-                 keep_res=False,
-                 pad=31,
-                 input_h=512,
-                 input_w=512,
-                 not_rand_crop=False,
-                 scale=0.4,
-                 shift=0.1,
-                 flip=0.5,
-                 is_scale=True,
-                 use_random=True,
-                 add_pre_img=False):
-        """FlipWarpAffine
-        1. Random Crop
-        2. Flip the image horizontal
-        3. Warp affine the image
-        4. (Optinal) Add previous image
-        """
-        super(FlipWarpAffine, self).__init__()
-        self.keep_res = keep_res
-        self.pad = pad
-        self.input_h = input_h
-        self.input_w = input_w
-        self.not_rand_crop = not_rand_crop
-        self.scale = scale
-        self.shift = shift
-        self.flip = flip
-        self.is_scale = is_scale
-        self.use_random = use_random
-        self.add_pre_img = add_pre_img
-
-    def __call__(self, samples, context=None):
-        if self.add_pre_img:
-            assert isinstance(samples, Sequence) and len(samples) == 2
-            sample, pre_sample = samples[0], samples[1]
-        else:
-            sample = samples
-
-        img = sample['image']
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        if 'gt_bbox' in sample and len(sample['gt_bbox']) == 0:
-            return sample
-
-        h, w = img.shape[:2]
-        flipped = 0
-
-        if self.keep_res:
-            input_h = (h | self.pad) + 1
-            input_w = (w | self.pad) + 1
-            s = np.array([input_w, input_h], dtype=np.float32)
-            c = np.array([w // 2, h // 2], dtype=np.float32)
-        else:
-            # centernet training default
-            s = max(h, w) * 1.0
-            input_h, input_w = self.input_h, self.input_w
-            c = np.array([w / 2., h / 2.], dtype=np.float32)
-
-        if self.use_random:
-            gt_bbox = sample['gt_bbox']
-            if not self.not_rand_crop:
-                # centernet default
-                s = s * np.random.choice(np.arange(0.6, 1.4, 0.1))
-                w_border = get_border(128, w)
-                h_border = get_border(128, h)
-                c[0] = np.random.randint(low=w_border, high=w - w_border)
-                c[1] = np.random.randint(low=h_border, high=h - h_border)
-            else:
-                sf = self.scale
-                cf = self.shift
-                c[0] += s * np.clip(np.random.randn() * cf, -2 * cf, 2 * cf)
-                c[1] += s * np.clip(np.random.randn() * cf, -2 * cf, 2 * cf)
-                s = s * np.clip(np.random.randn() * sf + 1, 1 - sf, 1 + sf)
-
-            if np.random.random() < self.flip:
-                img = img[:, ::-1, :]
-                c[0] = w - c[0] - 1
-                oldx1 = gt_bbox[:, 0].copy()
-                oldx2 = gt_bbox[:, 2].copy()
-                gt_bbox[:, 0] = w - oldx2 - 1
-                gt_bbox[:, 2] = w - oldx1 - 1
-                flipped = 1
-            sample['gt_bbox'] = gt_bbox
-
-        trans_input = get_affine_transform(c, s, 0, [input_w, input_h])
-        inp = cv2.warpAffine(
-            img, trans_input, (input_w, input_h), flags=cv2.INTER_LINEAR)
-        if self.is_scale:
-            inp = (inp.astype(np.float32) / 255.)
-
-        sample['image'] = inp
-        sample['center'] = c
-        sample['scale'] = s
-
-        if self.add_pre_img:
-            sample['trans_input'] = trans_input
-
-            # previous image, use same aug trans_input as current image
-            pre_img = pre_sample['image']
-            pre_img = cv2.cvtColor(pre_img, cv2.COLOR_RGB2BGR)
-            if flipped:
-                pre_img = pre_img[:, ::-1, :].copy()
-            pre_inp = cv2.warpAffine(
-                pre_img,
-                trans_input, (input_w, input_h),
-                flags=cv2.INTER_LINEAR)
-            if self.is_scale:
-                pre_inp = (pre_inp.astype(np.float32) / 255.)
-            sample['pre_image'] = pre_inp
-
-            # if empty gt_bbox
-            if 'gt_bbox' in pre_sample and len(pre_sample['gt_bbox']) == 0:
-                return sample
-            pre_gt_bbox = pre_sample['gt_bbox']
-            if flipped:
-                pre_oldx1 = pre_gt_bbox[:, 0].copy()
-                pre_oldx2 = pre_gt_bbox[:, 2].copy()
-                pre_gt_bbox[:, 0] = w - pre_oldx1 - 1
-                pre_gt_bbox[:, 2] = w - pre_oldx2 - 1
-            sample['pre_gt_bbox'] = pre_gt_bbox
-
-            sample['pre_gt_class'] = pre_sample['gt_class']
-            sample['pre_gt_track_id'] = pre_sample['gt_track_id']
-            del pre_sample
-
-        return sample
 
 
 @register_op

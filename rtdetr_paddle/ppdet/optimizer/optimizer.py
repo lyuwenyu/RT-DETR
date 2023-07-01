@@ -27,8 +27,6 @@ import paddle.regularizer as regularizer
 from ppdet.core.workspace import register, serializable
 import copy
 
-from .adamw import AdamWDL, build_adamwdl
-
 __all__ = ['LearningRate', 'OptimizerBuilder']
 
 from ppdet.utils.logger import setup_logger
@@ -303,9 +301,6 @@ class OptimizerBuilder():
         optim_args = self.optimizer.copy()
         optim_type = optim_args['type']
         del optim_args['type']
-
-        if optim_type == 'AdamWDL':
-            return build_adamwdl(model, lr=learning_rate, **optim_args)
 
         if optim_type != 'AdamW':
             optim_args['weight_decay'] = regularization
