@@ -130,9 +130,35 @@ trtexec --onnx=./rtdetr_r50vd_6x_coco.onnx \
 
 <details>
 <summary>1. 参数量和计算量统计 </summary>
-可以使用以下代码片段实现参数量和计算量的统计
 
+1. 修改[本地安装paddle的flops源代码](https://github.com/PaddlePaddle/Paddle/blob/develop/python/paddle/hapi/dynamic_flops.py#L28), 并修改为
+
+```python
+def flops(net, input_size, inputs=None, custom_ops=None, print_detail=False):
+    if isinstance(net, nn.Layer):
+        # If net is a dy2stat model, net.forward is StaticFunction instance,
+        # we set net.forward to original forward function.
+        _, net.forward = unwrap_decorators(net.forward)
+
+        # by lyuwenyu
+        if inputs is None:
+            inputs = paddle.randn(input_size)
+
+        return dynamic_flops(
+            net, inputs=inputs, custom_ops=custom_ops, print_detail=print_detail
+        )
+    elif isinstance(net, paddle.static.Program):
+        return static_flops(net, print_detail=print_detail)
+    else:
+        warnings.warn(
+            "Your model must be an instance of paddle.nn.Layer or paddle.static.Program."
+        )
+        return -1
 ```
+
+2. 使用以下代码片段实现参数量和计算量的统计
+
+```python
 import paddle
 from ppdet.core.workspace import load_config, merge_config
 from ppdet.core.workspace import create
