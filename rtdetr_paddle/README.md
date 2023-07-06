@@ -1,6 +1,6 @@
-简体中文 | [English](README_en.md)
+English | [简体中文](README_cn.md)
 
-## 模型
+## Model Zoo
 
 | Model | Epoch | backbone  | input shape | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) |  T4 TensorRT FP16(FPS) | Pretrained Model | config |
 |:--------------:|:-----:|:----------:| :-------:|:--------------------------:|:---------------------------:|:---------:|:--------:| :---------------------: |:------------------------------------------------------------------------------------:|:-------------------------------------------:|
@@ -13,14 +13,14 @@
 | RT-DETR-X | 6x |  HGNetv2 | 640 | 54.8 | 73.1 | 67 | 234 | 74 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_hgnetv2_x_6x_coco.pdparams) | [config](rtdetr_hgnetv2_x_6x_coco.yml)
 
 
-**注意事项:**
-- RT-DETR 使用4个GPU训练。
-- RT-DETR 在COCO train2017上训练，并在val2017上评估。
+**Notes:**
+- RT-DETR uses 4 GPUs for training.
+- RT-DETR was trained on COCO train2017 and evaluated on val2017.
 
-## 快速开始
+## Quick start
 
 <details open>
-<summary>依赖包</summary>
+<summary>Install requirements</summary>
 
 <!-- - PaddlePaddle == 2.4.2 -->
 ```bash
@@ -30,16 +30,23 @@ pip install -r requirements.txt
 </details>
 
 <details>
-<summary>准备数据</summary>
+<summary>Data preparation</summary>
 
-- 修改[配置文件`dataset_dir`](configs/datasets/coco_detection.yml)
+- Download and extract COCO 2017 train and val images.
+```
+path/to/coco/
+  annotations/  # annotation json files
+  train2017/    # train images
+  val2017/      # val images
+```
+- Modify config [`dataset_dir`](configs/datasets/coco_detection.yml)
 </details>
 
 
 <details>
-<summary>训练&评估</summary>
+<summary>Training & Evaluation & Testing</summary>
 
-- 单卡GPU上训练:
+- Training on a Single GPU:
 
 ```shell
 # training on single-GPU
@@ -47,7 +54,7 @@ export CUDA_VISIBLE_DEVICES=0
 python tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml --eval
 ```
 
-- 多卡GPU上训练:
+- Training on Multiple GPUs:
 
 ```shell
 # training on multi-GPU
@@ -55,14 +62,14 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3
 python -m paddle.distributed.launch --gpus 0,1,2,3 tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml --fleet --eval
 ```
 
-- 评估:
+- Evaluation:
 
 ```shell
 python tools/eval.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml \
               -o weights=https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_6x_coco.pdparams
 ```
 
-- 测试:
+- Inference:
 
 ```shell
 python tools/infer.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml \
@@ -70,14 +77,12 @@ python tools/infer.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml \
               --infer_img=./demo/000000570688.jpg
 ```
 
-详情请参考[快速开始文档](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/docs/tutorials/GETTING_STARTED.md).
-
 </details>
 
-## 部署
+## Deploy
 
 <details open>
-<summary>1. 导出模型 </summary>
+<summary>1. Export model </summary>
 
 ```shell
 cd PaddleDetection
@@ -89,16 +94,16 @@ python tools/export_model.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml \
 </details>
 
 <details>
-<summary>2. 转换模型至ONNX </summary>
+<summary>2. Convert to ONNX </summary>
 
-- 安装[Paddle2ONNX](https://github.com/PaddlePaddle/Paddle2ONNX) 和 ONNX
+- Install [Paddle2ONNX](https://github.com/PaddlePaddle/Paddle2ONNX) and ONNX
 
 ```shell
 pip install onnx==1.13.0
 pip install paddle2onnx==1.0.5
 ```
 
-- 转换模型:
+- Convert:
 
 ```shell
 paddle2onnx --model_dir=./output_inference/rtdetr_r50vd_6x_coco/ \
@@ -110,10 +115,10 @@ paddle2onnx --model_dir=./output_inference/rtdetr_r50vd_6x_coco/ \
 </details>
 
 <details>
-<summary>3. 转换成TensorRT </summary>
+<summary>3. Convert to TensorRT </summary>
 
-- 确保TensorRT的版本>=8.5.1
-- TRT推理可以参考[RT-DETR](https://github.com/lyuwenyu/RT-DETR)的部分代码或者其他网络资源
+- TensorRT version >= 8.5.1
+- Inference can refer to [Bennchmark](../benchmark)
 
 ```shell
 trtexec --onnx=./rtdetr_r50vd_6x_coco.onnx \
@@ -128,12 +133,12 @@ trtexec --onnx=./rtdetr_r50vd_6x_coco.onnx \
 </details>
 
 
-## 其他
+## Others
 
 <details>
-<summary>1. 参数量和计算量统计 </summary>
+<summary>1. Parameters and FLOPs </summary>
 
-1. 找到[本地安装paddle的flops源代码](https://github.com/PaddlePaddle/Paddle/blob/develop/python/paddle/hapi/dynamic_flops.py#L28), 并修改为
+1. Find and modify [paddle flops source code](https://github.com/PaddlePaddle/Paddle/blob/develop/python/paddle/hapi/dynamic_flops.py#L28)
 
 ```python
 # anaconda3/lib/python3.8/site-packages/paddle/hapi/dynamic_flops.py
@@ -159,7 +164,7 @@ def flops(net, input_size, inputs=None, custom_ops=None, print_detail=False):
         return -1
 ```
 
-2. 使用以下代码片段实现参数量和计算量的统计
+2. Run below code
 
 ```python
 import paddle
@@ -176,21 +181,18 @@ blob = {
     'scale_factor': paddle.to_tensor([[1., 1.]])
 }
 paddle.flops(model, None, blob, custom_ops=None, print_detail=False)
+
+# Outpus
+# Total Flops: 68348108800     Total Params: 41514204
+
 ```
-</details>
 
-
-<details open>
-<summary>2. YOLOs端到端速度测速 </summary>
-
-- 可以参考[RT-DETR](https://github.com/lyuwenyu/RT-DETR) benchmark部分或者其他网络资源
 
 </details>
 
 
-
-## 引用RT-DETR
-如果需要在你的研究中使用RT-DETR，请通过以下方式引用我们的论文：
+## Citing RT-DETR
+If you use `RT-DETR` in your work, please use the following BibTeX entries:
 ```
 @misc{lv2023detrs,
       title={DETRs Beat YOLOs on Real-time Object Detection},
