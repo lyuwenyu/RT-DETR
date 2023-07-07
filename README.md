@@ -15,6 +15,9 @@ English | [简体中文](README_cn.md)
     <a href="https://arxiv.org/abs/2304.08069">
         <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2304.08069-pink">
     </a>
+    <a href="mailto: lyuwenyu@foxmail.com">
+        <img alt="emal" src="https://img.shields.io/badge/Contact_me-Email-yellow">
+    </a>
 </p>
 
 ---
