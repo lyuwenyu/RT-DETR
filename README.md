@@ -17,15 +17,19 @@ English | [简体中文](README_cn.md)
     </a>
 </p>
 
+---
 
+![ppdetr_overview](https://github.com/lyuwenyu/RT-DETR/assets/17582080/737f0d94-e028-4793-967e-201bdde57a5a)
 
 This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)".
+
 
 ## Updates!!!
 - Release **RT-DETR-R50, RT-DETR-R101**
 - Release **RT-DETR-R50-m（example for scaled)**
 - Release **RT-DETR-R34, RT-DETR-R18**
 - Release **RT-DETR-L, RT-DETR-X**
+
 
 ## Implementations
 - [rtdetr-paddle](./rtdetr_paddle)
