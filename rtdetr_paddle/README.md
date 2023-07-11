@@ -209,17 +209,3 @@ paddle.flops(model, None, blob, custom_ops=None, print_detail=False)
 
 
 </details>
-
-
-## Citing RT-DETR
-If you use `RT-DETR` in your work, please use the following BibTeX entries:
-```
-@misc{lv2023detrs,
-      title={DETRs Beat YOLOs on Real-time Object Detection},
-      author={Wenyu Lv and Shangliang Xu and Yian Zhao and Guanzhong Wang and Jinman Wei and Cheng Cui and Yuning Du and Qingqing Dang and Yi Liu},
-      year={2023},
-      eprint={2304.08069},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-```

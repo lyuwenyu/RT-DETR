@@ -3,20 +3,26 @@ English | [简体中文](README_cn.md)
 
 <h2 align="center">RT-DETR: DETRs Beat YOLOs on Real-time Object Detection</h2>
 <p align="center">
-    <a href="https://github.com/lyuwenyu/RT-DETR/blob/main/LICENSE">
+    <!-- <a href="https://github.com/lyuwenyu/RT-DETR/blob/main/LICENSE">
         <img alt="license" src="https://img.shields.io/badge/LICENSE-Apache%202.0-blue">
+    </a> -->
+    <a href="https://github.com/lyuwenyu/RT-DETR/blob/main/LICENSE">
+        <img alt="license" src="https://img.shields.io/github/license/lyuwenyu/RT-DETR">
     </a>
     <a href="https://github.com/lyuwenyu/RT-DETR/pulls">
-        <img alt="prs" src="https://img.shields.io/badge/PRs-Welcome-green">
+        <img alt="prs" src="https://img.shields.io/github/issues-pr/lyuwenyu/RT-DETR">
     </a>
     <a href="https://github.com/lyuwenyu/RT-DETR/issues">
-        <img alt="issues" src="https://img.shields.io/badge/Issues-2%20open-red">
+        <img alt="issues" src="https://img.shields.io/github/issues/lyuwenyu/RT-DETR?color=pink">
+    </a>
+    <a href="https://github.com/lyuwenyu/RT-DETR">
+        <img alt="issues" src="https://img.shields.io/github/stars/lyuwenyu/RT-DETR">
     </a>
     <a href="https://arxiv.org/abs/2304.08069">
-        <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2304.08069-pink">
+        <img alt="arXiv" src="https://img.shields.io/badge/arXiv-2304.08069-red">
     </a>
     <a href="mailto: lyuwenyu@foxmail.com">
-        <img alt="emal" src="https://img.shields.io/badge/Contact_me-Email-yellow">
+        <img alt="emal" src="https://img.shields.io/badge/contact_me-email-yellow">
     </a>
 </p>
 
@@ -26,6 +32,7 @@ English | [简体中文](README_cn.md)
 
 This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)".
 
+<!-- [Wenyu Lv](), [Yian Zhao](), [Shangliang Xu](). -->
 
 ## Updates!!!
 - Release **RT-DETR-R50, RT-DETR-R101**
