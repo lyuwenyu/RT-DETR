@@ -8,7 +8,7 @@
 ## 2. 安装
 请在当前路径下进行编译安装
 ```
-cd PaddleDetection/ppdet/modeling/transformers/ext_op/
+cd rtdetr_paddle/ppdet/modeling/transformers/ext_op/
 python setup_ms_deformable_attn_op.py install
 ```
 
