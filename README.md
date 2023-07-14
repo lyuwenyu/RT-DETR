@@ -35,6 +35,8 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 <!-- [Wenyu Lv](), [Yian Zhao](), [Shangliang Xu](). -->
 
 ## Updates!!!
+- \[2023.07.13\] Upload [rtdetr training logs](https://github.com/lyuwenyu/RT-DETR/issues/8).
+---
 - Release **RT-DETR-R50, RT-DETR-R101**
 - Release **RT-DETR-R50-m（example for scaled)**
 - Release **RT-DETR-R34, RT-DETR-R18**
