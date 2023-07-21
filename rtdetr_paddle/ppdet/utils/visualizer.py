@@ -18,6 +18,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+import PIL
 from PIL import Image, ImageDraw
 import cv2
 import math
@@ -126,9 +127,13 @@ def draw_bbox(image, im_id, catid2name, bboxes, threshold):
         # draw label
         text = "{} {:.2f}".format(catid2name[catid], score)
         # tw, th = draw.textsize(text)
-        tbox = draw.textbbox((0, 0), text)
-        tw, th = tbox[2] - tbox[0], tbox[3] - tbox[1]
         
+        if int(PIL.__version__.split('.')[0]) < 10:
+            tw, th = draw.textsize(text)
+        else:
+            left, top, right, bottom = draw.textbbox((0, 0), text)
+            tw, th = right - left, bottom - top
+
         draw.rectangle(
             [(xmin + 1, ymin - th), (xmin + tw + 1, ymin)], fill=color)
         draw.text((xmin + 1, ymin - th), text, fill=(255, 255, 255))
