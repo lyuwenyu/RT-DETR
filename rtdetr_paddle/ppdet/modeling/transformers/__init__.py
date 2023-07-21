@@ -16,4 +16,5 @@ from .utils import *
 from .matchers import *
 from .position_encoding import *
 from .rtdetr_transformer import *
+from .dino_transformer import *
 from .hybrid_encoder import *
