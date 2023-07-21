@@ -30,7 +30,6 @@ from paddle.regularizer import L2Decay
 from ppdet.core.workspace import register
 from ..layers import MultiHeadAttention
 from .position_encoding import PositionEmbedding
-from ..heads.detr_head import MLP
 from .deformable_transformer import (MSDeformableAttention,
                                      DeformableTransformerEncoderLayer,
                                      DeformableTransformerEncoder)
@@ -38,7 +37,7 @@ from ..initializer import (linear_init_, constant_, xavier_uniform_, normal_,
                            bias_init_with_prob)
 from .utils import (_get_clones, get_valid_ratio,
                     get_contrastive_denoising_training_group,
-                    get_sine_pos_embed, inverse_sigmoid)
+                    get_sine_pos_embed, inverse_sigmoid, MLP)
 
 __all__ = ['DINOTransformer']
 
