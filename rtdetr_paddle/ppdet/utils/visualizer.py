@@ -127,12 +127,8 @@ def draw_bbox(image, im_id, catid2name, bboxes, threshold):
         # draw label
         text = "{} {:.2f}".format(catid2name[catid], score)
         # tw, th = draw.textsize(text)
-        
-        if int(PIL.__version__.split('.')[0]) < 10:
-            tw, th = draw.textsize(text)
-        else:
-            left, top, right, bottom = draw.textbbox((0, 0), text)
-            tw, th = right - left, bottom - top
+        left, top, right, bottom = draw.textbbox((0, 0), text)
+        tw, th = right - left, bottom - top
 
         draw.rectangle(
             [(xmin + 1, ymin - th), (xmin + tw + 1, ymin)], fill=color)

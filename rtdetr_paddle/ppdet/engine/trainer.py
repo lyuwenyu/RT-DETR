@@ -650,7 +650,8 @@ class Trainer(object):
         for step_id, data in enumerate(tqdm(loader)):
             self.status['step_id'] = step_id
             # forward
-            outs = self.model(data)
+            with paddle.no_grad():
+                outs = self.model(data)
 
             outs['bbox'] = outs['bbox'].numpy()  # only in test mode
             shift_amount = data['st_pix']
@@ -798,10 +799,12 @@ class Trainer(object):
         for step_id, data in enumerate(tqdm(loader)):
             self.status['step_id'] = step_id
             # forward
-            if hasattr(self.model, 'modelTeacher'):
-                outs = self.model.modelTeacher(data)
-            else:
-                outs = self.model(data)
+            with paddle.no_grad():
+                if hasattr(self.model, 'modelTeacher'):
+                    outs = self.model.modelTeacher(data)
+                else:
+                    outs = self.model(data)
+
             for _m in metrics:
                 _m.update(data, outs)
 

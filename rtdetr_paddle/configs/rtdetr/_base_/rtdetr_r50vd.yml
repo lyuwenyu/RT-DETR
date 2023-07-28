@@ -7,7 +7,7 @@ ema_decay_type: "exponential"
 ema_filter_no_grad: True
 hidden_dim: 256
 use_focal_loss: True
-eval_size: [640, 640]
+eval_size: [640, 640] # h, w
 
 
 DETR:

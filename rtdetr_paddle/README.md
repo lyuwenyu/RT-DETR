@@ -108,6 +108,11 @@ path/to/custom/data/
 
 3. Modify model config [`pretrain_weights`](configs/rtdetr/_base_/rtdetr_r50vd.yml) to coco pretrained parameters url in model zoo.
 
+```bash
+# or modified in command line
+
+fleetrun --gpus=0,1,2,3 tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml -o pretrain_weights=https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_6x_coco.pdparams --eval
+```
 </details>
 
 
@@ -171,10 +176,11 @@ trtexec --onnx=./rtdetr_r50vd_6x_coco.onnx \
 <details>
 <summary>1. Parameters and FLOPs </summary>
 
-1. Find and modify [paddle flops source code](https://github.com/PaddlePaddle/Paddle/blob/develop/python/paddle/hapi/dynamic_flops.py#L28)
+1. Find and modify paddle [`dynamic_flops.py` ](https://github.com/PaddlePaddle/Paddle/blob/develop/python/paddle/hapi/dynamic_flops.py#L28) source code in your local machine
 
 ```python
-# anaconda3/lib/python3.8/site-packages/paddle/hapi/dynamic_flops.py
+# eg. /path/to/anaconda3/lib/python3.8/site-packages/paddle/hapi/dynamic_flops.py
+
 def flops(net, input_size, inputs=None, custom_ops=None, print_detail=False):
     if isinstance(net, nn.Layer):
         # If net is a dy2stat model, net.forward is StaticFunction instance,
