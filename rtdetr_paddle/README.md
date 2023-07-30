@@ -1,22 +1,31 @@
 English | [简体中文](README_cn.md)
 
-## Model Zoo
+## Model Zoo on COCO
 
-| Model | Epoch | backbone  | input shape | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) |  T4 TensorRT FP16(FPS) | Pretrained Model | config | log
+| Model | Epoch | Backbone  | Input shape | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) |  T4 TensorRT FP16(FPS) | Weight | Config | Log
 |:--------------:|:-----:|:----------:| :-------:|:--------------------------:|:---------------------------:|:---------:|:--------:| :---------------------: |:------------------------------------------------------------------------------------:|:-------------------------------------------:|:---|
 | RT-DETR-R18 | 6x |  ResNet-18 | 640 | 46.5 | 63.8 | 20 | 60 | 217 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r18vd_dec3_6x_coco.pdparams) | [config](./configs/rtdetr/rtdetr_r18vd_6x_coco.yml) | [rtdetr_r18vd_dec3_6x_coco_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12038864/rtdetr_r18vd_dec3_6x_coco_log.txt)
 | RT-DETR-R34 | 6x |  ResNet-34 | 640 | 48.9 | 66.8 | 31 | 92 | 161 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r34vd_dec4_6x_coco.pdparams) | [config](./configs/rtdetr/rtdetr_r34vd_6x_coco.yml) | [rtdetr_r34vd_dec4_6x_coco_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12038861/rtdetr_r34vd_dec4_6x_coco_log.txt)
-| RT-DETR-R50-m | 6x |  ResNet-50 | 640 | 51.3 | 69.6 | 36 | 100 | 145 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_m_6x_coco.pdparams) | [config](./configs/rtdetr/rtdetr_r50vd_m_6x_coco.yml) | none
+| RT-DETR-R50-m | 6x |  ResNet-50 | 640 | 51.3 | 69.6 | 36 | 100 | 145 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_m_6x_coco.pdparams) | [config](./configs/rtdetr/rtdetr_r50vd_m_6x_coco.yml) | -
 | RT-DETR-R50 | 6x |  ResNet-50 | 640 | 53.1 | 71.3 | 42 | 136 | 108 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_6x_coco.pdparams) | [config](./configs/rtdetr/rtdetr_r50vd_6x_coco.yml) | [rtdetr_r50vd_6x_coco_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12038669/rtdetr_r50vd_6x_coco_log.txt)
 | RT-DETR-R101 | 6x |  ResNet-101 | 640 | 54.3 | 72.7 | 76 | 259 | 74 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r101vd_6x_coco.pdparams) | [config](./configs/rtdetr/rtdetr_r101vd_6x_coco.yml) | [rtdetr_r101vd_6x_coco_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12038707/rtdetr_r101vd_6x_coco_log.txt)
 | RT-DETR-L | 6x |  HGNetv2 | 640 | 53.0 | 71.6 | 32 | 110 | 114 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_hgnetv2_l_6x_coco.pdparams) | [config](./configs/rtdetr/rtdetr_hgnetv2_l_6x_coco.yml) | [rtdetr_hgnetv2_l_6x_coco_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12038753/rtdetr_hgnetv2_l_6x_coco_log.txt)
 | RT-DETR-X | 6x |  HGNetv2 | 640 | 54.8 | 73.1 | 67 | 234 | 74 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_hgnetv2_x_6x_coco.pdparams) | [config](./configs/rtdetr/rtdetr_hgnetv2_x_6x_coco.yml) | [rtdetr_hgnetv2_x_6x_coco_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12038795/rtdetr_hgnetv2_x_6x_coco_log.txt)
 
-
-
 **Notes:**
 - RT-DETR uses 4 GPUs for training.
 - RT-DETR was trained on COCO train2017 and evaluated on val2017.
+
+
+## Model Zoo on Objects365
+| Model | Epoch | Dataset | Input shape | $AP^{val}$ | $AP^{val}_{50}$ | Weight | Log
+|:---:|:---:|:---:| :---:|:---:|:---:|:---:|:---:|
+RT-DETR-R50 | 1x | Objects365 | 640 | 35.1 | 46.2 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_1x_objects365.pdparams) |[rtdetr_r50vd_1x_objects365_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12193246/rtdetr_r50vd_1x_objects365_log.txt)
+RT-DETR-R50 | 2x | COCO + Objects365 | 640 | 55.3 | 73.4 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_2x_coco_objects365.pdparams) | [rtdetr_r50vd_2x_coco_objects365_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12208338/rtdetr_r50vd_2x_coco_objects365_log.txt)
+**Notes:**
+- `COCO + Objects365` in the table means training model on COCO, using pretrained weights trained on Objects365.
+
+
 
 ## Quick start
 
