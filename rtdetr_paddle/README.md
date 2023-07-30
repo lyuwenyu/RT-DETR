@@ -22,6 +22,7 @@ English | [简体中文](README_cn.md)
 |:---:|:---:|:---:| :---:|:---:|:---:|:---:|:---:|
 RT-DETR-R50 | 1x | Objects365 | 640 | 35.1 | 46.2 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_1x_objects365.pdparams) |[rtdetr_r50vd_1x_objects365_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12193246/rtdetr_r50vd_1x_objects365_log.txt)
 RT-DETR-R50 | 2x | COCO + Objects365 | 640 | 55.3 | 73.4 | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_2x_coco_objects365.pdparams) | [rtdetr_r50vd_2x_coco_objects365_log.txt](https://github.com/lyuwenyu/RT-DETR/files/12208338/rtdetr_r50vd_2x_coco_objects365_log.txt)
+
 **Notes:**
 - `COCO + Objects365` in the table means training model on COCO, using pretrained weights trained on Objects365.
 
