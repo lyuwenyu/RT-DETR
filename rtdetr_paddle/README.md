@@ -133,7 +133,6 @@ fleetrun --gpus=0,1,2,3 tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.ym
 <summary>1. Export model </summary>
 
 ```shell
-cd PaddleDetection
 python tools/export_model.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml \
               -o weights=https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_6x_coco.pdparams trt=True \
               --output_dir=output_inference
