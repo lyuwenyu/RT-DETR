@@ -48,6 +48,22 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 - [rtdetr-pytorch](./rtdetr_pytorch)
 
 
+| Model | Epoch | Input shape | Dataset | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) | T4 TensorRT FP16(FPS)
+|:---:|:---:|:---:| :---:|:---:|:---:|:---:|:---:|:---:|
+| RT-DETR-R18 | 6x | 640 | COCO | 46.5 | 63.8 | 20 | 60 | 217 |
+| RT-DETR-R34 | 6x | 640 | COCO | 48.9 | 66.8 | 31 | 92 | 161 |
+| RT-DETR-R50-m | 6x | 640 | COCO | 51.3 | 69.6 | 36 | 100 | 145 |
+| RT-DETR-R50 | 6x |  640 | COCO | 53.1 | 71.3 | 42 | 136 | 108 |
+| RT-DETR-R101 | 6x | 640 | COCO | 54.3 | 72.7 | 76 | 259 | 74 |
+| RT-DETR-HGNetv2-L | 6x | 640 | COCO | 53.0 | 71.6 | 32 | 110 | 114 |
+| RT-DETR-HGNetv2-X | 6x | 640 | COCO | 54.8 | 73.1 | 67 | 234 | 74 |
+| RT-DETR-R50 | 2x | 640 | COCO + Objects365 | **55.3** | **73.4** | 42 | 136 | **108** |
+| RT-DETR-R101 | 2x | 640 | COCO + Objects365 | **56.2** | **74.6** | 76 | 259 | **74** |
+
+**Notes:**
+- `COCO + Objects365` in the table means finetuned model on COCO using pretrained weights trained on Objects365.
+
+
 ## Introduction
 We propose a **R**eal-**T**ime **DE**tection **TR**ansformer (RT-DETR), the first real-time end-to-end object detector to our best knowledge. Our RT-DETR-L achieves 53.0% AP on COCO val2017 and 114 FPS on T4 GPU, while RT-DETR-X achieves 54.8% AP and 74 FPS, outperforming all YOLO detectors of the same scale in both speed and accuracy. Furthermore, our RT-DETR-R50 achieves 53.1% AP and 108 FPS, outperforming DINO-Deformable-DETR-R50 by 2.2% AP in accuracy and by about 21 times in FPS. 
 <div align="center">
