@@ -1,9 +1,10 @@
 
-## TODO-LIST
+## TODO
 - [x] Training
 - [x] Evaluation
-- [ ] Deploymenm
-'
+- [ ] Deployment
+
+
 ## Quick start
 
 <details open>
@@ -68,5 +69,3 @@ torchrun --nproc_per_node=4 tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coc
 Coming soon...
 
 </details>
-
-
