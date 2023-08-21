@@ -1,0 +1,17 @@
+sync_bn: True
+find_unused_parameters: False
+
+
+use_amp: False
+
+scaler:
+  type: GradScaler
+  enabled: True
+
+
+use_ema: False
+ema:
+  type: ModelEMA
+  decay: 0.9999
+  warmups: 2000
+

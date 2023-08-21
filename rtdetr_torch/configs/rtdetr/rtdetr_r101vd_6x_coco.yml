@@ -1,0 +1,28 @@
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetr_r50vd.yml',
+]
+
+PResNet:
+  depth: 101
+
+
+HybridEncoder:
+  # intra
+  hidden_dim: 384
+  dim_feedforward: 2048
+
+
+RTDETRTransformer:
+  feat_channels: [384, 384, 384]
+
+
+optimizer:
+  type: AdamW
+  params: 
+    - 
+      params: 'backbone'
+      lr: 0.000001
