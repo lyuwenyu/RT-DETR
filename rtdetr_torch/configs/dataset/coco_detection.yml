@@ -1,8 +1,5 @@
 task: detection
 
-# num_classes: 91
-# remap_mscoco_category: False
-
 num_classes: 80
 remap_mscoco_category: True
 

@@ -1,7 +1,5 @@
 
 
-# Q&A
-
 Train/test script examples
 - `CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc_per_node=4 --master-port=8989 tools/train.py -c path/to/config &> train.log 2>&1 &`
 - `-r path/to/checkpoint`
