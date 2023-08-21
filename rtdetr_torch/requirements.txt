@@ -1,0 +1,7 @@
+torch>=2.0.1
+torchvision>=0.15.2
+onnx>=1.14.0
+onnxruntime>= 1.15.1
+pycocotools
+PyYAML
+scipy
