@@ -36,8 +36,9 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 
 ## Updates!!!
 ---
-- \[2023.08.15\] Release [rtdetr-r101 pretrained models on objects365](./rtdetr_paddle/README.md). *56.2 mAP* and *74 FPS*.
-- \[2023.07.30\] Release [rtdetr-r50 pretrained models on objects365](./rtdetr_paddle/README.md). *55.3 mAP* and *108 FPS*.
+- \[2023.08.22\] Upload *rtdetr_pytorch* source code. Please enjoy it 
+- \[2023.08.15\] Release [rtdetr-r101 pretrained models on objects365](./rtdetr_paddle/README.md). *56.2 mAP* and *74 FPS*
+- \[2023.07.30\] Release [rtdetr-r50 pretrained models on objects365](./rtdetr_paddle/README.md). *55.3 mAP* and *108 FPS*
 - \[2023.07.28\] Fix some bugs, and add some comments. [1](https://github.com/lyuwenyu/RT-DETR/pull/14), [2](https://github.com/lyuwenyu/RT-DETR/commit/3b5cbcf8ae3b907e6b8bb65498a6be7c6736eabc)
 - \[2023.07.13\] Upload [training logs on coco](https://github.com/lyuwenyu/RT-DETR/issues/8)
 - \[2023.05.17\] Release RT-DETR-R18, RT-DETR-R34, RT-DETR-R50-m（example for scaled)

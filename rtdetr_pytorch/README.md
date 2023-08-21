@@ -3,7 +3,7 @@
 - [x] Training
 - [x] Evaluation
 - [x] Export onnx
-- [ ] Upload source code
+- [x] Upload source code
 
 
 ## Quick start
