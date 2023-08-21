@@ -4,6 +4,7 @@
 - [x] Evaluation
 - [x] Export onnx
 - [x] Upload source code
+- [ ] Upload pretrained checkpoints
 
 
 ## Quick start
