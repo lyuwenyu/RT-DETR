@@ -4,7 +4,6 @@
 - [x] Evaluation
 - [x] Export onnx
 - [ ] Upload source code
-- [ ] Upload pretrained model
 
 
 ## Quick start
@@ -40,7 +39,7 @@ path/to/coco/
 - Training on a Single GPU:
 
 ```shell
-# training on single-GPU
+# training on single-gpu
 export CUDA_VISIBLE_DEVICES=0
 python tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml
 ```
@@ -48,7 +47,7 @@ python tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml
 - Training on Multiple GPUs:
 
 ```shell
-# training on multi-GPU
+# train on multi-gpu
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 torchrun --nproc_per_node=4 tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml
 ```
@@ -56,7 +55,7 @@ torchrun --nproc_per_node=4 tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coc
 - Evaluation on Multiple GPUs:
 
 ```shell
-# training on multi-GPU
+# val on multi-gpu
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 torchrun --nproc_per_node=4 tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml -r path/to/checkpoint --test-only
 ```
