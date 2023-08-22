@@ -4,7 +4,6 @@
 - [x] Evaluation
 - [x] Export onnx
 - [x] Upload source code
-- [ ] Upload pretrained checkpoints
 
 
 ## Quick start
@@ -71,4 +70,14 @@ torchrun --nproc_per_node=4 tools/train.py -c configs/rtdetr/rtdetr_r50vd_6x_coc
 ```shell
 python tools/export_onnx.py -c configs/rtdetr/configs/rtdetr/rtdetr_r18vd_6x_coco.yml -r path/to/checkpoint --check
 ```
+</details>
+
+
+
+
+<details>
+<summary>Finetune</summary>
+
+Set `remap_mscoco_category: False`. This var only works for ms-coco dataset.
+
 </details>

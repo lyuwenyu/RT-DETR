@@ -30,7 +30,7 @@ class DetSolver(BaseSolver):
         best_stat = {'epoch': -1, }
 
         start_time = time.time()
-        for epoch in range(args.last_epoch + 1, args.epoches):
+        for epoch in range(self.last_epoch + 1, args.epoches):
             if dist.is_dist_available_and_initialized():
                 self.train_dataloader.sampler.set_epoch(epoch)
             
