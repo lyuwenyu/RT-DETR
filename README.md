@@ -58,6 +58,7 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 | RT-DETR-R101 | 6x | 640 | COCO | 54.3 | 72.7 | 76 | 259 | 74 |
 | RT-DETR-HGNetv2-L | 6x | 640 | COCO | 53.0 | 71.6 | 32 | 110 | 114 |
 | RT-DETR-HGNetv2-X | 6x | 640 | COCO | 54.8 | 73.1 | 67 | 234 | 74 |
+| RT-DETR-R18 | 5x | 640 | COCO + Objects365 | **49.2** | **66.6** | 20 | 60 | **217** |
 | RT-DETR-R50 | 2x | 640 | COCO + Objects365 | **55.3** | **73.4** | 42 | 136 | **108** |
 | RT-DETR-R101 | 2x | 640 | COCO + Objects365 | **56.2** | **74.6** | 76 | 259 | **74** |
 

@@ -20,6 +20,8 @@ English | [简体中文](README_cn.md)
 ## Model Zoo on Objects365
 | Model | Epoch | Dataset | Input shape | $AP^{val}$ | $AP^{val}_{50}$ | T4 TensorRT FP16(FPS) | Weight | Log
 |:---:|:---:|:---:| :---:|:---:|:---:|:---:|:---:|:---:|
+RT-DETR-R18 | 1x | Objects365 | 640 | 22.9 | 31.2 | - | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r18vd_1x_objects365.pdparams) | [log.txt](https://github.com/lyuwenyu/RT-DETR/files/12394706/rtdetr_r18vd_1x_objects365_log.txt)
+RT-DETR-R18 | 5x | COCO + Objects365 | 640 | **49.2** | **66.6** | **217** | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r18vd_5x_coco_objects365.pdparams) | [log.txt](https://github.com/lyuwenyu/RT-DETR/files/12416808/rtdetr_r18vd_5x_coco_objects365_log.txt)
 RT-DETR-R50 | 1x | Objects365 | 640 | 35.1 | 46.2 | - | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_1x_objects365.pdparams) |[log.txt](https://github.com/lyuwenyu/RT-DETR/files/12193246/rtdetr_r50vd_1x_objects365_log.txt)
 RT-DETR-R50 | 2x | COCO + Objects365 | 640 | **55.3** | **73.4** | **108** | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_2x_coco_objects365.pdparams) | [log.txt](https://github.com/lyuwenyu/RT-DETR/files/12208338/rtdetr_r50vd_2x_coco_objects365_log.txt)
 RT-DETR-R101 | 1x | Objects365 | 640 | 36.8 | 48.3 | - | [download](https://bj.bcebos.com/v1/paddledet/models/rtdetr_r101vd_1x_objects365.pdparams) | [log.txt](https://github.com/lyuwenyu/RT-DETR/files/12340691/rtdetr_r101vd_1x_objects365_log.txt)
