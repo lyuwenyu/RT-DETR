@@ -12,7 +12,6 @@ train_dataloader:
     transforms:
       type: Compose
       ops: ~
-  # remap_mscoco_category: True
   shuffle: True
   batch_size: 8
   num_workers: 4
