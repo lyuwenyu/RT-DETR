@@ -1,9 +1,9 @@
-
 ## TODO
 - [x] Training
 - [x] Evaluation
 - [x] Export onnx
 - [x] Upload source code
+- [ ] Align with the [Paddle version](../rtdetr_paddle/)
 
 
 ## Quick start
