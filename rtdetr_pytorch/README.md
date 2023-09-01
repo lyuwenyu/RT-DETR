@@ -4,6 +4,7 @@
 - [x] Export onnx
 - [x] Upload source code
 - [ ] Align with the [Paddle version](../rtdetr_paddle/)
+- [ ] Upload weight convert from paddle
 
 
 ## Quick start
