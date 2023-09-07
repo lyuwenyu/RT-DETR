@@ -464,7 +464,7 @@ class ResNet(nn.Layer):
             return_idx (list): index of the stages whose feature maps are returned
             dcn_v2_stages (list): index of stages who select deformable conv v2
             num_stages (int): total num of stages
-            std_senet (bool): whether use senet, default True
+            std_senet (bool): whether use senet, default False.
         """
         super(ResNet, self).__init__()
         self._model_type = 'ResNet' if groups == 1 else 'ResNeXt'
