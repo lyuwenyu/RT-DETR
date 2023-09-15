@@ -80,7 +80,6 @@ python tools/infer.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml \
 <summary>1. 导出模型 </summary>
 
 ```shell
-cd PaddleDetection
 python tools/export_model.py -c configs/rtdetr/rtdetr_r50vd_6x_coco.yml \
               -o weights=https://bj.bcebos.com/v1/paddledet/models/rtdetr_r50vd_6x_coco.pdparams trt=True \
               --output_dir=output_inference
