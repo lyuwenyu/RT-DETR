@@ -49,7 +49,6 @@ RTDETRTransformer:
   hidden_dim: 256
   num_levels: 3
 
-  num_classes: 80
   num_queries: 300
 
   num_decoder_layers: 6
@@ -63,13 +62,9 @@ use_focal_loss: True
 
 RTDETRPostProcessor:
   num_top_queries: 300
-  # num_classes: 80
-  # use_focal_loss: True
-  # remap_mscoco_category: True
 
 
 SetCriterion:
-  # num_classes: 80
   weight_dict: {loss_vfl: 1, loss_bbox: 5, loss_giou: 2,}
   losses: ['vfl', 'boxes', ]
   alpha: 0.75
