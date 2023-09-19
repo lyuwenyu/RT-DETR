@@ -507,11 +507,12 @@ class RTDETRTransformer(nn.Module):
         else:
             target = output_memory.gather(dim=1, \
                 index=topk_ind.unsqueeze(-1).repeat(1, 1, output_memory.shape[-1]))
+            target = target.detach()
 
         if denoising_class is not None:
             target = torch.concat([denoising_class, target], 1)
 
-        return target.detach(), reference_points_unact.detach(), enc_topk_bboxes, enc_topk_logits
+        return target, reference_points_unact.detach(), enc_topk_bboxes, enc_topk_logits
 
 
     def forward(self, feats, targets=None):

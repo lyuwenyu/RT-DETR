@@ -3,13 +3,13 @@
 - [x] Evaluation
 - [x] Export onnx
 - [x] Upload source code
-- [ ] Align with the [Paddle version](../rtdetr_paddle/)
-- [ ] Upload weight convert from paddle
+- [x] Upload weight convert from paddle, see [links](https://github.com/lyuwenyu/RT-DETR/issues/42)
+- [ ] Align training with the [paddle version](../rtdetr_paddle/)
 
 
 ## Quick start
 
-<details open>
+<details>
 <summary>Install</summary>
 
 ```bash
@@ -76,9 +76,9 @@ python tools/export_onnx.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml -r path/t
 
 
 
-<details>
-<summary>Finetune</summary>
+<details open>
+<summary>Train custom data</summary>
 
-Set `remap_mscoco_category: False`. This var only works for ms-coco dataset.
+set `remap_mscoco_category: False`. This variable only works for ms-coco dataset.
 
 </details>
