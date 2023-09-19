@@ -548,7 +548,7 @@ class RTDETRTransformer(nn.Module):
             self.query_pos_head,
             attn_mask=attn_mask)
 
-        if self.training and self.num_denoising > 0:
+        if self.training and dn_meta is not None:
             dn_out_bboxes, out_bboxes = torch.split(out_bboxes, dn_meta['dn_num_split'], dim=2)
             dn_out_logits, out_logits = torch.split(out_logits, dn_meta['dn_num_split'], dim=2)
 
@@ -558,7 +558,7 @@ class RTDETRTransformer(nn.Module):
             out['aux_outputs'] = self._set_aux_loss(out_logits[:-1], out_bboxes[:-1])
             out['aux_outputs'].extend(self._set_aux_loss([enc_topk_logits], [enc_topk_bboxes]))
             
-            if self.training and self.num_denoising > 0:
+            if self.training and dn_meta is not None:
                 out['dn_aux_outputs'] = self._set_aux_loss(dn_out_logits, dn_out_bboxes)
                 out['dn_meta'] = dn_meta
 
