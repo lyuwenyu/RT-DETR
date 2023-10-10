@@ -4,7 +4,7 @@
 - [x] Export onnx
 - [x] Upload source code
 - [x] Upload weight convert from paddle, see [links](https://github.com/lyuwenyu/RT-DETR/issues/42)
-- [ ] Align training with the [paddle version](../rtdetr_paddle/)
+- [x] Align training details with the [paddle version](../rtdetr_paddle/)
 
 
 ## Quick start
