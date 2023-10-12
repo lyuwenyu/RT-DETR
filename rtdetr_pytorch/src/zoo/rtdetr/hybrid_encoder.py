@@ -195,7 +195,7 @@ class HybridEncoder(nn.Module):
                  expansion=1.0,
                  depth_mult=1.0,
                  act='silu',
-                 eval_size=None):
+                 eval_spatial_size=None):
         super().__init__()
         self.in_channels = in_channels
         self.feat_strides = feat_strides
@@ -203,7 +203,7 @@ class HybridEncoder(nn.Module):
         self.use_encoder_idx = use_encoder_idx
         self.num_encoder_layers = num_encoder_layers
         self.pe_temperature = pe_temperature
-        self.eval_size = eval_size
+        self.eval_spatial_size = eval_spatial_size
 
         self.out_channels = [hidden_dim for _ in range(len(in_channels))]
         self.out_strides = feat_strides
@@ -253,11 +253,11 @@ class HybridEncoder(nn.Module):
         self._reset_parameters()
 
     def _reset_parameters(self):
-        if self.eval_size:
+        if self.eval_spatial_size:
             for idx in self.use_encoder_idx:
                 stride = self.feat_strides[idx]
                 pos_embed = self.build_2d_sincos_position_embedding(
-                    self.eval_size[1] // stride, self.eval_size[0] // stride,
+                    self.eval_spatial_size[1] // stride, self.eval_spatial_size[0] // stride,
                     self.hidden_dim, self.pe_temperature)
                 setattr(self, f'pos_embed{idx}', pos_embed)
                 # self.register_buffer(f'pos_embed{idx}', pos_embed)
@@ -290,7 +290,7 @@ class HybridEncoder(nn.Module):
                 h, w = proj_feats[enc_ind].shape[2:]
                 # flatten [B, C, H, W] to [B, HxW, C]
                 src_flatten = proj_feats[enc_ind].flatten(2).permute(0, 2, 1)
-                if self.training or self.eval_size is None:
+                if self.training or self.eval_spatial_size is None:
                     pos_embed = self.build_2d_sincos_position_embedding(
                         w, h, self.hidden_dim, self.pe_temperature).to(src_flatten.device)
                 else:
