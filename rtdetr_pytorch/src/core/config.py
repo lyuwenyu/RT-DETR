@@ -50,6 +50,7 @@ class BaseConfig(object):
 
         # runtime
         self.resume :str = None
+        self.tuning :str = None
 
         self.epoches :int = None
         self.last_epoch :int = -1

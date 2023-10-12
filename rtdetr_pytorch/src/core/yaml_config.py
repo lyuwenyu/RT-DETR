@@ -26,6 +26,7 @@ class YAMLConfig(BaseConfig):
         self.checkpoint_step = cfg.get('checkpoint_step', 1)
         self.epoches = cfg.get('epoches', -1)
         self.resume = cfg.get('resume', '')
+        self.tuning = cfg.get('tuning', '')
         self.sync_bn = cfg.get('sync_bn', False)
         self.output_dir = cfg.get('output_dir', None)
         

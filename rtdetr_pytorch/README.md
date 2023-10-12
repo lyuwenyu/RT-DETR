@@ -5,7 +5,7 @@
 - [x] Upload source code
 - [x] Upload weight convert from paddle, see [links](https://github.com/lyuwenyu/RT-DETR/issues/42)
 - [x] Align training details with the [paddle version](../rtdetr_paddle/)
-
+- [x] Tuning rtdetr based on [pretrained weights](https://github.com/lyuwenyu/RT-DETR/issues/42)
 
 ## Quick start
 
@@ -79,6 +79,7 @@ python tools/export_onnx.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml -r path/t
 <details open>
 <summary>Train custom data</summary>
 
-set `remap_mscoco_category: False`. This variable only works for ms-coco dataset.
+1. set `remap_mscoco_category: False`. This variable only works for ms-coco dataset.
 
+2. add `-t path/to/checkpoint` (optinal) to tuning rtdetr based on pretrained checkpoint. see [training script details](./tools/README.md).
 </details>

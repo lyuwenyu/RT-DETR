@@ -20,7 +20,7 @@ from torch.utils.data import DistributedSampler
 from torch.utils.data.dataloader import DataLoader
 
 
-def init_distributed(backend='nccl'):
+def init_distributed():
     '''
     distributed setup
     args:
@@ -32,7 +32,7 @@ def init_distributed(backend='nccl'):
         # RANK = int(os.getenv('RANK', -1))
         # WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
         
-        tdist.init_process_group(backend=backend, init_method='env://', )
+        tdist.init_process_group(init_method='env://', )
         torch.distributed.barrier()
 
         rank = get_rank()

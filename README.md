@@ -36,6 +36,7 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 
 ## Updates!!!
 ---
+- \[2023.10.12\] Add tuning code for pytorch version, now you can tuning rtdetr based on pretrained weights
 - \[2023.09.19\] Upload [*pytorch weights*](https://github.com/lyuwenyu/RT-DETR/issues/42) convert from paddle version
 - \[2023.08.24] Release rtdetr-18 pretrained models on objects365. *49.2 mAP* and *217 FPS*
 - \[2023.08.22\] Upload *[rtdetr_pytorch](./rtdetr_pytorch/)* source code. Please enjoy it ❤️

@@ -6,6 +6,7 @@ import torch.nn as nn
 
 from datetime import datetime
 from pathlib import Path 
+from typing import Dict
 
 from src.misc import dist
 from src.core import BaseConfig
@@ -27,6 +28,11 @@ class BaseSolver(object):
         self.model = dist.warp_model(cfg.model.to(device), cfg.find_unused_parameters, cfg.sync_bn)
         self.criterion = cfg.criterion.to(device)
         self.postprocessor = cfg.postprocessor
+
+        # NOTE (lvwenyu): should load_tuning_state before ema instance building
+        if self.cfg.tuning:
+            print(f'Tuning checkpoint from {self.cfg.tuning}')
+            self.load_tuning_state(self.cfg.tuning)
 
         self.scaler = cfg.scaler
         self.ema = cfg.ema.to(device) if cfg.ema is not None else None 
@@ -133,10 +139,44 @@ class BaseSolver(object):
         state = torch.load(path, map_location='cpu')
         self.load_state_dict(state)
 
+    def load_tuning_state(self, path,):
+        """only load model for tuning and skip missed/dismatched keys
+        """
+        if 'http' in path:
+            state = torch.hub.load_state_dict_from_url(path, map_location='cpu')
+        else:
+            state = torch.load(path, map_location='cpu')
+
+        module = dist.de_parallel(self.model)
+        
+        # TODO hard code
+        if 'ema' in state:
+            stat, infos = self._matched_state(module.state_dict(), state['ema']['module'])
+        else:
+            stat, infos = self._matched_state(module.state_dict(), state['model'])
+
+        module.load_state_dict(stat, strict=False)
+        print(f'Load model.state_dict, {infos}')
+
+    @staticmethod
+    def _matched_state(state: Dict[str, torch.Tensor], params: Dict[str, torch.Tensor]):
+        missed_list = []
+        unmatched_list = []
+        matched_state = {}
+        for k, v in state.items():
+            if k in params:
+                if v.shape == params[k].shape:
+                    matched_state[k] = params[k]
+                else:
+                    unmatched_list.append(k)
+            else:
+                missed_list.append(k)
+
+        return matched_state, {'missed': missed_list, 'unmatched': unmatched_list}
+
 
     def fit(self, ):
         raise NotImplementedError('')
-
 
     def val(self, ):
         raise NotImplementedError('')
