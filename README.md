@@ -48,8 +48,8 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 - \[2023.04.17\] Release RT-DETR-R50, RT-DETR-R101, RT-DETR-L, RT-DETR-X
 
 ## Implementations
-- [rtdetr-paddle](./rtdetr_paddle)
-- [rtdetr-pytorch](./rtdetr_pytorch)
+- rtdetr paddle: [code](./rtdetr_paddle), [weights](./rtdetr_paddle)
+- rtdetr pytorch: [code](./rtdetr_pytorch), [weights](https://github.com/lyuwenyu/RT-DETR/issues/42)
 
 
 | Model | Epoch | Input shape | Dataset | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) | T4 TensorRT FP16(FPS)
