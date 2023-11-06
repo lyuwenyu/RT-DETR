@@ -27,8 +27,13 @@ English | [简体中文](README_cn.md)
 </p>
 
 ---
+<details>
+<summary>Fig</summary>
 
 ![ppdetr_overview](https://github.com/lyuwenyu/RT-DETR/assets/17582080/737f0d94-e028-4793-967e-201bdde57a5a)
+</details>
+
+
 
 This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)".
 
@@ -36,7 +41,7 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 
 ## Updates!!!
 ---
-- \[2023.11.05\] upgrade the logic of `remap_mscoco_category` to facilitate training of custom datasets, see detils in [Train custom data](./rtdetr_pytorch/) part.
+- \[2023.11.05\] upgrade the logic of `remap_mscoco_category` to facilitate training of custom datasets, see detils in [*Train custom data*](./rtdetr_pytorch/) part. [#81](https://github.com/lyuwenyu/RT-DETR/commit/95fc522fd7cf26c64ffd2ad0c622c392d29a9ebf)
 - \[2023.10.23\] Add [*discussion for deployments*](https://github.com/lyuwenyu/RT-DETR/issues/95), supported onnxruntime, TensorRT, openVINO
 - \[2023.10.12\] Add tuning code for pytorch version, now you can tuning rtdetr based on pretrained weights
 - \[2023.09.19\] Upload [*pytorch weights*](https://github.com/lyuwenyu/RT-DETR/issues/42) convert from paddle version
