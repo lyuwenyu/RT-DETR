@@ -37,10 +37,9 @@ English | [简体中文](README_cn.md)
 
 This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)".
 
-<!-- [Wenyu Lv](), [Yian Zhao](), [Shangliang Xu](). -->
 
 ## Updates!!!
----
+- \[2023.11.07\] Add pytorch *rtdetr_r34vd* for requests [#107](https://github.com/lyuwenyu/RT-DETR/issues/107), [#114](https://github.com/lyuwenyu/RT-DETR/issues/114)
 - \[2023.11.05\] upgrade the logic of `remap_mscoco_category` to facilitate training of custom datasets, see detils in [*Train custom data*](./rtdetr_pytorch/) part. [#81](https://github.com/lyuwenyu/RT-DETR/commit/95fc522fd7cf26c64ffd2ad0c622c392d29a9ebf)
 - \[2023.10.23\] Add [*discussion for deployments*](https://github.com/lyuwenyu/RT-DETR/issues/95), supported onnxruntime, TensorRT, openVINO
 - \[2023.10.12\] Add tuning code for pytorch version, now you can tuning rtdetr based on pretrained weights
@@ -56,7 +55,7 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 
 ## Implementations
 - rtdetr paddle: [code](./rtdetr_paddle), [weights](./rtdetr_paddle)
-- rtdetr pytorch: [code](./rtdetr_pytorch), [weights](https://github.com/lyuwenyu/RT-DETR/issues/42)
+- rtdetr pytorch: [code](./rtdetr_pytorch), [weights](./rtdetr_pytorch)
 
 
 | Model | Epoch | Input shape | Dataset | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) | T4 TensorRT FP16(FPS)

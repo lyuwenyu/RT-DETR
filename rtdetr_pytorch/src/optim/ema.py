@@ -83,8 +83,8 @@ class ModelEMA(object):
     
     def load_state_dict(self, state):
         self.module.load_state_dict(state['module']) 
-        self.updates = state['updates']
-        self.warmups = state['warmups']
+        if 'updates' in state:
+            self.updates = state['updates']
 
     def forwad(self, ):
         raise RuntimeError('ema...')
