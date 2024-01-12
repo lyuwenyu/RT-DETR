@@ -8,7 +8,7 @@ train_dataloader:
   dataset:
     type: StaigeDataset
     annotations_file: ./dataset/upright_6k_train/data.csv
-    img_dir: ./dataset/upright_6k_test_train
+    img_dir: ./dataset/upright_6k_train
     transforms:
       type: Compose
       ops: ~
