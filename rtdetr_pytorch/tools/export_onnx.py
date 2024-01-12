@@ -50,8 +50,8 @@ def main(args, ):
         'orig_target_sizes': {0: 'N'}
     }
 
-    data = torch.rand(1, 3, 640, 640)
-    size = torch.tensor([[640, 640]])
+    data = torch.rand(1, 3, 2048, 6144)
+    size = torch.tensor([[6144, 2048]])
 
     torch.onnx.export(
         model, 

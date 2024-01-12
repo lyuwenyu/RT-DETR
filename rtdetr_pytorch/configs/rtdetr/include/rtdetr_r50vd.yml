@@ -9,7 +9,7 @@ RTDETR:
   backbone: PResNet
   encoder: HybridEncoder
   decoder: RTDETRTransformer
-  multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
+  multi_scale: [512, 768, 1024, 1280, 1536]
 
 PResNet:
   depth: 50
@@ -18,7 +18,7 @@ PResNet:
   return_idx: [1, 2, 3]
   num_stages: 4
   freeze_norm: True
-  pretrained: True 
+  pretrained: True
 
 HybridEncoder:
   in_channels: [512, 1024, 2048]
@@ -33,14 +33,14 @@ HybridEncoder:
   dropout: 0.
   enc_act: 'gelu'
   pe_temperature: 10000
-  
+
   # cross
   expansion: 1.0
   depth_mult: 1
   act: 'silu'
 
   # eval
-  eval_spatial_size: [640, 640]
+  eval_spatial_size: [2048, 6144]
 
 
 RTDETRTransformer:
@@ -53,9 +53,9 @@ RTDETRTransformer:
 
   num_decoder_layers: 6
   num_denoising: 100
-  
+
   eval_idx: -1
-  eval_spatial_size: [640, 640]
+  eval_spatial_size: [2048, 6144]
 
 
 use_focal_loss: True
