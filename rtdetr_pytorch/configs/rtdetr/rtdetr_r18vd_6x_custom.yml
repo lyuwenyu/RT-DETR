@@ -1,81 +1,49 @@
-task: detection
 
-model: RTDETR
-criterion: SetCriterion
-postprocessor: RTDETRPostProcessor
+__include__: [
+  '../dataset/soccer_data.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetr_r50vd.yml',
+]
 
 
-RTDETR:
-  backbone: PResNet
-  encoder: HybridEncoder
-  decoder: RTDETRTransformer
-  multi_scale: [512, 768, 1024, 1280, 1536]
+output_dir: ./output/rtdetr_r18vd_6x_custom
 
 PResNet:
-  depth: 50
-  variant: d
-  freeze_at: 0
-  return_idx: [1, 2, 3]
-  num_stages: 4
-  freeze_norm: True
+  depth: 18
+  freeze_at: -1
+  freeze_norm: False
   pretrained: True
 
 HybridEncoder:
-  in_channels: [512, 1024, 2048]
-  feat_strides: [8, 16, 32]
-
-  # intra
+  in_channels: [128, 256, 512]
   hidden_dim: 256
-  use_encoder_idx: [2]
-  num_encoder_layers: 1
-  nhead: 8
-  dim_feedforward: 1024
-  dropout: 0.
-  enc_act: 'gelu'
-  pe_temperature: 10000
-
-  # cross
-  expansion: 1.0
-  depth_mult: 1
-  act: 'silu'
-
-  # eval
-  eval_spatial_size: [2048, 6144]
+  expansion: 0.5
 
 
 RTDETRTransformer:
-  feat_channels: [256, 256, 256]
-  feat_strides: [8, 16, 32]
-  hidden_dim: 256
-  num_levels: 3
-
-  num_queries: 300
-
-  num_decoder_layers: 6
+  eval_idx: -1
+  num_decoder_layers: 3
   num_denoising: 100
 
-  eval_idx: -1
-  eval_spatial_size: [2048, 6144]
 
 
-use_focal_loss: True
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?=.*norm).*$'
+      lr: 0.00001
+      weight_decay: 0.
+    -
+      params: '^(?=.*backbone)(?!.*norm).*$'
+      lr: 0.00001
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bias)).*$'
+      weight_decay: 0.
 
-RTDETRPostProcessor:
-  num_top_queries: 300
-
-
-SetCriterion:
-  weight_dict: {loss_vfl: 1, loss_bbox: 5, loss_giou: 2,}
-  losses: ['vfl', 'boxes', ]
-  alpha: 0.75
-  gamma: 2.0
-
-  matcher:
-    type: HungarianMatcher
-    weight_dict: {cost_class: 2, cost_bbox: 5, cost_giou: 2}
-    # use_focal_loss: True
-    alpha: 0.25
-    gamma: 2.0
-
-
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
 
