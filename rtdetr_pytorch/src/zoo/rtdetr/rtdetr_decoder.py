@@ -324,7 +324,9 @@ class TransformerDecoder(nn.Module):
                 inter_ref_bbox.detach() if self.training else inter_ref_bbox
             )
 
-        return torch.stack(dec_out_bboxes), torch.stack(dec_out_logits)
+        # bbox predictions, classification logits, features
+
+        return torch.stack(dec_out_bboxes), torch.stack(dec_out_logits), output
 
 
 @register
@@ -664,7 +666,7 @@ class RTDETRTransformer(nn.Module):
         )
 
         # decoder
-        out_bboxes, out_logits = self.decoder(
+        out_bboxes, out_logits, out_features = self.decoder(
             target,
             init_ref_points_unact,
             memory,
@@ -684,7 +686,11 @@ class RTDETRTransformer(nn.Module):
                 out_logits, dn_meta["dn_num_split"], dim=2
             )
 
-        out = {"pred_logits": out_logits[-1], "pred_boxes": out_bboxes[-1]}
+        out = {
+            "pred_logits": out_logits[-1],
+            "pred_boxes": out_bboxes[-1],
+            "features": out_features[-1],
+        }
 
         if self.training and self.aux_loss:
             out["aux_outputs"] = self._set_aux_loss(out_logits[:-1], out_bboxes[:-1])
