@@ -689,7 +689,7 @@ class RTDETRTransformer(nn.Module):
         out = {
             "pred_logits": out_logits[-1],
             "pred_boxes": out_bboxes[-1],
-            "features": out_features[-1],
+            "features": out_features,
         }
 
         if self.training and self.aux_loss:

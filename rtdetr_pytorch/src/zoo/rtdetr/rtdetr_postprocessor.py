@@ -38,7 +38,12 @@ class RTDETRPostProcessor(nn.Module):
 
     # def forward(self, outputs, orig_target_sizes):
     def forward(self, outputs, orig_target_sizes):
-        logits, boxes = outputs["pred_logits"], outputs["pred_boxes"]
+        logits, boxes, features = (
+            outputs["pred_logits"],
+            outputs["pred_boxes"],
+            outputs["features"],
+        )
+
         # orig_target_sizes = torch.stack([t["orig_size"] for t in targets], dim=0)
 
         bbox_pred = torchvision.ops.box_convert(boxes, in_fmt="cxcywh", out_fmt="xyxy")
@@ -65,7 +70,7 @@ class RTDETRPostProcessor(nn.Module):
 
         # TODO for onnx export
         if self.deploy_mode:
-            return labels, boxes, scores
+            return labels, boxes, scores, features
 
         # TODO
         if self.remap_mscoco_category:
@@ -80,9 +85,9 @@ class RTDETRPostProcessor(nn.Module):
             )
 
         results = []
-        for lab, box, sco in zip(labels, boxes, scores):
-            result = dict(labels=lab, boxes=box, scores=sco)
-            results.append(result)
+        # features untested when self.deploy_mode==False
+        for lab, box, sco, feat in zip(labels, boxes, scores):  # , features):
+            result = dict(labels=lab, boxes=box, scores=sco)  # , features=feat)
 
         return results
 
