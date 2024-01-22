@@ -86,8 +86,9 @@ class RTDETRPostProcessor(nn.Module):
 
         results = []
         # features untested when self.deploy_mode==False
-        for lab, box, sco, feat in zip(labels, boxes, scores):  # , features):
-            result = dict(labels=lab, boxes=box, scores=sco)  # , features=feat)
+        for lab, box, sco, feat in zip(labels, boxes, scores, features):  # , features):
+            result = dict(labels=lab, boxes=box, scores=sco, features=feat)
+            results.append(result)
 
         return results
 
