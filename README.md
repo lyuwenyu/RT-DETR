@@ -39,6 +39,7 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 
 
 ## Updates!!!
+- \[2024.01.23\] Fix difference on data augmentation with paper in rtdetr_pytorch [#84](https://github.com/lyuwenyu/RT-DETR/commit/5dc64138e439247b4e707dd6cebfe19d8d77f5b1)
 - \[2023.11.07\] Add pytorch *rtdetr_r34vd* for requests [#107](https://github.com/lyuwenyu/RT-DETR/issues/107), [#114](https://github.com/lyuwenyu/RT-DETR/issues/114)
 - \[2023.11.05\] upgrade the logic of `remap_mscoco_category` to facilitate training of custom datasets, see detils in [*Train custom data*](./rtdetr_pytorch/) part. [#81](https://github.com/lyuwenyu/RT-DETR/commit/95fc522fd7cf26c64ffd2ad0c622c392d29a9ebf)
 - \[2023.10.23\] Add [*discussion for deployments*](https://github.com/lyuwenyu/RT-DETR/issues/95), supported onnxruntime, TensorRT, openVINO
