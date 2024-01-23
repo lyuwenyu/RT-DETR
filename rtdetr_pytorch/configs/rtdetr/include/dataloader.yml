@@ -6,7 +6,7 @@ train_dataloader:
     return_masks: False
     transforms:
       ops:
-        - {type: RandomPhotometricDistort, p: 0.8}
+        - {type: RandomPhotometricDistort, p: 0.5}
         - {type: RandomZoomOut, fill: 0}
         - {type: RandomIoUCrop, p: 0.8}
         - {type: SanitizeBoundingBox, min_size: 1}
