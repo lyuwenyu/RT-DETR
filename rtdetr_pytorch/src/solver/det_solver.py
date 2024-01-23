@@ -49,7 +49,10 @@ class DetSolver(BaseSolver):
                 print_freq=args.log_step,
                 ema=self.ema,
                 scaler=self.scaler,
+                loss_loggers=self.loss_loggers,
             )
+            for metric_logger in self.metric_loggers:
+                metric_logger(train_stats, epoch)
 
             self.lr_scheduler.step()
 
