@@ -14,7 +14,6 @@ class Model(nn.Module):
 
     def forward(self, images, orig_target_sizes):
         outputs = self.model(images)
-        print("POSTPROCESSING OUTPUT")
         return self.postprocessor(outputs, orig_target_sizes)
 
 
