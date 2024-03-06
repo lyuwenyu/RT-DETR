@@ -31,6 +31,7 @@ ConvertDtype = register(T.ConvertDtype)
 SanitizeBoundingBox = register(T.SanitizeBoundingBox)
 RandomCrop = register(T.RandomCrop)
 Normalize = register(T.Normalize)
+Rotate = register(T.RandomRotation)
 
 
 
