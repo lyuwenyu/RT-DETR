@@ -1,0 +1,60 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Uvicorn Train",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "supervisely_integration.train.main:app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--ws",
+                "websockets",
+            ],
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}:${PYTHONPATH}",
+                "LOG_LEVEL": "DEBUG",
+                "DEBUG_APP_DIR": "app_data"
+            }
+        },
+        {
+            "name": "Uvicorn Serve",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "supervisely_integration.serve.main:model.app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--ws",
+                "websockets",
+            ],
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}:${PYTHONPATH}",
+                "LOG_LEVEL": "DEBUG",
+                "DEBUG_APP_DIR": "app_data",
+                "DEBUG_WITH_SLY_NET": "1",
+            }
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}:${PYTHONPATH}",
+                "LOG_LEVEL": "DEBUG",
+            }
+        },
+    ]
+}
