@@ -30,13 +30,15 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "supervisely_integration.serve.main:model.app",
+                "serve:model.app",
                 "--host",
                 "0.0.0.0",
                 "--port",
                 "8000",
                 "--ws",
                 "websockets",
+                "--app-dir",
+                "rtdetr_pytorch"
             ],
             "justMyCode": false,
             "env": {

@@ -11,8 +11,10 @@ from checkpoints import checkpoints
 # Globals
 if sly.is_development():
     load_dotenv("local.env")
+    load_dotenv(os.path.expanduser("~/supervisely.env"))
 api = sly.Api()
 project_id = sly.env.project_id()
+project_name = api.project.get_info_by_id(project_id).name
 project_dir = "sly_dataset"
 custom_config_path = f"rtdetr_pytorch/configs/rtdetr/custom.yml"
 with open(f"rtdetr_pytorch/configs/rtdetr/placeholder.yml", 'r') as f:
@@ -74,11 +76,11 @@ def prepare_data():
 
     train_dataset : sly.Dataset = project.datasets.get(train_dataset_name)
     coco_anno = get_coco_annotations(train_dataset, meta, selected_classes)
-    sly.json.dump_json_file(coco_anno, f"{train_dataset.directory}/coco_anno.json")
+    sly.json.dump_json_file(coco_anno, f"{train_dataset.directory}/coco_anno.json", indent=None)
 
     val_dataset : sly.Dataset = project.datasets.get(val_dataset_name)
     coco_anno = get_coco_annotations(val_dataset, meta, selected_classes)
-    sly.json.dump_json_file(coco_anno, f"{val_dataset.directory}/coco_anno.json")
+    sly.json.dump_json_file(coco_anno, f"{val_dataset.directory}/coco_anno.json", indent=None)
 
 
 def prepare_config():
@@ -109,6 +111,13 @@ def prepare_config():
             "ann_file": f"{project_dir}/{val_dataset_name}/coco_anno.json"
         }
     }
+    selected_classes = ui.selected_classes.get_selected_classes()
+    custom_config["sly_metadata"] = {
+        "classes": selected_classes,
+        "project_id": project_id,
+        "project_name": project_name,
+        "model": model,
+    }
 
     # save custom config
     with open(custom_config_path, 'w') as f:
@@ -126,7 +135,6 @@ def train():
 def upload_model(output_dir):
     model = ui.models.get_value()
     task_id = api.task_id or ""
-    project_name = api.project.get_info_by_id(project_id).name
     team_files_dir = f"/RT-DETR/{project_name}_{project_id}/{task_id}_{model}"
     local_dir = f"{output_dir}/upload"
     os.makedirs(local_dir, exist_ok=True)
@@ -135,6 +143,7 @@ def upload_model(output_dir):
     latest_checkpoint = sorted(checkpoints)[-1]
     shutil.move(f"{output_dir}/{latest_checkpoint}", f"{local_dir}/{latest_checkpoint}")
     shutil.move(f"{output_dir}/log.txt", f"{local_dir}/log.txt")
+    shutil.move("output/config.yml", f"{local_dir}/config.yml")
 
     out_path = api.file.upload_directory(
         sly.env.team_id(),
