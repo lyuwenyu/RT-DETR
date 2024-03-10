@@ -166,4 +166,7 @@ cython_debug/
 *.onnx
 rtdetr_pytorch/output/*
 rtdetr_pytorch/dataset/*
-data
+/data
+/sly_dataset
+/models
+/output
