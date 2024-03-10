@@ -1,4 +1,5 @@
 import os
+import shutil
 from dotenv import load_dotenv
 import supervisely as sly
 import supervisely.app.widgets as widgets
@@ -29,6 +30,10 @@ class UI:
         self.selected_classes.select_all()
         self.custom_config = widgets.Editor(placeholder_config, language_mode="yaml", height_lines=25)
         self.run_button = widgets.Button("Train")
+        self.success_msg = widgets.DoneLabel("Training completed. Checkpoints were uploaded to Team Files.")
+        self.folder_thumb = widgets.FolderThumbnail()
+        self.success_msg.hide()
+        self.folder_thumb.hide()
         
         self.container = widgets.Container([
             project_view,
@@ -38,14 +43,18 @@ class UI:
             self.val_dataset,
             self.selected_classes,
             self.custom_config,
-            self.run_button
+            self.run_button,
+            self.success_msg,
+            self.folder_thumb,
         ])
 
         @self.run_button.click
         def run():
             prepare_data()
             prepare_config()
-            train()
+            output_dir = train()
+            out_path = upload_model(output_dir)
+            success(out_path)
 
 
 def prepare_data():
@@ -110,7 +119,39 @@ def train():
     import train as train_cli
     model = ui.models.get_value()
     finetune = ui.finetune.is_checked()
-    train_cli.train(model, finetune, custom_config_path)
+    cfg = train_cli.train(model, finetune, custom_config_path)
+    return cfg.output_dir
+
+
+def upload_model(output_dir):
+    model = ui.models.get_value()
+    task_id = api.task_id or ""
+    project_name = api.project.get_info_by_id(project_id).name
+    team_files_dir = f"/RT-DETR/{project_name}_{project_id}/{task_id}_{model}"
+    local_dir = f"{output_dir}/upload"
+    os.makedirs(local_dir, exist_ok=True)
+
+    checkpoints = [f for f in os.listdir(output_dir) if f.endswith('.pth')]
+    latest_checkpoint = sorted(checkpoints)[-1]
+    shutil.move(f"{output_dir}/{latest_checkpoint}", f"{local_dir}/{latest_checkpoint}")
+    shutil.move(f"{output_dir}/log.txt", f"{local_dir}/log.txt")
+
+    out_path = api.file.upload_directory(
+        sly.env.team_id(),
+        local_dir,
+        team_files_dir,
+    )
+    return out_path
+
+
+def success(out_path):
+    file_info = api.file.get_info_by_path(sly.env.team_id(), out_path + "/log.txt")
+    ui.folder_thumb.set(info=file_info)
+    ui.folder_thumb.show()
+    ui.success_msg.show()
+    if sly.is_production():
+        api.task.set_output_directory(api.task_id, file_info.id, out_path)
+        app.stop()
 
 
 ui = UI()

@@ -29,3 +29,5 @@ def train(model: str, finetune: bool, config_path: str):
 
     solver = DetSolver(cfg)
     solver.fit()
+
+    return cfg
