@@ -25,6 +25,7 @@ def train(model: str, finetune: bool, config_path: str):
     )
 
     import yaml
+    os.makedirs("output", exist_ok=True)
     with open("output/config.yml", 'w') as f:
         yaml.dump(cfg.yaml_cfg, f)
 
