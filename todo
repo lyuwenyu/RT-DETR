@@ -1,2 +1,8 @@
 Train  CLI
 + Convert dataset Sly to COCO (mask/poly to bboxes)
+- Why is it so slow?
+- Serve
+
+- Stop training
+- Train/val splits
+- Resume training from Team Files checkpoint
