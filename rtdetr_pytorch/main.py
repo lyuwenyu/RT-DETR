@@ -14,6 +14,8 @@ api = sly.Api()
 project_id = sly.env.project_id()
 project_dir = "sly_dataset"
 custom_config_path = f"rtdetr_pytorch/configs/rtdetr/custom.yml"
+with open(f"rtdetr_pytorch/configs/rtdetr/placeholder.yml", 'r') as f:
+    placeholder_config = f.read()
 
 
 class UI:
@@ -25,7 +27,7 @@ class UI:
         self.val_dataset = widgets.SelectDataset(project_id=project_id, compact=True)
         self.selected_classes = widgets.ClassesTable(project_id=project_id)
         self.selected_classes.select_all()
-        self.custom_config = widgets.Editor(language_mode="yaml")
+        self.custom_config = widgets.Editor(placeholder_config, language_mode="yaml", height_lines=25)
         self.run_button = widgets.Button("Train")
         
         self.container = widgets.Container([

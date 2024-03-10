@@ -1,7 +1,7 @@
 import os
+import torch
 from src.solver import DetSolver
 from src.core import YAMLConfig
-import torch
 from checkpoints import checkpoints
 
 
@@ -22,6 +22,10 @@ def train(model: str, finetune: bool, config_path: str):
         # resume='',
         tuning=tuning
     )
+
+    import yaml
+    with open("output/config.yml", 'w') as f:
+        yaml.dump(cfg.yaml_cfg, f)
 
     solver = DetSolver(cfg)
     solver.fit()
