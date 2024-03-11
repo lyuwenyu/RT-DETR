@@ -54,8 +54,9 @@ class UI:
         def run():
             prepare_data()
             prepare_config()
-            output_dir = train()
-            out_path = upload_model(output_dir)
+            cfg = train()
+            save_config(cfg)
+            out_path = upload_model(cfg.output_dir)
             success(out_path)
 
 
@@ -129,7 +130,15 @@ def train():
     model = ui.models.get_value()
     finetune = ui.finetune.is_checked()
     cfg = train_cli.train(model, finetune, custom_config_path)
-    return cfg.output_dir
+    return cfg
+
+
+def save_config(cfg):
+    if "__include__" in cfg.yaml_cfg:
+        cfg.yaml_cfg.pop("__include__")
+    os.makedirs("output", exist_ok=True)
+    with open(f"output/config.yml", 'w') as f:
+        yaml.dump(cfg.yaml_cfg, f)
 
 
 def upload_model(output_dir):

@@ -57,10 +57,12 @@ class RTDETR(sly.nn.inference.ObjectDetection):
 
         obj_classes = [sly.ObjClass(name, sly.Rectangle) for name in class_names]
         self._model_meta = sly.ProjectMeta(obj_classes=sly.ObjClassCollection(obj_classes))
+        self._get_confidence_tag_meta()
         
         cfg = YAMLConfig(
             config_path,
             resume=checkpoint_path,
+            tuning='',
         )
 
         solver = DetSolver(cfg)
@@ -94,7 +96,7 @@ class RTDETR(sly.nn.inference.ObjectDetection):
         return models
 
     def predict(self, image_path: str, settings: dict) -> List[PredictionBBox]:
-        conf_tresh = settings.get("confidence_thresh", 0.45)
+        conf_tresh = settings.get("confidence_thresh", 0.4)
 
         img = Image.open(image_path).convert("RGB")
         try:
@@ -131,10 +133,11 @@ class RTDETR(sly.nn.inference.ObjectDetection):
         # download weights (.pth)
         weight_filename = os.path.basename(custom_link)
         weights_dst_path = os.path.join(model_dir, weight_filename)
-        self.download(
-            src_path=custom_link,
-            dst_path=weights_dst_path,
-        )
+        if not sly.is_debug_with_sly_net() or (sly.is_debug_with_sly_net() and not os.path.exists(weights_dst_path)):
+            self.download(
+                src_path=custom_link,
+                dst_path=weights_dst_path,
+            )
 
         # download config.py
         custom_dir = os.path.dirname(custom_link)
@@ -149,7 +152,7 @@ class RTDETR(sly.nn.inference.ObjectDetection):
 model = RTDETR(
     use_gui=True,
     custom_inference_settings={
-        "confidence_thresh": 0.45
+        "confidence_thresh": 0.4
     },
 )
 
