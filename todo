@@ -1,8 +1,20 @@
 Train  CLI
 + Convert dataset Sly to COCO (mask/poly to bboxes)
-- Why is it so slow?
-- Serve
++ Why is it so slow?
 
 - Stop training
 - Train/val splits
 - Resume training from Team Files checkpoint
+
+Serve:
++ Fill model list
+- Error: TagMeta is None
+- Test custom models
+
+
+Бенчмарки (сранвить с yolo):
+- mAP на разных датасетах
+- FPS
+- Обучаемость (compute, time)
+- Data Efficiency
+- hyper-parameter sensitivity

@@ -11,7 +11,7 @@ from src.solver import DetSolver
 from src.core import YAMLConfig
 from src.data.transforms import Resize, ToImageTensor, ConvertDtype, Compose
 from src.data.coco.coco_dataset import mscoco_category2name
-from models import get_models
+from model_list import get_models
 from PIL import Image, ImageOps
 
 
@@ -158,9 +158,13 @@ if True:
 else:
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Using device:", device)
-    model.load_on_device("models", device)
-    image_path = "rtdetr_pytorch/image_02.jpg"
-    results = model.predict(image_path, settings={})
-    vis_path = "image_02_prediction.jpg"
-    model.visualize(results, image_path, vis_path, thickness=5)
-    print(f"predictions and visualization have been saved: {vis_path}")
+    for i in range(len(model.get_models())):
+        if i <= 4:
+            continue
+        model.gui._models_table.select_row(i)
+        model.load_on_device("models", device)
+        image_path = "rtdetr_pytorch/image_02.jpg"
+        results = model.predict(image_path, settings={})
+        vis_path = f"image_02_prediction_{i}.jpg"
+        model.visualize(results, image_path, vis_path, thickness=5)
+        print(f"predictions and visualization have been saved: {vis_path}")
