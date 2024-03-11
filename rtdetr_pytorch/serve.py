@@ -49,6 +49,11 @@ class RTDETR(sly.nn.inference.ObjectDetection):
             model = meta["model"]
             dataset_name = meta["project_name"]
             class_names = meta["classes"]
+            if "__include__" in config:
+                # del config["__include__"] and rewrite the config
+                config.pop("__include__")
+                with open(config_path, 'w') as f:
+                    yaml.dump(config, f)
         
         self.model_name = model
         self.dataset_name = dataset_name
