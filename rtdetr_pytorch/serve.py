@@ -70,6 +70,9 @@ class RTDETR(sly.nn.inference.ObjectDetection):
             tuning='',
         )
 
+        cfg.yaml_cfg["HybridEncoder"]["eval_spatial_size"] = size
+        cfg.yaml_cfg["RTDETRTransformer"]["eval_spatial_size"] = size
+
         solver = DetSolver(cfg)
         solver.setup()
         solver.resume(solver.cfg.resume)
