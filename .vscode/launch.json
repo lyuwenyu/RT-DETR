@@ -15,7 +15,7 @@
                 "--ws",
                 "websockets",
                 "--app-dir",
-                "rtdetr_pytorch"
+                "supervisely_integration/train"
             ],
             "justMyCode": false,
             "env": {
