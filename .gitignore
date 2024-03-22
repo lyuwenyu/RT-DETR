@@ -167,6 +167,6 @@ cython_debug/
 rtdetr_pytorch/output/*
 rtdetr_pytorch/dataset/*
 /data
-/sly_dataset
+/sly_dataset*
 /models
 /output
