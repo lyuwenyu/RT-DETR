@@ -6,12 +6,12 @@ class Logs:
 
     def reset(self):
         self.loss = None
-        self.lrs = None
-        self.data_time = None
-        self.iter_time = None
-        self.cuda_memory = 0
+        self.lrs : dict = None
+        # self.data_time = None  # seconds
+        # self.iter_time = None  # seconds
+        self.cuda_memory = 0  # MB
 
-        self.evaluation_metrics = None
+        self.evaluation_metrics : dict = None
 
         self.iter_idx = 0
         self.epoch = 0

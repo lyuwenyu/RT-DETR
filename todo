@@ -1,13 +1,13 @@
 Train:
-- How to update charts (yield)? metric_logger?
++ How to update charts (yield)? metric_logger?
 - How to modify checkpoint interval and val interval
 - lr_schedulers? can we plot them? which ones are supported?
 - augmentations? add imgaug? можно сделать выбор rt-detr / imgaug
 - прочие параметры: ema, etc.
-
-- Stop / pause training
+- Strip optimizer from checkpoint
 - Resume training from Team Files checkpoint
-- test imgsz support
+- test imgsz, is it working?
+- Stop / pause training
 
 Serve:
 - test imgsz support

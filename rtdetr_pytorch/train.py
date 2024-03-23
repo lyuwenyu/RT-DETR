@@ -34,7 +34,7 @@ def train(model: str, finetune: bool, config_path: str):
 def setup_callbacks():
     def print_iter(logs: Logs):
         print(logs.iter_idx)
-        print(logs.loss, logs.lrs, logs.data_time, logs.iter_time, logs.cuda_memory)
+        print(logs.loss, logs.lrs, logs.cuda_memory)
 
     def print_eval(logs: Logs):
         # Charts: AP vs AR (maxDets=100), All APs, All ARs

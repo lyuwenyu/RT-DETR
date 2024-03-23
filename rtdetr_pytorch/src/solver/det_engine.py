@@ -90,11 +90,16 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
         for i, param_group in enumerate(optimizer.param_groups):
             lrs[f"lr{i}"] = param_group["lr"]
         LOGS.lrs = lrs
-        
+        if torch.cuda.is_available():
+            MB = 1024.0 * 1024.0
+            LOGS.cuda_memory = torch.cuda.max_memory_allocated() / MB
+        LOGS.log_train_iter()
+        LOGS.iter_idx += 1
+
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
-    print("Averaged stats:", metric_logger)
+    # print("Averaged stats:", metric_logger)
     return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
 
