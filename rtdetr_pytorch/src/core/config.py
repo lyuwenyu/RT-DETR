@@ -69,6 +69,9 @@ class BaseConfig(object):
         self._output_dir :str = None
         self._print_freq :int = None 
         self.checkpoint_step :int = 1
+        self.val_step :int = 1
+        self.save_optimizer :bool = False
+        self.save_ema :bool = False
 
         # self.device :str = torch.device('cpu')
         device = 'cuda' if torch.cuda.is_available() else 'cpu'

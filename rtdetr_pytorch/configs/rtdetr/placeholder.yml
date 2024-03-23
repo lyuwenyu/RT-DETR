@@ -1,4 +1,8 @@
-epoches: 72
+epoches: 20
+val_step: 1
+checkpoint_step: 1
+save_optimizer: False
+save_ema: False
 
 
 train_dataloader: 

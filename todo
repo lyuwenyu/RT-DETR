@@ -1,9 +1,10 @@
 Train:
 + How to update charts (yield)? metric_logger?
-- How to modify checkpoint interval and val interval
-- lr_schedulers? can we plot them? which ones are supported?
++ How to modify checkpoint interval and val interval
+- Visualize predictions
+- lr_schedulers? can we plot them? which ones are implemented?
 - augmentations? add imgaug? можно сделать выбор rt-detr / imgaug
-- прочие параметры: ema, etc.
+- прочие параметры: ema, ema_decay, etc.
 - Strip optimizer from checkpoint
 - Resume training from Team Files checkpoint
 - test imgsz, is it working?

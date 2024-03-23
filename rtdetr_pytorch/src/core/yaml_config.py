@@ -24,6 +24,10 @@ class YAMLConfig(BaseConfig):
 
         self.log_step = cfg.get('log_step', 100)
         self.checkpoint_step = cfg.get('checkpoint_step', 1)
+        self.val_step = cfg.get('val_step', 1)
+        self.save_optimizer = cfg.get('save_optimizer', False)
+        self.save_ema = cfg.get('save_ema', False)
+
         self.epoches = cfg.get('epoches', -1)
         self.resume = cfg.get('resume', '')
         self.tuning = cfg.get('tuning', '')
