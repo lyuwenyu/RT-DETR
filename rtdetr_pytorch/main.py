@@ -28,6 +28,9 @@ class UI:
         self.finetune = widgets.Checkbox("Finetune", True)
         self.train_dataset = widgets.SelectDataset(project_id=project_id, compact=True)
         self.val_dataset = widgets.SelectDataset(project_id=project_id, compact=True)
+        ds_id = api.dataset.get_list(project_id)[0].id
+        self.train_dataset.set_dataset_id(ds_id)
+        self.val_dataset.set_dataset_id(ds_id)
         self.selected_classes = widgets.ClassesTable(project_id=project_id)
         self.selected_classes.select_all()
         self.custom_config = widgets.Editor(placeholder_config, language_mode="yaml", height_lines=25)
@@ -174,3 +177,16 @@ def success(out_path):
 
 ui = UI()
 app = sly.Application(ui.container)
+
+
+def _run():
+    prepare_data()
+    prepare_config()
+    cfg = train()
+    save_config(cfg)
+    out_path = upload_model(cfg.output_dir)
+    success(out_path)
+
+import train as train_cli
+train_cli.setup_callbacks()
+_run()

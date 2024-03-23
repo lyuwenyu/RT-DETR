@@ -10,6 +10,7 @@ from typing import Dict
 
 from src.misc import dist
 from src.core import BaseConfig
+from src.misc.sly_logger import LOGS
 
 
 class BaseSolver(object):
@@ -45,6 +46,7 @@ class BaseSolver(object):
         self.setup()
         self.optimizer = self.cfg.optimizer
         self.lr_scheduler = self.cfg.lr_scheduler
+        LOGS.reset()
 
         # NOTE instantiating order
         if self.cfg.resume:

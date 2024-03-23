@@ -14,6 +14,7 @@ import torch
 import torch.distributed as tdist
 
 from .dist import is_dist_available_and_initialized, get_world_size
+from .sly_logger import LOGS
 
 
 class SmoothedValue(object):
@@ -214,8 +215,16 @@ class MetricLogger(object):
         MB = 1024.0 * 1024.0
         for obj in iterable:
             data_time.update(time.time() - end)
+            LOGS.data_time = time.time() - end
             yield obj
             iter_time.update(time.time() - end)
+            LOGS.iter_time = time.time() - end
+            if torch.cuda.is_available():
+                t0 = time.time()
+                memory = torch.cuda.max_memory_allocated() / MB
+                dt = time.time() - t0
+                print(f"memory time (ms): {dt*1000:.4f}")
+                LOGS.cuda_memory = memory
             if i % print_freq == 0 or i == len(iterable) - 1:
                 eta_seconds = iter_time.global_avg * (len(iterable) - i)
                 eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
@@ -224,12 +233,14 @@ class MetricLogger(object):
                         i, len(iterable), eta=eta_string,
                         meters=str(self),
                         time=str(iter_time), data=str(data_time),
-                        memory=torch.cuda.max_memory_allocated() / MB))
+                        memory=memory))
                 else:
                     print(log_msg.format(
                         i, len(iterable), eta=eta_string,
                         meters=str(self),
                         time=str(iter_time), data=str(data_time)))
+            LOGS.iter_idx = i
+            LOGS.log_train_iter()
             i += 1
             end = time.time()
         total_time = time.time() - start_time

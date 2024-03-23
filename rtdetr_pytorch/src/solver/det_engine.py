@@ -16,6 +16,7 @@ import torch.amp
 
 from src.data import CocoEvaluator
 from src.misc import (MetricLogger, SmoothedValue, reduce_dict)
+from src.misc.sly_logger import LOGS
 
 
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
@@ -28,6 +29,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     # metric_logger.add_meter('class_error', SmoothedValue(window_size=1, fmt='{value:.2f}'))
     header = 'Epoch: [{}]'.format(epoch)
     print_freq = kwargs.get('print_freq', 10)
+    LOGS.epoch = epoch
     
     ema = kwargs.get('ema', None)
     scaler = kwargs.get('scaler', None)
@@ -81,6 +83,14 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
         metric_logger.update(loss=loss_value, **loss_dict_reduced)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+
+        # Update supervisely logs
+        LOGS.loss = loss_value.item()
+        lrs = {}
+        for i, param_group in enumerate(optimizer.param_groups):
+            lrs[f"lr{i}"] = param_group["lr"]
+        LOGS.lrs = lrs
+        
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
@@ -176,6 +186,7 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessors,
     if coco_evaluator is not None:
         if 'bbox' in iou_types:
             stats['coco_eval_bbox'] = coco_evaluator.coco_eval['bbox'].stats.tolist()
+            LOGS.log_evaluation(stats['coco_eval_bbox'])
         if 'segm' in iou_types:
             stats['coco_eval_masks'] = coco_evaluator.coco_eval['segm'].stats.tolist()
             
