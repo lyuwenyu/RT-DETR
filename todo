@@ -1,13 +1,13 @@
 Train:
 + How to update charts (yield)? metric_logger?
 + How to modify checkpoint interval and val interval
-- Visualize predictions
-- lr_schedulers? can we plot them? which ones are implemented?
++ Visualize predictions (LOGS)
++ metrics, how to add class-wise
++ lr_schedulers? can we plot them? which ones are implemented?
 - augmentations? add imgaug? можно сделать выбор rt-detr / imgaug
 - прочие параметры: ema, ema_decay, etc.
-- Strip optimizer from checkpoint
-- Resume training from Team Files checkpoint
 - test imgsz, is it working?
+- Resume training from Team Files checkpoint
 - Stop / pause training
 
 Serve:
@@ -15,4 +15,4 @@ Serve:
 - use new GUI interface
 
 Others:
-- ONNX support
+- add ONNX support

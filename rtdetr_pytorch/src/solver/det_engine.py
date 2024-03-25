@@ -17,6 +17,7 @@ import torch.amp
 from src.data import CocoEvaluator
 from src.misc import (MetricLogger, SmoothedValue, reduce_dict)
 from src.misc.sly_logger import LOGS
+import utils
 
 
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
@@ -126,6 +127,7 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessors,
     #         output_dir=os.path.join(output_dir, "panoptic_eval"),
     #     )
 
+    imgs, predictions = [], []
     for samples, targets in metric_logger.log_every(data_loader, 10, header):
         samples = samples.to(device)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
@@ -169,6 +171,17 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessors,
         #         res_pano[i]["file_name"] = file_name
         #     panoptic_evaluator.update(res_pano)
 
+        # Draw predictions
+        if len(imgs) < LOGS.n_preview_imgs:
+            for sample, result, orig_target_size in zip(samples, results, orig_target_sizes):
+                img, prediction = utils.prepare_result(sample, result, orig_target_size, base_ds)
+                imgs.append(img)
+                predictions.append(prediction)
+                if len(imgs) == LOGS.n_preview_imgs:
+                    break
+        if len(imgs) == LOGS.n_preview_imgs:
+            LOGS.log_preview(imgs, predictions)
+
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
     print("Averaged stats:", metric_logger)
@@ -191,7 +204,8 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessors,
     if coco_evaluator is not None:
         if 'bbox' in iou_types:
             stats['coco_eval_bbox'] = coco_evaluator.coco_eval['bbox'].stats.tolist()
-            LOGS.log_evaluation(stats['coco_eval_bbox'])
+            class_ap, class_ar = utils.collect_per_class_metrics(coco_evaluator, base_ds)
+            LOGS.log_evaluation(stats['coco_eval_bbox'], class_ap, class_ar)
         if 'segm' in iou_types:
             stats['coco_eval_masks'] = coco_evaluator.coco_eval['segm'].stats.tolist()
             
