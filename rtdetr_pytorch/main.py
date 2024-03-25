@@ -6,6 +6,7 @@ import supervisely.app.widgets as widgets
 import yaml
 from convert_to_coco import get_coco_annotations
 from checkpoints import checkpoints
+import sly_imgaug
 
 
 # Globals
@@ -103,18 +104,26 @@ def prepare_config():
     custom_config["__include__"] = [f"{config_name}.yml"]
     custom_config["remap_mscoco_category"] = False
     custom_config["num_classes"] = len(ui.selected_classes.get_selected_classes())
-    custom_config["train_dataloader"] = {
-        "dataset": {
-            "img_folder": f"{project_dir}/{train_dataset_name}/img",
-            "ann_file": f"{project_dir}/{train_dataset_name}/coco_anno.json"
+    if "train_dataloader" not in custom_config:
+        custom_config["train_dataloader"] = {
+            "dataset": {
+                "img_folder": f"{project_dir}/{train_dataset_name}/img",
+                "ann_file": f"{project_dir}/{train_dataset_name}/coco_anno.json"
+            }
         }
-    }
-    custom_config["val_dataloader"] = {
-        "dataset": {
-            "img_folder": f"{project_dir}/{val_dataset_name}/img",
-            "ann_file": f"{project_dir}/{val_dataset_name}/coco_anno.json"
+    else:
+        custom_config["train_dataloader"]["dataset"]["img_folder"] = f"{project_dir}/{train_dataset_name}/img"
+        custom_config["train_dataloader"]["dataset"]["ann_file"] = f"{project_dir}/{train_dataset_name}/coco_anno.json"
+    if "val_dataloader" not in custom_config:
+        custom_config["val_dataloader"] = {
+            "dataset": {
+                "img_folder": f"{project_dir}/{val_dataset_name}/img",
+                "ann_file": f"{project_dir}/{val_dataset_name}/coco_anno.json"
+            }
         }
-    }
+    else:
+        custom_config["val_dataloader"]["dataset"]["img_folder"] = f"{project_dir}/{val_dataset_name}/img"
+        custom_config["val_dataloader"]["dataset"]["ann_file"] = f"{project_dir}/{val_dataset_name}/coco_anno.json"
     selected_classes = ui.selected_classes.get_selected_classes()
     custom_config["sly_metadata"] = {
         "classes": selected_classes,
