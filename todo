@@ -4,11 +4,14 @@ Train:
 + Visualize predictions (LOGS)
 + metrics, how to add class-wise
 + lr_schedulers? can we plot them? which ones are implemented?
-- augmentations? add imgaug? можно сделать выбор rt-detr / imgaug
-- прочие параметры: ema, ema_decay, etc.
-- test imgsz, is it working?
++ augmentations? add imgaug? можно сделать выбор rt-detr / imgaug
++ прочие параметры: ema, ema_decay, etc.
 - Resume training from Team Files checkpoint
 - Stop / pause training
+- Consistency in imgsz: Input Size, Resize, 
+        cfg.yaml_cfg["HybridEncoder"]["eval_spatial_size"] = size
+        cfg.yaml_cfg["RTDETRTransformer"]["eval_spatial_size"] = size
+
 
 Serve:
 - test imgsz support
