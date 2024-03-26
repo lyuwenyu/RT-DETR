@@ -1,0 +1,1 @@
+python rtdetr_pytorch/tools/export_onnx.py -c rtdetr_pytorch/configs/rtdetr/custom.yml -r output/rtdetr_r18vd_6x_coco/checkpoint0010.pth --check
