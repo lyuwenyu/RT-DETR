@@ -1,1 +1,2 @@
-python rtdetr_pytorch/tools/export_onnx.py -c rtdetr_pytorch/configs/rtdetr/custom.yml -r output/rtdetr_r18vd_6x_coco/checkpoint0010.pth --check
+# python rtdetr_pytorch/tools/export_onnx.py -c rtdetr_pytorch/configs/rtdetr/custom.yml -r output/rtdetr_r18vd_6x_coco/checkpoint0010.pth --check
+python rtdetr_pytorch/tools/export_onnx.py -c rtdetr_pytorch/configs/rtdetr/rtdetr_r34vd_6x_coco.yml -r models/rtdetr_r34vd_dec4_6x_coco_from_paddle.pth --check --file-name rtdetr_r34.onnx
