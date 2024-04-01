@@ -1,3 +1,4 @@
+import re
 import subprocess
 from itertools import cycle
 import os
@@ -47,17 +48,30 @@ def get_model_name(checkpoint):
 def convert_onnx(checkpoint):
     model_name = get_model_name(checkpoint)
     config = f"rtdetr_pytorch/configs/rtdetr/{model_name}"
-    cmd = f"python rtdetr_pytorch/tools/export_onnx.py -c {os.path.abspath(config)} -r {os.path.abspath(checkpoint)} --check"
+    output_model = os.path.abspath(f"models/{model_name.replace('.yml', '.onnx')}")
+    if os.path.exists(output_model):
+        print(f"ONNX model {output_model} already exists.")
+        return output_model
+    cmd = f"python rtdetr_pytorch/tools/export_onnx.py -c {os.path.abspath(config)} -r {os.path.abspath(checkpoint)} -f {output_model} --check"
     subprocess.run(cmd.split())
+    return output_model
 
 
-convert_onnx(args.checkpoint)
+def get_gpu_memory_usage():
+    result = subprocess.run(['nvidia-smi', '--query-gpu=memory.used', '--format=csv,noheader,nounits'], stdout=subprocess.PIPE)
+    output = result.stdout.decode('utf-8')    
+    memory_usages = re.findall(r'\d+', output)
+    memory_usages = [int(x) for x in memory_usages]
+    assert len(memory_usages) == 1, "Multiple GPUs are not supported"
+    return memory_usages[0]
 
+
+gpu_memory_before = get_gpu_memory_usage()
+
+onnx_model_path = convert_onnx(args.checkpoint)
+session = onnxruntime.InferenceSession(onnx_model_path, providers=providers)
 
 images = list(Path("data/COCO2017/val2017/img").glob("*.jpg"))
-
-session = onnxruntime.InferenceSession("model.onnx", providers=providers)
-
 
 # warmup 3 times
 for img_path in images[:3]:
@@ -74,6 +88,9 @@ for img_path in tqdm(images[:args.n]):
     speed_tests.append({"inference_time": dt_ms})
 
 
+gpu_memory_after = get_gpu_memory_usage()
+gpu_memory = gpu_memory_after - gpu_memory_before
+
 # average tests
 import pandas as pd
 df = pd.DataFrame(speed_tests)
@@ -81,9 +98,7 @@ avg_df = df.mean().to_frame().T
 std_df = df.std().to_frame().T
 std_df.columns = [f"{col}_std" for col in std_df.columns]
 df = pd.concat([avg_df, std_df], axis=1)
-df.to_csv(f"speed_test_{get_model_name(args.checkpoint)}.csv")
+df["gpu_memory_usage"] = gpu_memory
+df.to_csv(f"speed_test_v2_{get_model_name(args.checkpoint)}.csv")
 
-print(f"Average speed test (N={args.n}):")
-print(avg_df)
-print("Std speed test:")
-print(std_df)
+print(df)
