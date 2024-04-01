@@ -39,7 +39,7 @@ def prepare_image(image_path):
 def get_model_name(checkpoint):
     s = os.path.basename(checkpoint).split("_")
     model_name = "_".join(s[:2])
-    if s[3] == "m":
+    if s[2] == "m":
         model_name += "_m"
     model_name += "_6x_coco.yml"
     return model_name
