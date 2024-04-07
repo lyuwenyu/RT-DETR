@@ -29,7 +29,7 @@ English | [简体中文](README_cn.md)
 ---
 
 <div align="center">
-  <img src="./assets/performance.png" width=500 >
+  <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/0ede1dc1-a854-43b6-9986-cf9090f11a61" width=500 >
 </div>
 
 
@@ -80,19 +80,19 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 ## 💡 Introduction
 We propose a **R**eal-**T**ime **DE**tection **TR**ansformer (RT-DETR, aka RTDETR), the first real-time end-to-end object detector to our best knowledge. Our RT-DETR-R50 / R101 achieves 53.1% / 54.3% AP on COCO and 108 / 74 FPS on T4 GPU, outperforming previously advanced YOLOs in both speed and accuracy. Furthermore, RT-DETR-R50 outperforms DINO-R50 by 2.2% AP in accuracy and about 21 times in FPS. After pre-training with Objects365, RT-DETR-R50 / R101 achieves 55.3% / 56.2% AP.
 <div align="center">
-  <img src="./assets/framework.png" width=500 >
+  <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/c211a164-ddce-4084-8b71-fb73f29f363b" width=500 >
 </div>
 
 ## 🦄 Performance
 
 ### 🏕️ Complex Scenarios
 <div align="center">
-  <img src="./assets/complex_scenarios.png" width=500 >
+  <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/52743892-68c8-4e53-b782-9f89221739e4" width=500 >
 </div>
 
 ### 🌋 Difficult Conditions
 <div align="center">
-  <img src="./assets/difficult_conditions.png" width=500 >
+  <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/213cf795-6da6-4261-8549-11947292d3cb" width=500 >
 </div>
 
 ## Citation

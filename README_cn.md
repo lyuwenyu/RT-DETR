@@ -5,7 +5,7 @@
 This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)".
 
 <div align="center">
-  <img src="./assets/performance.png" width=500 >
+  <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/0ede1dc1-a854-43b6-9986-cf9090f11a61" width=500 >
 </div>
 
 ## 最新动态
@@ -27,7 +27,7 @@ RT-DETR是第一个实时端到端目标检测器。具体而言，我们设计�
 若要了解更多细节，请参考我们的论文[paper](https://arxiv.org/abs/2304.08069).
 
 <div align="center">
-  <img src="./assets/framework.png" width=500 >
+  <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/c211a164-ddce-4084-8b71-fb73f29f363b" width=500 >
 </div>
 
 ## 引用RT-DETR
