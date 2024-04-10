@@ -1,3 +1,5 @@
+set -x
+
 models=()
 models+=("models/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth")
 models+=("models/rtdetr_r34vd_dec4_6x_coco_from_paddle.pth")

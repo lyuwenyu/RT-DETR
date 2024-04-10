@@ -171,3 +171,4 @@ rtdetr_pytorch/configs/rtdetr/custom.yml
 /sly_dataset*
 /models
 /output
+imgaug.json
