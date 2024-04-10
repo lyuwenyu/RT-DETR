@@ -16,8 +16,8 @@ def pred_2_annotation(pred, map_label2name, img_size_hw, topk=None):
 
 def prepare_result(sample, result, orig_target_size, base_ds):
     h,w = sample.shape[-2:]
-    boxes = result['boxes']
-    boxes = torch.clamp(boxes / orig_target_size.repeat(2), 0., 1.) * torch.tensor([w,h,w,h])
+    boxes = result['boxes'].cpu()
+    boxes = torch.clamp(boxes / orig_target_size.repeat(2).cpu(), 0., 1.) * torch.tensor([w,h,w,h])
     map_label2name = {base_ds.cats[i]['id']: base_ds.cats[i]['name'] for i in range(len(base_ds.cats))}
     labels = [map_label2name[i] for i in result['labels'].tolist()]
     prediction = {'boxes': boxes, 'labels': labels, 'scores': result['scores'].cpu().numpy()}
