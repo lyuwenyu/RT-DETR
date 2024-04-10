@@ -188,14 +188,14 @@ ui = UI()
 app = sly.Application(ui.container)
 
 
-def _run():
-    prepare_data()
-    prepare_config()
-    cfg = train()
-    save_config(cfg)
-    out_path = upload_model(cfg.output_dir)
-    success(out_path)
+# def _run():
+#     prepare_data()
+#     prepare_config()
+#     cfg = train()
+#     save_config(cfg)
+#     out_path = upload_model(cfg.output_dir)
+#     success(out_path)
 
-import train as train_cli
-train_cli.setup_callbacks()
-_run()
+# import train as train_cli
+# train_cli.setup_callbacks()
+# _run()
