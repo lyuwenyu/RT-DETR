@@ -77,7 +77,7 @@ class RTDETR(sly.nn.inference.ObjectDetection):
         solver.setup()
         solver.resume(solver.cfg.resume)
         self.solver = solver
-        self.model = solver.ema.module if solver.ema else solver.model
+        self.model = solver.ema.module if solver.is_ema_loaded else solver.model
         self.model.eval()
 
         self.transform = Compose(ops=[

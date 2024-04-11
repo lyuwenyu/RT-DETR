@@ -17,6 +17,7 @@ class BaseSolver(object):
     def __init__(self, cfg: BaseConfig) -> None:
         
         self.cfg = cfg 
+        self.is_ema_loaded = False
 
     def setup(self, ):
         '''Avoid instantiating unnecessary classes 
@@ -112,7 +113,10 @@ class BaseSolver(object):
 
         if getattr(self, 'ema', None) and 'ema' in state:
             self.ema.load_state_dict(state['ema'])
+            self.is_ema_loaded = True
             print('Loading ema.state_dict')
+        else:
+            self.is_ema_loaded = False
 
         if getattr(self, 'optimizer', None) and 'optimizer' in state:
             self.optimizer.load_state_dict(state['optimizer'])
