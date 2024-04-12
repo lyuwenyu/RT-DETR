@@ -1,4 +1,5 @@
 Train:
+- fix re-serve button (config is global and not updated)
 - EMA or not EMA
 - Stop / pause training
 - Consistency in imgsz: Input Size, Resize, 
