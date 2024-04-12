@@ -74,12 +74,21 @@ class YAMLConfig(BaseConfig):
     
     @property
     def lr_scheduler(self, ):
-        if self._lr_scheduler is None and 'lr_scheduler' in self.yaml_cfg:
+        if self._lr_scheduler is None and self.yaml_cfg.get('lr_scheduler') is not None:
             merge_config(self.yaml_cfg)
             self._lr_scheduler = create('lr_scheduler', optimizer=self.optimizer)
             print('Initial lr: ', self._lr_scheduler.get_last_lr())
 
         return self._lr_scheduler
+    
+    @property
+    def lr_warmup(self, ):
+        if self._lr_warmup is None and 'lr_warmup' in self.yaml_cfg:
+            merge_config(self.yaml_cfg)
+            self._lr_warmup = create('lr_warmup', optimizer=self.optimizer)
+            print('Initial lr: ', self._lr_warmup.get_last_lr())
+
+        return self._lr_warmup
     
     @property
     def train_dataloader(self, ):

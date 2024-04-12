@@ -12,6 +12,7 @@ from src.data import get_coco_api_from_dataset
 
 from .solver import BaseSolver
 from .det_engine import train_one_epoch, evaluate
+from utils import is_by_epoch
 
 
 class DetSolver(BaseSolver):
@@ -36,9 +37,11 @@ class DetSolver(BaseSolver):
             
             train_stats = train_one_epoch(
                 self.model, self.criterion, self.train_dataloader, self.optimizer, self.device, epoch,
-                args.clip_max_norm, print_freq=args.log_step, ema=self.ema, scaler=self.scaler)
+                args.clip_max_norm, print_freq=args.log_step, ema=self.ema, scaler=self.scaler,
+                lr_warmup=self.lr_warmup, lr_scheduler=self.lr_scheduler)
 
-            self.lr_scheduler.step()
+            if self.lr_scheduler is not None and is_by_epoch(self.lr_scheduler):
+                self.lr_scheduler.step()
             
             if epoch % args.checkpoint_step == 0 or epoch == args.epoches - 1:
                 if self.output_dir:

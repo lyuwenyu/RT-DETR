@@ -1,6 +1,8 @@
 import supervisely as sly
 import torch
 import numpy as np
+from torch.optim.lr_scheduler import LRScheduler, OneCycleLR, CosineAnnealingLR, MultiStepLR, LambdaLR, LinearLR
+
 
 def pred_2_annotation(pred, map_label2name, img_size_hw, topk=None):
     # pred.keys = ['boxes', 'labels', 'scores']
@@ -48,3 +50,27 @@ def collect_per_class_metrics(coco_evaluator, base_ds):
             mean_s = np.mean(s[s>-1])
         class_ar[base_ds.cats[catId]['name']] = mean_s
     return class_ap, class_ar
+
+
+def is_by_epoch(lr_scheduler):
+    if isinstance(lr_scheduler, (OneCycleLR, CosineAnnealingLR)):
+        return False
+    elif isinstance(lr_scheduler, (MultiStepLR,)):
+        return True
+    else:
+        raise NotImplementedError(f"Unsupported lr_scheduler: {lr_scheduler}")
+
+
+def name2cls(name):
+    if name == 'OneCycleLR':
+        return OneCycleLR
+    elif name == 'CosineAnnealingLR':
+        return CosineAnnealingLR
+    elif name == 'MultiStepLR':
+        return MultiStepLR
+    elif name == 'LambdaLR':
+        return LambdaLR
+    elif name == 'LinearLR':
+        return LinearLR
+    else:
+        raise NotImplementedError(f"Unsupported lr_scheduler: {name}")

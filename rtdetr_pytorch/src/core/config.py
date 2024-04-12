@@ -30,6 +30,7 @@ class BaseConfig(object):
         self._criterion :nn.Module = None 
         self._optimizer :Optimizer = None 
         self._lr_scheduler :LRScheduler = None 
+        self._lr_warmup :LRScheduler = None
         self._train_dataloader :DataLoader = None 
         self._val_dataloader :DataLoader = None 
         self._ema :nn.Module = None 
@@ -122,6 +123,10 @@ class BaseConfig(object):
     def lr_scheduler(self, m):
         assert isinstance(m, LRScheduler), f'{type(m)} != LRScheduler, please check your model class'
         self._lr_scheduler = m 
+
+    @property
+    def lr_warmup(self, ) -> LRScheduler:
+        return self._lr_warmup
 
 
     @property

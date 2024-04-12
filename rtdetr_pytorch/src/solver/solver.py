@@ -47,6 +47,7 @@ class BaseSolver(object):
         self.setup()
         self.optimizer = self.cfg.optimizer
         self.lr_scheduler = self.cfg.lr_scheduler
+        self.lr_warmup = self.cfg.lr_warmup
         LOGS.reset()
 
         # NOTE instantiating order
