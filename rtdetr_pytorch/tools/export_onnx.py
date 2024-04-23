@@ -120,14 +120,14 @@ def main(args, ):
 
     #     print(i, sum(scr > thrh))
 
-    # for b, l in zip(box, lab):
-    #     # Scale the bounding boxes back to the original image size
-    #     b = [coord * original_size[j % 2] / 640 for j, coord in enumerate(b)]
-    #     # Get the category name from the label
-    #     category_name = mscoco_category2name[mscoco_label2category[l]]
-    #     draw.rectangle(list(b), outline='red', width=2)
-    #     font = ImageFont.truetype("Arial.ttf", 15)
-    #     draw.text((b[0], b[1]), text=category_name, fill='yellow', font=font)
+    #     for b, l in zip(box, lab):
+    #         # Scale the bounding boxes back to the original image size
+    #         b = [coord * original_size[j % 2] / 640 for j, coord in enumerate(b)]
+    #         # Get the category name from the label
+    #         category_name = mscoco_category2name[mscoco_label2category[l]]
+    #         draw.rectangle(list(b), outline='red', width=2)
+    #         font = ImageFont.truetype("Arial.ttf", 15)
+    #         draw.text((b[0], b[1]), text=category_name, fill='yellow', font=font)
 
     # # Save the original image with bounding boxes
     # original_im.save('test.jpg')
