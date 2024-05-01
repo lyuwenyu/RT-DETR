@@ -11,7 +11,7 @@ import numpy as np
 from src.core import YAMLConfig
 
 import torch
-import torch.nn as nn 
+import torch.nn as nn
 
 
 def main(args, ):
@@ -20,7 +20,7 @@ def main(args, ):
     cfg = YAMLConfig(args.config, resume=args.resume)
 
     if args.resume:
-        checkpoint = torch.load(args.resume, map_location='cpu') 
+        checkpoint = torch.load(args.resume, map_location='cpu')
         if 'ema' in checkpoint:
             state = checkpoint['ema']['module']
         else:
@@ -37,30 +37,33 @@ def main(args, ):
             self.model = cfg.model.deploy()
             self.postprocessor = cfg.postprocessor.deploy()
             print(self.postprocessor.deploy_mode)
-            
+
         def forward(self, images, orig_target_sizes):
             outputs = self.model(images)
             return self.postprocessor(outputs, orig_target_sizes)
-    
+
 
     model = Model()
 
-    dynamic_axes = {
-        'images': {0: 'N', },
-        'orig_target_sizes': {0: 'N'}
-    }
+    dynamic_axes = None
+
+    if args.dynamic:
+        dynamic_axes = {
+            'images': {0: 'N', },
+            'orig_target_sizes': {0: 'N'}
+        }
 
     data = torch.rand(1, 3, 640, 640)
     size = torch.tensor([[640, 640]])
 
     torch.onnx.export(
-        model, 
-        (data, size), 
+        model,
+        (data, size),
         args.file_name,
         input_names=['images', 'orig_target_sizes'],
         output_names=['labels', 'boxes', 'scores'],
         dynamic_axes=dynamic_axes,
-        opset_version=16, 
+        opset_version=16,
         verbose=False
     )
 
@@ -71,17 +74,32 @@ def main(args, ):
         onnx.checker.check_model(onnx_model)
         print('Check export onnx model done...')
 
+    # import onnx2tf
+    #
+    # f_onnx = args.file_name
+    # f = 'model.tflite'
+    # verbosity = False
+    # onnx2tf.convert(
+    #     input_onnx_file_path=f_onnx,
+    #     output_folder_path=str(f),
+    #     not_use_onnxsim=True,
+    #     verbosity=verbosity,
+    #     output_integer_quantized_tflite=False,
+    #     quant_type="per-tensor",  # "per-tensor" (faster) or "per-channel" (slower but more accurate)
+    #     # custom_input_op_name_np_data_path=np_data,
+    # )
+
 
     if args.simplify:
         import onnxsim
-        dynamic = True 
+        dynamic = True
         input_shapes = {'images': data.shape, 'orig_target_sizes': size.shape} if dynamic else None
         onnx_model_simplify, check = onnxsim.simplify(args.file_name, input_shapes=input_shapes, dynamic_input_shape=dynamic)
         onnx.save(onnx_model_simplify, args.file_name)
         print(f'Simplify onnx model {check}...')
 
 
-    # import onnxruntime as ort 
+    # import onnxruntime as ort
     # from PIL import Image, ImageDraw, ImageFont
     # from torchvision.transforms import ToTensor
     # from src.data.coco.coco_dataset import mscoco_category2name, mscoco_category2label, mscoco_label2category
@@ -141,6 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('--file-name', '-f', type=str, default='model.onnx')
     parser.add_argument('--check',  action='store_true', default=False,)
     parser.add_argument('--simplify',  action='store_true', default=False,)
+    parser.add_argument('--dynamic',  action='store_true', default=False,)
 
     args = parser.parse_args()
 
