@@ -50,24 +50,28 @@ def main(args, ):
 
     model = Model()
 
+    image_sizes = args.image_sizes.split(' ')
+    image_width = int(image_sizes[0])
+    image_height = int(image_sizes[1])
+
+    print('Using image size:', image_width, image_height)
+
     image_paths = json.loads(args.image_paths)
     for image_path in image_paths:
         # Load the original image without resizing
         original_im = Image.open(image_path).convert('RGB')
         original_size = original_im.size
-        print(original_size)
 
-        scale_x = 640 / original_size[0]
-        scale_y = 640 / original_size[1]
+        scale_x = image_width / original_size[0]
+        scale_y = image_height / original_size[1]
 
         # Resize the image for model input
         im = original_im.resize((640, 640))
         im_data = ToTensor()(im)[None]
-        print(im_data.shape)
 
         #no grad
         with torch.no_grad():
-            outputs = model(im_data, torch.tensor([[640, 640]]))
+            outputs = model(im_data, torch.tensor([[image_width, image_height]]))
             image_path_stem = Path(image_path).stem
             image_path_parent = Path(image_path).parent
             image_path_output = image_path_parent / f"{image_path_stem}.json"
@@ -96,6 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', '-c', type=str, )
     parser.add_argument('--resume', '-r', type=str, )
     parser.add_argument('--image_paths', '-i', type=str, )
+    parser.add_argument('--image_sizes', '-imgs', type=str, )
 
     args = parser.parse_args()
 

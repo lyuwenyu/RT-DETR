@@ -53,8 +53,14 @@ def main(args, ):
             'orig_target_sizes': {0: 'N'}
         }
 
-    data = torch.rand(1, 3, 640, 640)
-    size = torch.tensor([[640, 640]])
+    image_sizes = args.image_sizes.split(' ')
+    image_width = int(image_sizes[0])
+    image_height = int(image_sizes[1])
+
+    data = torch.rand(1, 3, image_width, image_height)
+    size = torch.tensor([[image_width, image_height]])
+
+    print('Using image size:', image_width, image_height)
 
     torch.onnx.export(
         model,
@@ -160,6 +166,7 @@ if __name__ == '__main__':
     parser.add_argument('--check',  action='store_true', default=False,)
     parser.add_argument('--simplify',  action='store_true', default=False,)
     parser.add_argument('--dynamic',  action='store_true', default=False,)
+    parser.add_argument('--image_sizes', '-imgs', type=str, default='640 640',)
 
     args = parser.parse_args()
 
