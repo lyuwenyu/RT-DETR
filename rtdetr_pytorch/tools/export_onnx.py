@@ -97,12 +97,42 @@ def main(args, ):
 
 
     if args.simplify:
+        print('Simplify onnx model...')
         import onnxsim
-        dynamic = True
-        input_shapes = {'images': data.shape, 'orig_target_sizes': size.shape} if dynamic else None
-        onnx_model_simplify, check = onnxsim.simplify(args.file_name, input_shapes=input_shapes, dynamic_input_shape=dynamic)
+        onnx_model_simplify, check = onnxsim.simplify(args.file_name)
         onnx.save(onnx_model_simplify, args.file_name)
         print(f'Simplify onnx model {check}...')
+
+
+    input_shape = (1, 3, 640, 640)
+    input_data = np.random.rand(*input_shape).astype(np.float32)
+
+    def get_onnx_session(onnx_filename):
+        sess = ort.InferenceSession(onnx_filename)
+        return sess
+
+    def run_onnx(sess):
+        output = sess.run(
+        # output_names=['labels', 'boxes', 'scores'],
+        output_names=None,
+        input_feed={'images': input_data, "orig_target_sizes": [[640,640]]}
+    )
+
+    import time
+    import onnxruntime as ort
+
+    onnx_modelfile = args.file_name
+    sess = get_onnx_session(onnx_modelfile)
+
+    total = 0
+    for i in range(10):
+        start_time = time.time()
+        run_onnx(sess)
+        end_time = time.time()
+        execution_time_ms = (end_time - start_time) * 1000
+        print("Execution time:", execution_time_ms, "ms")
+        total += execution_time_ms
+    print('Mean', total/10)
 
 
     # import onnxruntime as ort
