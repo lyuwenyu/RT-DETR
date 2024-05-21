@@ -8,7 +8,7 @@ __include__: [
 ]
 
 
-output_dir: ./output/rtdetr_r18vd_6x_coco
+output_dir: ./output/rtdetr_timm_resnet18_coco
 
 RTDETR: 
   backbone: Timm

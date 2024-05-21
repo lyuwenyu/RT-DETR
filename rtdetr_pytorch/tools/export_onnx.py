@@ -42,8 +42,38 @@ def main(args, ):
             outputs = self.model(images)
             return self.postprocessor(outputs, orig_target_sizes)
 
+    # # install package coremltools if not installed
+    # import subprocess
+    # import sys
+
+    # try:
+    #     import coremltools
+    # except ImportError:
+    #     print("coremltools is not installed. Installing now...")
+    #     subprocess.check_call([sys.executable, "-m", "pip", "install", "coremltools"])
+    #     import coremltools
+    #     print("coremltools has been installed successfully.")
 
     model = Model()
+    model.eval()
+
+    # example_input = (torch.rand(1, 3, 640, 640), torch.tensor([[640, 640]]))
+    # traced_model = torch.jit.trace(model, example_input)
+    # import coremltools as ct
+    # # Convert the model
+    # example_images = torch.rand(1, 3, 640, 640)  # Example input size for images
+    # example_orig_target_sizes = torch.tensor([[640, 640]])  # Example target sizes
+    # input_images = ct.ImageType(name="images", shape=example_images.shape)
+    # input_orig_target_sizes = ct.TensorType(name="orig_target_sizes", shape=example_orig_target_sizes.shape)
+
+    # # Convert the model
+    # mlmodel = ct.convert(
+    #     traced_model,
+    #     inputs=[input_images, input_orig_target_sizes]
+    # )
+
+    # # Save the Core ML model
+    # mlmodel.save("best.mlmodel")
 
     dynamic_axes = None
 
@@ -104,7 +134,7 @@ def main(args, ):
         print(f'Simplify onnx model {check}...')
 
 
-    input_shape = (1, 3, 640, 640)
+    input_shape = (1, 3, image_width, image_height)
     input_data = np.random.rand(*input_shape).astype(np.float32)
 
     def get_onnx_session(onnx_filename):
