@@ -282,6 +282,7 @@ class TransformerDecoder(nn.Module):
         memory_mask=None,
     ):
         output = tgt
+        dec_out_angles = []
         dec_out_bboxes = []
         dec_out_logits = []
         ref_points_detach = F.sigmoid(ref_points_unact)
@@ -301,17 +302,21 @@ class TransformerDecoder(nn.Module):
                 query_pos_embed,
             )
 
-            inter_ref_bbox = F.sigmoid(
-                bbox_head[i](output) + inverse_sigmoid(ref_points_detach)
-            )
+            bbox_output = bbox_head[i](output)
+            angle_output = bbox_output[:, :, 4]
+            bbox_output = bbox_output[:, :, :4]
+            inter_ref_bbox = F.sigmoid(bbox_output + inverse_sigmoid(ref_points_detach))
 
+            dec_out_angles.append(angle_output)
             if self.training:
                 dec_out_logits.append(score_head[i](output))
                 if i == 0:
                     dec_out_bboxes.append(inter_ref_bbox)
                 else:
+                    bbox_output = bbox_head[i](output)
+                    bbox_output = bbox_output[:, :, :4]
                     dec_out_bboxes.append(
-                        F.sigmoid(bbox_head[i](output) + inverse_sigmoid(ref_points))
+                        F.sigmoid(bbox_output + inverse_sigmoid(ref_points))
                     )
 
             elif i == self.eval_idx:
@@ -324,9 +329,12 @@ class TransformerDecoder(nn.Module):
                 inter_ref_bbox.detach() if self.training else inter_ref_bbox
             )
 
-        # bbox predictions, classification logits, features
-
-        return torch.stack(dec_out_bboxes), torch.stack(dec_out_logits), output
+        return (
+            torch.stack(dec_out_bboxes),
+            torch.stack(dec_out_logits),
+            torch.stack(dec_out_angles),
+            output,
+        )
 
 
 @register
@@ -629,6 +637,7 @@ class RTDETRTransformer(nn.Module):
         return target, reference_points_unact.detach(), enc_topk_bboxes, enc_topk_logits
 
     def forward(self, feats, targets=None):
+
         # input projection and embedding
         (memory, spatial_shapes, level_start_index) = self._get_encoder_input(feats)
 
@@ -666,7 +675,7 @@ class RTDETRTransformer(nn.Module):
         )
 
         # decoder
-        out_bboxes, out_logits, out_features = self.decoder(
+        out_bboxes, out_logits, out_angles, out_features = self.decoder(
             target,
             init_ref_points_unact,
             memory,
@@ -685,10 +694,14 @@ class RTDETRTransformer(nn.Module):
             dn_out_logits, out_logits = torch.split(
                 out_logits, dn_meta["dn_num_split"], dim=2
             )
+            dn_out_angles, out_angles = torch.split(
+                out_angles, dn_meta["dn_num_split"], dim=2
+            )
 
         out = {
             "pred_logits": out_logits[-1],
             "pred_boxes": out_bboxes[-1],
+            "pred_angles": out_angles[-1],
             "features": out_features,
         }
 
