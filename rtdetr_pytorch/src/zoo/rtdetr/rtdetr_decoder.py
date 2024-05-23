@@ -435,7 +435,7 @@ class RTDETRTransformer(nn.Module):
         )
         self.dec_bbox_head = nn.ModuleList(
             [
-                MLP(hidden_dim, hidden_dim, 4, num_layers=3)
+                MLP(hidden_dim, hidden_dim, 5, num_layers=3)
                 for _ in range(num_decoder_layers)
             ]
         )
