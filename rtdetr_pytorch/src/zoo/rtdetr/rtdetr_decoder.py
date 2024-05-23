@@ -245,7 +245,6 @@ class TransformerDecoder(nn.Module):
                 attn_mask=None,
                 memory_mask=None):
         output = tgt
-        dec_out_angles = []
         dec_out_bboxes = []
         dec_out_logits = []
         ref_points_detach = F.sigmoid(ref_points_unact)
@@ -254,33 +253,18 @@ class TransformerDecoder(nn.Module):
             ref_points_input = ref_points_detach.unsqueeze(2)
             query_pos_embed = query_pos_head(ref_points_detach)
 
-            output = layer(
-                output,
-                ref_points_input,
-                memory,
-                memory_spatial_shapes,
-                memory_level_start_index,
-                attn_mask,
-                memory_mask,
-                query_pos_embed,
-            )
+            output = layer(output, ref_points_input, memory,
+                           memory_spatial_shapes, memory_level_start_index,
+                           attn_mask, memory_mask, query_pos_embed)
 
-            bbox_output = bbox_head[i](output)
-            angle_output = bbox_output[:, :, 4]
-            bbox_output = bbox_output[:, :, :4]
-            inter_ref_bbox = F.sigmoid(bbox_output + inverse_sigmoid(ref_points_detach))
+            inter_ref_bbox = F.sigmoid(bbox_head[i](output) + inverse_sigmoid(ref_points_detach))
 
-            dec_out_angles.append(angle_output)
             if self.training:
                 dec_out_logits.append(score_head[i](output))
                 if i == 0:
                     dec_out_bboxes.append(inter_ref_bbox)
                 else:
-                    bbox_output = bbox_head[i](output)
-                    bbox_output = bbox_output[:, :, :4]
-                    dec_out_bboxes.append(
-                        F.sigmoid(bbox_output + inverse_sigmoid(ref_points))
-                    )
+                    dec_out_bboxes.append(F.sigmoid(bbox_head[i](output) + inverse_sigmoid(ref_points)))
 
             elif i == self.eval_idx:
                 dec_out_logits.append(score_head[i](output))
@@ -288,16 +272,10 @@ class TransformerDecoder(nn.Module):
                 break
 
             ref_points = inter_ref_bbox
-            ref_points_detach = (
-                inter_ref_bbox.detach() if self.training else inter_ref_bbox
-            )
+            ref_points_detach = inter_ref_bbox.detach(
+            ) if self.training else inter_ref_bbox
 
-        return (
-            torch.stack(dec_out_bboxes),
-            torch.stack(dec_out_logits),
-            torch.stack(dec_out_angles),
-            output,
-        )
+        return torch.stack(dec_out_bboxes), torch.stack(dec_out_logits)
 
 
 @register
@@ -380,7 +358,7 @@ class RTDETRTransformer(nn.Module):
             for _ in range(num_decoder_layers)
         ])
         self.dec_bbox_head = nn.ModuleList([
-            MLP(hidden_dim, hidden_dim, 5, num_layers=3)
+            MLP(hidden_dim, hidden_dim, 4, num_layers=3)
             for _ in range(num_decoder_layers)
         ])
 
@@ -541,42 +519,25 @@ class RTDETRTransformer(nn.Module):
 
         # input projection and embedding
         (memory, spatial_shapes, level_start_index) = self._get_encoder_input(feats)
-
+        
         # prepare denoising training
         if self.training and self.num_denoising > 0:
-            (
-                denoising_class,
-                denoising_bbox_unact,
-                attn_mask,
-                dn_meta,
-            ) = get_contrastive_denoising_training_group(
-                targets,
-                self.num_classes,
-                self.num_queries,
-                self.denoising_class_embed,
-                num_denoising=self.num_denoising,
-                label_noise_ratio=self.label_noise_ratio,
-                box_noise_scale=self.box_noise_scale,
-            )
+            denoising_class, denoising_bbox_unact, attn_mask, dn_meta = \
+                get_contrastive_denoising_training_group(targets, \
+                    self.num_classes, 
+                    self.num_queries, 
+                    self.denoising_class_embed, 
+                    num_denoising=self.num_denoising, 
+                    label_noise_ratio=self.label_noise_ratio, 
+                    box_noise_scale=self.box_noise_scale, )
         else:
-            denoising_class, denoising_bbox_unact, attn_mask, dn_meta = (
-                None,
-                None,
-                None,
-                None,
-            )
+            denoising_class, denoising_bbox_unact, attn_mask, dn_meta = None, None, None, None
 
-        (
-            target,
-            init_ref_points_unact,
-            enc_topk_bboxes,
-            enc_topk_logits,
-        ) = self._get_decoder_input(
-            memory, spatial_shapes, denoising_class, denoising_bbox_unact
-        )
+        target, init_ref_points_unact, enc_topk_bboxes, enc_topk_logits = \
+            self._get_decoder_input(memory, spatial_shapes, denoising_class, denoising_bbox_unact)
 
         # decoder
-        out_bboxes, out_logits, out_angles, out_features = self.decoder(
+        out_bboxes, out_logits = self.decoder(
             target,
             init_ref_points_unact,
             memory,
@@ -585,36 +546,21 @@ class RTDETRTransformer(nn.Module):
             self.dec_bbox_head,
             self.dec_score_head,
             self.query_pos_head,
-            attn_mask=attn_mask,
-        )
+            attn_mask=attn_mask)
 
         if self.training and dn_meta is not None:
-            dn_out_bboxes, out_bboxes = torch.split(
-                out_bboxes, dn_meta["dn_num_split"], dim=2
-            )
-            dn_out_logits, out_logits = torch.split(
-                out_logits, dn_meta["dn_num_split"], dim=2
-            )
-            dn_out_angles, out_angles = torch.split(
-                out_angles, dn_meta["dn_num_split"], dim=2
-            )
+            dn_out_bboxes, out_bboxes = torch.split(out_bboxes, dn_meta['dn_num_split'], dim=2)
+            dn_out_logits, out_logits = torch.split(out_logits, dn_meta['dn_num_split'], dim=2)
 
-        out = {
-            "pred_logits": out_logits[-1],
-            "pred_boxes": out_bboxes[-1],
-            "pred_angles": out_angles[-1],
-            "features": out_features,
-        }
+        out = {'pred_logits': out_logits[-1], 'pred_boxes': out_bboxes[-1]}
 
         if self.training and self.aux_loss:
-            out["aux_outputs"] = self._set_aux_loss(out_logits[:-1], out_bboxes[:-1])
-            out["aux_outputs"].extend(
-                self._set_aux_loss([enc_topk_logits], [enc_topk_bboxes])
-            )
-
+            out['aux_outputs'] = self._set_aux_loss(out_logits[:-1], out_bboxes[:-1])
+            out['aux_outputs'].extend(self._set_aux_loss([enc_topk_logits], [enc_topk_bboxes]))
+            
             if self.training and dn_meta is not None:
-                out["dn_aux_outputs"] = self._set_aux_loss(dn_out_logits, dn_out_bboxes)
-                out["dn_meta"] = dn_meta
+                out['dn_aux_outputs'] = self._set_aux_loss(dn_out_logits, dn_out_bboxes)
+                out['dn_meta'] = dn_meta
 
         return out
 
