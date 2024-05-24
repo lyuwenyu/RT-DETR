@@ -38,9 +38,10 @@ class RTDETRPostProcessor(nn.Module):
 
     # def forward(self, outputs, orig_target_sizes):
     def forward(self, outputs, orig_target_sizes):
-        logits, boxes, features = (
+        logits, boxes, angles, features = (
             outputs["pred_logits"],
             outputs["pred_boxes"],
+            outputs["pred_angles"],
             outputs["features"],
         )
 
@@ -57,6 +58,8 @@ class RTDETRPostProcessor(nn.Module):
             boxes = bbox_pred.gather(
                 dim=1, index=index.unsqueeze(-1).repeat(1, 1, bbox_pred.shape[-1])
             )
+            angles = angles.gather(dim=1, index=index)
+
 
         else:
             scores = F.softmax(logits)[:, :, :-1]
@@ -68,10 +71,11 @@ class RTDETRPostProcessor(nn.Module):
                 boxes = torch.gather(
                     boxes, dim=1, index=index.unsqueeze(-1).tile(1, 1, boxes.shape[-1])
                 )
+                angles = torch.gather(angles, dim=1, index=index)
 
         # TODO for onnx export
         if self.deploy_mode:
-            return labels, boxes, scores, features
+            return labels, boxes, angles, scores, features
 
         # TODO
         if self.remap_mscoco_category:
@@ -87,8 +91,8 @@ class RTDETRPostProcessor(nn.Module):
 
         results = []
         # features untested when self.deploy_mode==False
-        for lab, box, sco, feat in zip(labels, boxes, scores, features):  # , features):
-            result = dict(labels=lab, boxes=box, scores=sco, features=feat)
+        for lab, box, angle, sco, feat in zip(labels, boxes, angles, scores, features):  # , features):
+            result = dict(labels=lab, boxes=box, angles=angle, scores=sco, features=feat)
             results.append(result)
 
         return results
