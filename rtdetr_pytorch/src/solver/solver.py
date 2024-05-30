@@ -30,7 +30,7 @@ class BaseSolver(object):
         self.criterion = cfg.criterion.to(device)
         self.postprocessor = cfg.postprocessor
         self.loss_loggers = cfg.loss_loggers
-        self.metric_loggers = cfg.metrics_loggers
+        self.metric_loggers = cfg.metrics_loggers or list()
 
         # NOTE (lvwenyu): should load_tuning_state before ema instance building
         if self.cfg.tuning:
