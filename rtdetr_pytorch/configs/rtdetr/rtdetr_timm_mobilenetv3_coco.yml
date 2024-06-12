@@ -19,8 +19,8 @@ Timm:
 HybridEncoder:
   in_channels: [16,24,288]
   hidden_dim: 256
-  expansion: 1.0
-  depth_mult: 0.33
+  expansion: 0.5
+  depth_mult: 1.0
   # eval_spatial_size: [640, 640]
 
 
