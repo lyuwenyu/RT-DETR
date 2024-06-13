@@ -45,13 +45,10 @@ def main(args, ):
 
     model = Model()
 
-    dynamic_axes = None
-
-    if args.dynamic:
-        dynamic_axes = {
-            'images': {0: 'N', },
-            'orig_target_sizes': {0: 'N'}
-        }
+    dynamic_axes = {
+        'images': {0: 'N', },
+        'orig_target_sizes': {0: 'N'}
+    }
 
     data = torch.rand(1, 3, 640, 640)
     size = torch.tensor([[640, 640]])
@@ -73,21 +70,6 @@ def main(args, ):
         onnx_model = onnx.load(args.file_name)
         onnx.checker.check_model(onnx_model)
         print('Check export onnx model done...')
-
-    # import onnx2tf
-    #
-    # f_onnx = args.file_name
-    # f = 'model.tflite'
-    # verbosity = False
-    # onnx2tf.convert(
-    #     input_onnx_file_path=f_onnx,
-    #     output_folder_path=str(f),
-    #     not_use_onnxsim=True,
-    #     verbosity=verbosity,
-    #     output_integer_quantized_tflite=False,
-    #     quant_type="per-tensor",  # "per-tensor" (faster) or "per-channel" (slower but more accurate)
-    #     # custom_input_op_name_np_data_path=np_data,
-    # )
 
 
     if args.simplify:
@@ -159,7 +141,6 @@ if __name__ == '__main__':
     parser.add_argument('--file-name', '-f', type=str, default='model.onnx')
     parser.add_argument('--check',  action='store_true', default=False,)
     parser.add_argument('--simplify',  action='store_true', default=False,)
-    parser.add_argument('--dynamic',  action='store_true', default=False,)
 
     args = parser.parse_args()
 
