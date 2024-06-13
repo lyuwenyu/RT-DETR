@@ -463,9 +463,7 @@ class RTDETRTransformer(nn.Module):
         anchors = torch.log(anchors / (1 - anchors))
         # anchors = torch.where(valid_mask, anchors, float('inf'))
         # anchors[valid_mask] = torch.inf # valid_mask [1, 8400, 1]
-#         anchors = torch.where(valid_mask, anchors, torch.inf)
-        anchors = torch.where(valid_mask, anchors, torch.tensor(float('inf'), dtype=torch.float32, device=device))
-
+        anchors = torch.where(valid_mask, anchors, torch.inf)
 
         return anchors, valid_mask
 

@@ -42,38 +42,8 @@ def main(args, ):
             outputs = self.model(images)
             return self.postprocessor(outputs, orig_target_sizes)
 
-    # # install package coremltools if not installed
-    # import subprocess
-    # import sys
-
-    # try:
-    #     import coremltools
-    # except ImportError:
-    #     print("coremltools is not installed. Installing now...")
-    #     subprocess.check_call([sys.executable, "-m", "pip", "install", "coremltools"])
-    #     import coremltools
-    #     print("coremltools has been installed successfully.")
 
     model = Model()
-    model.eval()
-
-    # example_input = (torch.rand(1, 3, 640, 640), torch.tensor([[640, 640]]))
-    # traced_model = torch.jit.trace(model, example_input)
-    # import coremltools as ct
-    # # Convert the model
-    # example_images = torch.rand(1, 3, 640, 640)  # Example input size for images
-    # example_orig_target_sizes = torch.tensor([[640, 640]])  # Example target sizes
-    # input_images = ct.ImageType(name="images", shape=example_images.shape)
-    # input_orig_target_sizes = ct.TensorType(name="orig_target_sizes", shape=example_orig_target_sizes.shape)
-
-    # # Convert the model
-    # mlmodel = ct.convert(
-    #     traced_model,
-    #     inputs=[input_images, input_orig_target_sizes]
-    # )
-
-    # # Save the Core ML model
-    # mlmodel.save("best.mlmodel")
 
     dynamic_axes = None
 
@@ -83,14 +53,8 @@ def main(args, ):
             'orig_target_sizes': {0: 'N'}
         }
 
-    image_sizes = args.image_sizes.split(' ')
-    image_width = int(image_sizes[0])
-    image_height = int(image_sizes[1])
-
-    data = torch.rand(1, 3, image_width, image_height)
-    size = torch.tensor([[image_width, image_height]])
-
-    print('Using image size:', image_width, image_height)
+    data = torch.rand(1, 3, 640, 640)
+    size = torch.tensor([[640, 640]])
 
     torch.onnx.export(
         model,
@@ -127,42 +91,12 @@ def main(args, ):
 
 
     if args.simplify:
-        print('Simplify onnx model...')
         import onnxsim
-        onnx_model_simplify, check = onnxsim.simplify(args.file_name)
+        dynamic = True
+        input_shapes = {'images': data.shape, 'orig_target_sizes': size.shape} if dynamic else None
+        onnx_model_simplify, check = onnxsim.simplify(args.file_name, input_shapes=input_shapes, dynamic_input_shape=dynamic)
         onnx.save(onnx_model_simplify, args.file_name)
         print(f'Simplify onnx model {check}...')
-
-
-    input_shape = (1, 3, image_width, image_height)
-    input_data = np.random.rand(*input_shape).astype(np.float32)
-
-    def get_onnx_session(onnx_filename):
-        sess = ort.InferenceSession(onnx_filename)
-        return sess
-
-    def run_onnx(sess):
-        output = sess.run(
-        # output_names=['labels', 'boxes', 'scores'],
-        output_names=None,
-        input_feed={'images': input_data, "orig_target_sizes": [[640,640]]}
-    )
-
-    import time
-    import onnxruntime as ort
-
-    onnx_modelfile = args.file_name
-    sess = get_onnx_session(onnx_modelfile)
-
-    total = 0
-    for i in range(10):
-        start_time = time.time()
-        run_onnx(sess)
-        end_time = time.time()
-        execution_time_ms = (end_time - start_time) * 1000
-        print("Execution time:", execution_time_ms, "ms")
-        total += execution_time_ms
-    print('Mean', total/10)
 
 
     # import onnxruntime as ort
@@ -226,7 +160,6 @@ if __name__ == '__main__':
     parser.add_argument('--check',  action='store_true', default=False,)
     parser.add_argument('--simplify',  action='store_true', default=False,)
     parser.add_argument('--dynamic',  action='store_true', default=False,)
-    parser.add_argument('--image_sizes', '-imgs', type=str, default='640 640',)
 
     args = parser.parse_args()
 

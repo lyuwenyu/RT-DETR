@@ -28,7 +28,7 @@ RTDETRTransformer:
   eval_idx: -1
   num_decoder_layers: 3
   num_denoising: 100
-  # eval_spatial_size: [640, 640]
+  eval_spatial_size: [640, 640]
 
 
 

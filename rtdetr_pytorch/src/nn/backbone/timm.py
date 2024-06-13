@@ -11,7 +11,6 @@ class Timm(nn.Module):
             model_type : str = 'mobilenetv3_small_050.lamb_in1k'
         ):
         super().__init__()
-        #out_indices=(0,3,4), 
         self.model = timm.create_model(model_type, features_only=True, pretrained=True)
         
 

@@ -9,7 +9,7 @@ RTDETR:
   backbone: PResNet
   encoder: HybridEncoder
   decoder: RTDETRTransformer
-  multi_scale: [320, 480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
+  multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
 
 PResNet:
   depth: 50
@@ -40,7 +40,7 @@ HybridEncoder:
   act: 'silu'
 
   # eval
-  # eval_spatial_size: [640, 640]
+  eval_spatial_size: [640, 640]
 
 
 RTDETRTransformer:
@@ -55,7 +55,7 @@ RTDETRTransformer:
   num_denoising: 100
   
   eval_idx: -1
-  # eval_spatial_size: [640, 640]
+  eval_spatial_size: [640, 640]
 
 
 use_focal_loss: True
