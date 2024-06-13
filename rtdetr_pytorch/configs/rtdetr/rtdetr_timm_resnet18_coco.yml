@@ -8,25 +8,27 @@ __include__: [
 ]
 
 
-output_dir: ./output/rtdetr_r18vd_6x_coco
+output_dir: ./output/rtdetr_timm_resnet18_coco
 
-PResNet:
-  depth: 18
-  freeze_at: -1
-  freeze_norm: False
-  pretrained: True
+RTDETR: 
+  backbone: Timm
+
+Timm:
+  model_type: resnet18.fb_swsl_ig1b_ft_in1k
 
 HybridEncoder:
-  in_channels: [128, 256, 512]
+  in_channels: [16,24,288]
   hidden_dim: 256
   expansion: 0.5
   depth_mult: 1.0
+  eval_spatial_size: [640, 640]
 
 
 RTDETRTransformer:
   eval_idx: -1
   num_decoder_layers: 3
   num_denoising: 100
+  # eval_spatial_size: [640, 640]
 
 
 
