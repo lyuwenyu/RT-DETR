@@ -8,6 +8,7 @@ import torch.utils.data
 import torchvision
 from PIL import Image
 
+
 @dataclass
 class BoundingBox:
     category: str
@@ -37,6 +38,7 @@ class BoundingBox:
     def area(self):
         return self.width * self.height
 
+
 class RotatedCocoDataset(torch.utils.data.Dataset):
     def __init__(self, image_files: List[Path], labels: List[List[BoundingBox]]):
         self.image_files = image_files
@@ -52,8 +54,8 @@ class RotatedCocoDataset(torch.utils.data.Dataset):
         self.transforms = torchvision.transforms.Compose(
             [
                 torchvision.transforms.Resize(self.input_size),
-                src.data.transforms.ToImageTensor(),
-                src.data.transforms.ConvertDtype(),
+                src.data.transforms.ToImage(),
+                src.data.transforms.ToDtype(),
             ]
         )
 
