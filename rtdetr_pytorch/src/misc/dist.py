@@ -182,7 +182,6 @@ def sync_time():
 
 def set_seed(seed):
     # fix the seed for reproducibility
-    seed = seed + get_rank()
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
