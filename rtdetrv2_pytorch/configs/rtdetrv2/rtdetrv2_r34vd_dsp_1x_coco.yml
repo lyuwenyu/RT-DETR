@@ -1,0 +1,59 @@
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetrv2_r50vd.yml',
+]
+
+tuning: https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r34vd_120e_coco_ema.pth
+
+output_dir: ./output/rtdetrv2_r34vd_dsp_1x_coco
+
+
+PResNet:
+  depth: 34
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: True
+
+
+HybridEncoder:
+  in_channels: [128, 256, 512]
+  hidden_dim: 256
+  expansion: 0.5
+
+
+RTDETRTransformerv2:
+  num_layers: 4
+  cross_attn_method: discrete
+
+
+epoches: 12
+
+optimizer:
+  type: AdamW
+  params: 
+    - 
+      params: '^(?=.*backbone)(?!.*norm|bn).*$'
+      lr: 0.00005
+    - 
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.00005
+      weight_decay: 0.
+    - 
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+
+train_dataloader: 
+  dataset: 
+    transforms:
+      policy:
+        epoch: 10
+  collate_fn:
+    stop_epoch: 10

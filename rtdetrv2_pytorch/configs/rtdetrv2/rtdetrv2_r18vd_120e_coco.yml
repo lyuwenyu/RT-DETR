@@ -1,0 +1,46 @@
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetrv2_r50vd.yml',
+]
+
+
+output_dir: ./output/rtdetrv2_r18vd_120e_coco
+
+
+PResNet:
+  depth: 18
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: True
+
+
+HybridEncoder:
+  in_channels: [128, 256, 512]
+  hidden_dim: 256
+  expansion: 0.5
+
+
+RTDETRTransformerv2:
+  num_layers: 3
+
+
+epoches: 120 
+
+optimizer:
+  type: AdamW
+  params:
+    - 
+      params: '^(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.
+
+
+train_dataloader: 
+  dataset: 
+    transforms:
+      policy:
+        epoch: 117
+  collate_fn:
+    scales: ~

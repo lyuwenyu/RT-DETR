@@ -28,17 +28,23 @@ English | [简体中文](README_cn.md)
 
 ---
 
+
+This is the official implementation of papers "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)" and "[RT-DETRv2: Improved Baseline with Bag-of-Freebies for Real-Time Detection Transformer](https://arxiv.org/abs/2407.17140)".
+
+
+<details>
+<summary>Fig</summary>
+
 <div align="center">
   <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/0ede1dc1-a854-43b6-9986-cf9090f11a61" width=500 >
 </div>
 
+</details>
 
-
-
-This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)".
 
 
 ## 🚀 Updates
+- \[2024.07.24\] Release RT-DETRv2!
 - \[2024.02.27\] Our work has been accepted to CVPR 2024!
 - \[2024.01.23\] Fix difference on data augmentation with paper in rtdetr_pytorch [#84](https://github.com/lyuwenyu/RT-DETR/commit/5dc64138e439247b4e707dd6cebfe19d8d77f5b1).
 - \[2023.11.07\] Add pytorch ✅ *rtdetr_r34vd* for requests [#107](https://github.com/lyuwenyu/RT-DETR/issues/107), [#114](https://github.com/lyuwenyu/RT-DETR/issues/114).
@@ -56,22 +62,31 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 - \[2023.04.17\] Release RT-DETR-R50, RT-DETR-R101, RT-DETR-L, RT-DETR-X.
 
 ## 📍 Implementations
-- 🔥 RT-DETR paddle: [code](./rtdetr_paddle), [weights](./rtdetr_paddle)
-- 🔥 RT-DETR pytorch: [code](./rtdetr_pytorch), [weights](./rtdetr_pytorch)
+- 🔥 RT-DETRv2
+  - paddle: [code&weight](./rtdetrv2_paddle/)
+  - pytorch: [code&weight](./rtdetrv2_pytorch/)
+- 🔥 RT-DETR 
+  - paddle: [code&weight](./rtdetr_paddle)
+  - pytorch: [code&weight](./rtdetr_pytorch)
 
 
-| Model | Epoch | Input shape | Dataset | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) | T4 TensorRT FP16(FPS)
-|:---:|:---:|:---:| :---:|:---:|:---:|:---:|:---:|:---:|
-| RT-DETR-R18 | 6x | 640 | COCO | 46.5 | 63.8 | 20 | 60 | 217 |
-| RT-DETR-R34 | 6x | 640 | COCO | 48.9 | 66.8 | 31 | 92 | 161 |
-| RT-DETR-R50-m | 6x | 640 | COCO | 51.3 | 69.6 | 36 | 100 | 145 |
-| RT-DETR-R50 | 6x |  640 | COCO | 53.1 | 71.3 | 42 | 136 | 108 |
-| RT-DETR-R101 | 6x | 640 | COCO | 54.3 | 72.7 | 76 | 259 | 74 |
-| RT-DETR-HGNetv2-L | 6x | 640 | COCO | 53.0 | 71.6 | 32 | 110 | 114 |
-| RT-DETR-HGNetv2-X | 6x | 640 | COCO | 54.8 | 73.1 | 67 | 234 | 74 |
-| RT-DETR-R18 | 5x | 640 | COCO + Objects365 | **49.2** | **66.6** | 20 | 60 | **217** |
-| RT-DETR-R50 | 2x | 640 | COCO + Objects365 | **55.3** | **73.4** | 42 | 136 | **108** |
-| RT-DETR-R101 | 2x | 640 | COCO + Objects365 | **56.2** | **74.6** | 76 | 259 | **74** |
+| Model | Input shape | Dataset | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) | T4 TensorRT FP16(FPS)
+|:---:|:---:| :---:|:---:|:---:|:---:|:---:|:---:|
+| RT-DETR-R18 | 640 | COCO | 46.5 | 63.8 | 20 | 60 | 217 |
+| RT-DETR-R34 | 640 | COCO | 48.9 | 66.8 | 31 | 92 | 161 |
+| RT-DETR-R50-m | 640 | COCO | 51.3 | 69.6 | 36 | 100 | 145 |
+| RT-DETR-R50 |  640 | COCO | 53.1 | 71.3 | 42 | 136 | 108 |
+| RT-DETR-R101 | 640 | COCO | 54.3 | 72.7 | 76 | 259 | 74 |
+| RT-DETR-HGNetv2-L | 640 | COCO | 53.0 | 71.6 | 32 | 110 | 114 |
+| RT-DETR-HGNetv2-X | 640 | COCO | 54.8 | 73.1 | 67 | 234 | 74 |
+| RT-DETR-R18 | 640 | COCO + Objects365 | **49.2** | **66.6** | 20 | 60 | **217** |
+| RT-DETR-R50 | 640 | COCO + Objects365 | **55.3** | **73.4** | 42 | 136 | **108** |
+| RT-DETR-R101 | 640 | COCO + Objects365 | **56.2** | **74.6** | 76 | 259 | **74** |
+**RT-DETRv2-S** | 640 | COCO  | **47.9** <font color=green>(+1.4)</font> | **64.9** | 20 | 60 | 217 |
+**RT-DETRv2-M** | 640 | COCO  | **49.9** <font color=green>(+1.0)</font> | **67.5** | 31 | 92 | 161 |
+**RT-DETRv2-M**<sup>*<sup> | 640 | COCO | **51.9** <font color=green>(+0.6)</font> | **69.9** | 36 | 100 | 145 |
+**RT-DETRv2-L** | 640 | COCO | **53.4** <font color=green>(+0.3)</font> | **71.6** | 42 | 136 | 108 |
+**RT-DETRv2-X** | 640 | COCO | 54.3 | **72.8** <font color=green>(+0.1)</font>  | 76 | 259| 74 |
 
 **Notes:**
 - `COCO + Objects365` in the table means finetuned model on COCO using pretrained weights trained on Objects365.
@@ -96,7 +111,7 @@ We propose a **R**eal-**T**ime **DE**tection **TR**ansformer (RT-DETR, aka RTDET
 </div>
 
 ## Citation
-If you use `RT-DETR` in your work, please use the following BibTeX entries:
+If you use `RT-DETR` or `RTDETRv2` in your work, please use the following BibTeX entries:
 ```
 @misc{lv2023detrs,
       title={DETRs Beat YOLOs on Real-time Object Detection},
@@ -105,5 +120,15 @@ If you use `RT-DETR` in your work, please use the following BibTeX entries:
       eprint={2304.08069},
       archivePrefix={arXiv},
       primaryClass={cs.CV}
+}
+
+@misc{lv2024rtdetrv2improvedbaselinebagoffreebies,
+      title={RT-DETRv2: Improved Baseline with Bag-of-Freebies for Real-Time Detection Transformer}, 
+      author={Wenyu Lv and Yian Zhao and Qinyao Chang and Kui Huang and Guanzhong Wang and Yi Liu},
+      year={2024},
+      eprint={2407.17140},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2407.17140}, 
 }
 ```

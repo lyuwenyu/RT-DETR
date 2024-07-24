@@ -1,0 +1,48 @@
+
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetr_r50vd.yml',
+]
+
+
+output_dir: ./output/rtdetr_r34vd_6x_coco
+
+
+PResNet:
+  depth: 34
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: True
+
+
+HybridEncoder:
+  in_channels: [128, 256, 512]
+  hidden_dim: 256
+  expansion: 0.5
+
+
+RTDETRTransformer:
+  num_layers: 4
+
+
+
+optimizer:
+  type: AdamW
+  params: 
+    - 
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      weight_decay: 0.
+      lr: 0.00001
+    - 
+      params: '^(?=.*backbone)(?!.*norm|bn).*$'
+      lr: 0.00001
+    - 
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
