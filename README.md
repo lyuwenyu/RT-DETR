@@ -29,7 +29,9 @@ English | [简体中文](README_cn.md)
 ---
 
 
-This is the official implementation of papers "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)" and "[RT-DETRv2: Improved Baseline with Bag-of-Freebies for Real-Time Detection Transformer](https://arxiv.org/abs/2407.17140)".
+This is the official implementation of papers 
+- [DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)
+- [RT-DETRv2: Improved Baseline with Bag-of-Freebies for Real-Time Detection Transformer](https://arxiv.org/abs/2407.17140)
 
 
 <details>
@@ -91,12 +93,6 @@ This is the official implementation of papers "[DETRs Beat YOLOs on Real-time Ob
 **Notes:**
 - `COCO + Objects365` in the table means finetuned model on COCO using pretrained weights trained on Objects365.
 
-
-## 💡 Introduction
-We propose a **R**eal-**T**ime **DE**tection **TR**ansformer (RT-DETR, aka RTDETR), the first real-time end-to-end object detector to our best knowledge. Our RT-DETR-R50 / R101 achieves 53.1% / 54.3% AP on COCO and 108 / 74 FPS on T4 GPU, outperforming previously advanced YOLOs in both speed and accuracy. Furthermore, RT-DETR-R50 outperforms DINO-R50 by 2.2% AP in accuracy and about 21 times in FPS. After pre-training with Objects365, RT-DETR-R50 / R101 achieves 55.3% / 56.2% AP.
-<div align="center">
-  <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/c211a164-ddce-4084-8b71-fb73f29f363b" width=500 >
-</div>
 
 ## 🦄 Performance
 
