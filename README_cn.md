@@ -2,14 +2,20 @@
 
 # RT-DETR 
 
-This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)".
+文章"[DETRs Beat YOLOs on Real-time Object Detection](https://arxiv.org/abs/2304.08069)"和"[RT-DETRv2: Improved Baseline with Bag-of-Freebies for Real-Time Detection Transformer](https://arxiv.org/abs/2407.17140)"的官方实现.
+
+<details>
+<summary>Fig</summary>
 
 <div align="center">
   <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/0ede1dc1-a854-43b6-9986-cf9090f11a61" width=500 >
 </div>
 
-## 最新动态
+</details>
 
+
+## 最新动态
+- 发布RT-DETRv2系列模型
 - 发布RT-DETR-R50, RT-DETR-R101模型
 - 发布RT-DETR-R50-m模型（scale模型的范例）
 - 发布RT-DETR-R34, RT-DETR-R18模型
@@ -17,8 +23,12 @@ This is the official implementation of the paper "[DETRs Beat YOLOs on Real-time
 
 
 ## 代码仓库
-- [RT-DETR-paddle](./rtdetr_paddle)
-- [RT-DETR--pytorch](./rtdetr_pytorch)
+- 🔥 RT-DETRv2
+  - paddle: [code&weight](./rtdetrv2_paddle/)
+  - pytorch: [code&weight](./rtdetrv2_pytorch/)
+- 🔥 RT-DETR 
+  - paddle: [code&weight](./rtdetr_paddle)
+  - pytorch: [code&weight](./rtdetr_pytorch)
 
 
 ## 简介
@@ -40,5 +50,15 @@ RT-DETR是第一个实时端到端目标检测器。具体而言，我们设计�
       eprint={2304.08069},
       archivePrefix={arXiv},
       primaryClass={cs.CV}
+}
+
+@misc{lv2024rtdetrv2improvedbaselinebagoffreebies,
+      title={RT-DETRv2: Improved Baseline with Bag-of-Freebies for Real-Time Detection Transformer}, 
+      author={Wenyu Lv and Yian Zhao and Qinyao Chang and Kui Huang and Guanzhong Wang and Yi Liu},
+      year={2024},
+      eprint={2407.17140},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2407.17140}, 
 }
 ```

@@ -1,0 +1,44 @@
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetrv2_r50vd.yml',
+]
+
+output_dir: ./output/rtdetrv2_r50vd_m_dsp_3x_coco
+tuning: https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_m_7x_coco_ema.pth
+
+HybridEncoder:
+  expansion: 0.5
+
+
+RTDETRTransformerv2:
+  eval_idx: 2 # use 3th decoder layer to eval
+  cross_attn_method: discrete
+
+
+epoches: 36
+
+optimizer:
+  type: AdamW
+  params: 
+    - 
+      params: '^(?=.*backbone)(?!.*norm).*$'
+      lr: 0.00001
+    - 
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.
+
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+
+train_dataloader: 
+  dataset: 
+    transforms:
+      policy:
+        epoch: 33
+  collate_fn:
+    stop_epoch: 33

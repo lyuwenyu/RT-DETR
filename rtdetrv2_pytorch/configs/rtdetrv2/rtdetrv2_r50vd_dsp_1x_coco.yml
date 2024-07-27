@@ -1,0 +1,27 @@
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetrv2_r50vd.yml',
+]
+
+
+tuning: https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_6x_coco_ema.pth
+
+output_dir: ./output/rtdetrv2_r50vd_dsp_1x_coco
+
+
+RTDETRTransformerv2:
+  cross_attn_method: discrete
+
+
+epoches: 12
+
+train_dataloader: 
+  dataset: 
+    transforms:
+      policy:
+        epoch: 10
+  collate_fn:
+    stop_epoch: 10
