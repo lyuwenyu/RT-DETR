@@ -225,6 +225,6 @@ if __name__ == '__main__':
         'orig_target_sizes': orig_size.to(args.device),
     }
 
-    labels, boxes, scores = m(blob)
+    output = m(blob)
 
-    draw([im_pil], labels, boxes, scores)
+    draw([im_pil], output['labels'], output['boxes'], output['scores'])
