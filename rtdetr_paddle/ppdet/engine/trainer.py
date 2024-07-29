@@ -883,24 +883,24 @@ class Trainer(object):
         # set image_shape=[None, 3, -1, -1] as default
         if image_shape is None:
             image_shape = [None, 3, -1, -1]
-
+    
         if len(image_shape) == 3:
             image_shape = [None] + image_shape
         else:
             im_shape = [image_shape[0], 2]
             scale_factor = [image_shape[0], 2]
-
+    
         if hasattr(self.model, 'deploy'):
             self.model.deploy = True
-
+    
         for layer in self.model.sublayers():
             if hasattr(layer, 'convert_to_deploy'):
                 layer.convert_to_deploy()
-
+    
         if hasattr(self.cfg, 'export') and 'fuse_conv_bn' in self.cfg[
                 'export'] and self.cfg['export']['fuse_conv_bn']:
             self.model = fuse_conv_bn(self.model)
-
+    
         export_post_process = self.cfg['export'].get(
             'post_process', False) if hasattr(self.cfg, 'export') else True
         export_nms = self.cfg['export'].get('nms', False) if hasattr(
@@ -913,12 +913,12 @@ class Trainer(object):
             self.model.export_nms = export_nms if not export_benchmark else False
         if export_post_process and not export_benchmark:
             image_shape = [None] + image_shape[1:]
-
+    
         # Save infer cfg
         _dump_infer_config(self.cfg,
                            os.path.join(save_dir, 'infer_cfg.yml'), image_shape,
                            self.model)
-
+    
         input_spec = [{
             "image": InputSpec(
                 shape=image_shape, name='image'),
@@ -927,10 +927,10 @@ class Trainer(object):
             "scale_factor": InputSpec(
                 shape=scale_factor, name='scale_factor')
         }]
-
+    
         if prune_input:
             static_model = paddle.jit.to_static(
-                self.model, input_spec=input_spec)
+                self.model, input_spec=input_spec, full_graph=True)
             # NOTE: dy2st do not pruned program, but jit.save will prune program
             # input spec, prune input spec here and save with pruned input spec
             pruned_input_spec = _prune_input_spec(
@@ -939,7 +939,7 @@ class Trainer(object):
         else:
             static_model = None
             pruned_input_spec = input_spec
-
+    
         return static_model, pruned_input_spec
 
     def export(self, output_dir='output_inference'):
