@@ -8,7 +8,7 @@ import torchvision.transforms as T
 import numpy as np 
 from PIL import Image, ImageDraw
 
-from cvperception.core import YAMLConfig
+from src.core import YAMLConfig
 
 
 def draw(images, labels, boxes, scores, thrh = 0.6):
@@ -18,10 +18,11 @@ def draw(images, labels, boxes, scores, thrh = 0.6):
         scr = scores[i]
         lab = labels[i][scr > thrh]
         box = boxes[i][scr > thrh]
+        scrs = scores[i][scr > thrh]
 
-        for b in box:
+        for j,b in enumerate(box):
             draw.rectangle(list(b), outline='red',)
-            draw.text((b[0], b[1]), text=str(lab[i].item()), fill='blue', )
+            draw.text((b[0], b[1]), text=f"{lab[j].item()} {round(scrs[j].item(),2)}", fill='blue', )
 
         im.save(f'results_{i}.jpg')
 
