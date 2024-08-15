@@ -5,6 +5,8 @@ Mostly copy-paste from https://github.com/pytorch/vision/blob/13b35ff/references
 Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
+import gc
+import os
 import torch
 import torch.utils.data
 
@@ -17,6 +19,8 @@ from pycocotools import mask as coco_mask
 from ._dataset import DetDataset
 from .._misc import convert_to_tv_tensor
 from ...core import register
+from .coco_utils import TorchSerializedList
+from pycocotools.coco import COCO
 
 __all__ = ['CocoDetection']
 
@@ -75,6 +79,93 @@ class CocoDetection(torchvision.datasets.CocoDetection, DetDataset):
     def categories(self, ):
         return self.coco.dataset['categories']
 
+    @property
+    def category2name(self, ):
+        return {cat['id']: cat['name'] for cat in self.categories}
+
+    @property
+    def category2label(self, ):
+        return {cat['id']: i for i, cat in enumerate(self.categories)}
+
+    @property
+    def label2category(self, ):
+        return {i: cat['id'] for i, cat in enumerate(self.categories)}
+
+
+@register()
+class CocoDetection_share_memory(torchvision.datasets.VisionDataset, DetDataset):
+    def __init__(self, img_folder, ann_file, transforms, return_masks=False, remap_mscoco_category=False, share_memory=True):
+        super(CocoDetection_share_memory, self).__init__(img_folder)
+        coco = COCO(ann_file)
+
+        index = sorted(coco.imgs.keys())
+
+        self.imgs_info = [coco.imgs[i] for i in index]
+        self.anns = [coco.imgToAnns[i] for i in index]
+        self.categories = coco.dataset['categories']
+        
+        if share_memory:
+            self.imgs_info = TorchSerializedList(self.imgs_info)
+            self.anns = TorchSerializedList(self.anns)
+        
+        self._transforms = transforms
+        self.prepare = ConvertCocoPolysToMask(return_masks)
+        self.img_folder = img_folder
+        self.ann_file = ann_file
+        self.return_masks = return_masks
+        self.remap_mscoco_category = remap_mscoco_category
+
+    def _load_image(self, idx: int) -> Image.Image:
+        img_info = self.imgs_info[idx]
+        file_name = img_info["file_name"]
+        img_full_path = os.path.join(self.img_folder, file_name)
+
+        img = Image.open(img_full_path).convert("RGB")
+
+        return img
+
+    def _load_target(self, idx: int):
+        return  self.anns[idx]
+
+    def load_item(self, idx):
+        image, target = self._load_image(idx), self._load_target(idx)
+        image_id = self.imgs_info[idx]['id']
+        target = {'image_id': image_id, 'annotations': target}
+
+        if self.remap_mscoco_category:
+            image, target = self.prepare(image, target, category2label=mscoco_category2label)
+            # image, target = self.prepare(image, target, category2label=self.category2label)
+        else:
+            image, target = self.prepare(image, target)
+
+        target['idx'] = torch.tensor([idx])
+
+        if 'boxes' in target:
+            target['boxes'] = convert_to_tv_tensor(target['boxes'], key='boxes', spatial_size=image.size[::-1])
+
+        if 'masks' in target:
+            target['masks'] = convert_to_tv_tensor(target['masks'], key='masks')
+        
+        return image, target
+
+    def __getitem__(self, idx):
+        img, target = self.load_item(idx)
+        if self._transforms is not None:
+            img, target, _ = self._transforms(img, target, self)
+        return img, target
+
+    def extra_repr(self) -> str:
+        s = f' img_folder: {self.img_folder}\n ann_file: {self.ann_file}\n'
+        s += f' return_masks: {self.return_masks}\n'
+        if hasattr(self, '_transforms') and self._transforms is not None:
+            s += f' transforms:\n   {repr(self._transforms)}'
+        if hasattr(self, '_preset') and self._preset is not None:
+            s += f' preset:\n   {repr(self._preset)}'
+        return s 
+
+    def __len__(self) -> int:
+        return len(self.imgs_info)
+    
     @property
     def category2name(self, ):
         return {cat['id']: cat['name'] for cat in self.categories}

@@ -4,3 +4,5 @@ pycocotools
 PyYAML
 tensorboard
 scipy
+psutil
+tabulate
