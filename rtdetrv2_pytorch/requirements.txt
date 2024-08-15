@@ -3,3 +3,4 @@ torchvision>=0.15.2
 pycocotools
 PyYAML
 tensorboard
+scipy
