@@ -307,7 +307,12 @@ class HybridEncoder(nn.Module):
             feat_low = proj_feats[idx - 1]
             feat_high = self.lateral_convs[len(self.in_channels) - 1 - idx](feat_high)
             inner_outs[0] = feat_high
-            upsample_feat = F.interpolate(feat_high, scale_factor=2., mode='nearest')
+            n_low, c_low, h_low, w_low = feat_low.shape
+            n_high, c_high, h_high, w_high = feat_high.shape
+            if h_low == 2 * h_high and w_low == 2 * w_high:
+                upsample_feat = F.interpolate(feat_high, scale_factor=2., mode='nearest')
+            else:
+                upsample_feat = F.interpolate(feat_high, size=(h_low, w_low), mode='bilinear')
             inner_out = self.fpn_blocks[len(self.in_channels)-1-idx](torch.concat([upsample_feat, feat_low], dim=1))
             inner_outs.insert(0, inner_out)
 
