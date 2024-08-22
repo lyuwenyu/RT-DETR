@@ -1,7 +1,7 @@
 
 ## Quick start
 
-<details open>
+<details >
 <summary>Setup</summary>
 
 ```shell
@@ -12,12 +12,21 @@ pip install -r requirements.txt
 The following is the corresponding `torch` and `torchvision` versions.
 `rtdetr` | `torch` | `torchvision`
 |---|---|---|
+| `-` | `2.4` | `0.19` |
 | `-` | `2.2` | `0.17` |
 | `-` | `2.1` | `0.16` |
 | `-` | `2.0` | `0.15` |
 
 </details>
 
+<details open>
+<summary>Fig</summary>
+
+<div align="center">
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/437877e9-1d4f-4d30-85e8-aafacfa0ec56">
+</div>
+
+</details>
 
 
 ## Model Zoo
@@ -26,9 +35,9 @@ The following is the corresponding `torch` and `torchvision` versions.
 
 | Model | Dataset | Input Size | AP<sup>val</sup> | AP<sub>50</sub><sup>val</sup> | #Params(M) | FPS | config| checkpoint | 
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |:---: |
-**RT-DETRv2-S** | COCO | 640 | **47.9** <font color=green>(+1.4)</font> | **64.9** | 20 | 217 | [config](./configs/rtdetrv2/rtdetrv2_r18vd_120e_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r18vd_120e_coco.pth) |
-**RT-DETRv2-M** | COCO | 640 | **49.9** <font color=green>(+1.0)</font> | **67.5** | 31 | 161 | [config](./configs/rtdetrv2/rtdetrv2_r34vd_120e_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r34vd_120e_coco_ema.pth)
-**RT-DETRv2-M**<sup>*<sup> | COCO | 640 | **51.9** <font color=green>(+0.6)</font> | **69.9** | 36 | 145 | [config](./configs/rtdetrv2/rtdetrv2_r50vd_m_7x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_m_7x_coco_ema.pth)
+**RT-DETRv2-S** | COCO | 640 | **48.1** <font color=green>(+1.6)</font> | **65.1** | 20 | 217 | [config](./configs/rtdetrv2/rtdetrv2_r18vd_120e_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.2/rtdetrv2_r18vd_120e_coco_rerun_48.1.pth) |
+**RT-DETRv2-M**<sup>*<sup> | COCO | 640 | **49.9** <font color=green>(+1.0)</font> | **67.5** | 31 | 161 | [config](./configs/rtdetrv2/rtdetrv2_r34vd_120e_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r34vd_120e_coco_ema.pth)
+**RT-DETRv2-M** | COCO | 640 | **51.9** <font color=green>(+0.6)</font> | **69.9** | 36 | 145 | [config](./configs/rtdetrv2/rtdetrv2_r50vd_m_7x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_m_7x_coco_ema.pth)
 **RT-DETRv2-L** | COCO | 640 | **53.4** <font color=green>(+0.3)</font> | **71.6** | 42 | 108 | [config](./configs/rtdetrv2/rtdetrv2_r50vd_6x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_6x_coco_ema.pth)
 **RT-DETRv2-X** | COCO | 640 | 54.3 | **72.8** <font color=green>(+0.1)</font> | 76 | 74 | [config](./configs/rtdetrv2/rtdetrv2_r101vd_6x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r101vd_6x_coco_from_paddle.pth)
 <!-- rtdetrv2_hgnetv2_l | COCO | 640 | 52.9 | 71.5 | 32 | 114 | [url<sup>*</sup>](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_hgnetv2_l_6x_coco_from_paddle.pth) 
@@ -51,8 +60,8 @@ rtdetrv2_r101vd | COCO+Objects365 | 640 | 56.2 | 74.5 | 76 | 74 | [url<sup>*</su
 | Model | Sampling Method | AP<sup>val</sup> | AP<sub>50</sub><sup>val</sup> | config| checkpoint 
 | :---: | :---: | :---: | :---: | :---: | :---: |
 **RT-DETRv2-S_dsp** | discrete_sampling | 47.4 | 64.8 <font color=red>(-0.1)</font> | [config](./configs/rtdetrv2/rtdetrv2_r18vd_dsp_3x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r18vd_dsp_3x_coco.pth)
-**RT-DETRv2-M_dsp** | discrete_sampling | 49.2 | 67.1 <font color=red>(-0.4)</font> | [config](./configs/rtdetrv2/rtdetrv2_r34vd_dsp_1x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rrtdetrv2_r34vd_dsp_1x_coco.pth)
-**RT-DETRv2-M**<sup>*</sup>**_dsp** | discrete_sampling | 51.4 | 69.7 <font color=red>(-0.2)</font> | [config](./configs/rtdetrv2/rtdetrv2_r50vd_m_dsp_3x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_m_dsp_3x_coco.pth)
+**RT-DETRv2-M**<sup>*</sup>**_dsp** | discrete_sampling | 49.2 | 67.1 <font color=red>(-0.4)</font> | [config](./configs/rtdetrv2/rtdetrv2_r34vd_dsp_1x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rrtdetrv2_r34vd_dsp_1x_coco.pth)
+**RT-DETRv2-M_dsp** | discrete_sampling | 51.4 | 69.7 <font color=red>(-0.2)</font> | [config](./configs/rtdetrv2/rtdetrv2_r50vd_m_dsp_3x_coco.yml) | [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_m_dsp_3x_coco.pth)
 **RT-DETRv2-L_dsp** | discrete_sampling | 52.9 | 71.3 <font color=red>(-0.3)</font> |[config](./configs/rtdetrv2/rtdetrv2_r50vd_dsp_1x_coco.yml)| [url](https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetrv2_r50vd_dsp_1x_coco.pth)
 
 

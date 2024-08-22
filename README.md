@@ -37,16 +37,17 @@ This is the official implementation of papers
 <details>
 <summary>Fig</summary>
 
-<div align="center">
-  <img src="https://github.com/lyuwenyu/RT-DETR/assets/77494834/0ede1dc1-a854-43b6-9986-cf9090f11a61" width=500 >
-</div>
-
+<table><tr>
+<td><img src=https://github.com/lyuwenyu/RT-DETR/assets/77494834/0ede1dc1-a854-43b6-9986-cf9090f11a61 border=0 width=500></td>
+<td><img src=https://github.com/user-attachments/assets/437877e9-1d4f-4d30-85e8-aafacfa0ec56 border=0 width=500></td>
+</tr></table>
 </details>
 
 
 
 ## 🚀 Updates
-- \[2024.07.24\] Release RT-DETRv2!
+- \[2024.08.22\] Improve the performance of ✅ [RT-DETRv2-S](./rtdetrv2_pytorch/) to 48.1 mAP (<font color=green>+1.6</font> compared to RT-DETR-R18).
+- \[2024.07.24\] Release ✅ [RT-DETRv2](./rtdetrv2_pytorch/)!
 - \[2024.02.27\] Our work has been accepted to CVPR 2024!
 - \[2024.01.23\] Fix difference on data augmentation with paper in rtdetr_pytorch [#84](https://github.com/lyuwenyu/RT-DETR/commit/5dc64138e439247b4e707dd6cebfe19d8d77f5b1).
 - \[2023.11.07\] Add pytorch ✅ *rtdetr_r34vd* for requests [#107](https://github.com/lyuwenyu/RT-DETR/issues/107), [#114](https://github.com/lyuwenyu/RT-DETR/issues/114).
@@ -84,9 +85,9 @@ This is the official implementation of papers
 | RT-DETR-R18 | 640 | COCO + Objects365 | **49.2** | **66.6** | 20 | 60 | **217** |
 | RT-DETR-R50 | 640 | COCO + Objects365 | **55.3** | **73.4** | 42 | 136 | **108** |
 | RT-DETR-R101 | 640 | COCO + Objects365 | **56.2** | **74.6** | 76 | 259 | **74** |
-**RT-DETRv2-S** | 640 | COCO  | **47.9** <font color=green>(+1.4)</font> | **64.9** | 20 | 60 | 217 |
-**RT-DETRv2-M** | 640 | COCO  | **49.9** <font color=green>(+1.0)</font> | **67.5** | 31 | 92 | 161 |
-**RT-DETRv2-M**<sup>*<sup> | 640 | COCO | **51.9** <font color=green>(+0.6)</font> | **69.9** | 36 | 100 | 145 |
+**RT-DETRv2-S** | 640 | COCO  | **48.1** <font color=green>(+1.6)</font> | **65.1** | 20 | 60 | 217 |
+**RT-DETRv2-M**<sup>*<sup> | 640 | COCO  | **49.9** <font color=green>(+1.0)</font> | **67.5** | 31 | 92 | 161 |
+**RT-DETRv2-M** | 640 | COCO | **51.9** <font color=green>(+0.6)</font> | **69.9** | 36 | 100 | 145 |
 **RT-DETRv2-L** | 640 | COCO | **53.4** <font color=green>(+0.3)</font> | **71.6** | 42 | 136 | 108 |
 **RT-DETRv2-X** | 640 | COCO | 54.3 | **72.8** <font color=green>(+0.1)</font>  | 76 | 259| 74 |
 
