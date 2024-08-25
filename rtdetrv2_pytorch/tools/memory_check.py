@@ -164,6 +164,6 @@ def main(**kwargs):
 
 
 if __name__ == '__main__':
-    # main(dataset_class=CocoDetection, range_num=10000)
-    # main(dataset_class=CocoDetection_share_memory, share_memory=False, range_num=10000)
-    main(dataset_class=CocoDetection_share_memory, share_memory=True, range_num=10000)
+    # main(dataset_class=CocoDetection, range_num=30000)
+    # main(dataset_class=CocoDetection_share_memory, share_memory=False, range_num=30000)
+    main(dataset_class=CocoDetection_share_memory, share_memory=True, range_num=30000)

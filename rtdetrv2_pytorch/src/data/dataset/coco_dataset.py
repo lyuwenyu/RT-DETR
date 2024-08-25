@@ -22,7 +22,7 @@ from ...core import register
 from .coco_utils import TorchSerializedList
 from pycocotools.coco import COCO
 
-__all__ = ['CocoDetection']
+__all__ = ['CocoDetection', 'CocoDetection_share_memory']
 
 
 @register()
