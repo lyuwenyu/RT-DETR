@@ -46,6 +46,7 @@ This is the official implementation of papers
 
 
 ## 🚀 Updates
+- \[2024.08.27\] Add hubconf.py file to support torch hub.
 - \[2024.08.22\] Improve the performance of ✅ [RT-DETRv2-S](./rtdetrv2_pytorch/) to 48.1 mAP (<font color=green>+1.6</font> compared to RT-DETR-R18).
 - \[2024.07.24\] Release ✅ [RT-DETRv2](./rtdetrv2_pytorch/)!
 - \[2024.02.27\] Our work has been accepted to CVPR 2024!
