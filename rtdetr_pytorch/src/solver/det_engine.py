@@ -7,6 +7,7 @@ by lyuwenyu
 
 import math
 import os
+import time
 import sys
 import pathlib
 from typing import Iterable
@@ -111,14 +112,16 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessors,
     #         output_dir=os.path.join(output_dir, "panoptic_eval"),
     #     )
 
-    for samples, targets in metric_logger.log_every(data_loader, 10, header):
+    for samples, targets in metric_logger.log_every(data_loader, 1, header):
         samples = samples.to(device)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
         # with torch.autocast(device_type=str(device)):
         #     outputs = model(samples)
-
+        start = time.time()
         outputs = model(samples)
+        end = time.time()
+        print("Inference Time", end - start)
 
         # loss_dict = criterion(outputs, targets)
         # weight_dict = criterion.weight_dict

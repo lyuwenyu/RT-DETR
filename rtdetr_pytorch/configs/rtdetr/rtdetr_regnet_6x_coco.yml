@@ -1,7 +1,7 @@
 __include__: [
   '../dataset/coco_detection.yml',
   '../runtime.yml',
-  './include/dataloader.yml',
+  './include/dataloader_regnet.yml',
   './include/optimizer_regnet.yml',
   './include/rtdetr_regnet.yml',
 ]

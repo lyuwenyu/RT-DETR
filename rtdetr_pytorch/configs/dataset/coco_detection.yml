@@ -7,14 +7,14 @@ train_dataloader:
   type: DataLoader
   dataset: 
     type: CocoDetection
-    img_folder: /home/osama/factory-copilot/rtdetr_pytorch/det_dataset
-    ann_file: /home/osama/factory-copilot/rtdetr_pytorch/det_dataset/annotations3.json
+    img_folder: /home/multi-gpu/RT-DETR_regnet_dla_support/rtdetr_pytorch/dataset/train2017
+    ann_file: /home/multi-gpu/RT-DETR_regnet_dla_support/rtdetr_pytorch/dataset/annotations_trainval2017/annotations/instances_train2017.json
     transforms:
       type: Compose
       ops: ~
   shuffle: True
-  batch_size: 8
-  num_workers: 4
+  batch_size: 16
+  num_workers: 8
   drop_last: True 
 
 
@@ -22,13 +22,13 @@ val_dataloader:
   type: DataLoader
   dataset: 
     type: CocoDetection
-    img_folder: /home/osama/factory-copilot/rtdetr_pytorch/det_dataset
-    ann_file: /home/osama/factory-copilot/rtdetr_pytorch/det_dataset/annotations3.json
+    img_folder: /home/multi-gpu/RT-DETR_regnet_dla_support/rtdetr_pytorch/dataset/val2017
+    ann_file: /home/multi-gpu/RT-DETR_regnet_dla_support/rtdetr_pytorch/dataset/annotations_trainval2017/annotations/instances_val2017.json
     transforms:
       type: Compose
       ops: ~ 
 
   shuffle: False
-  batch_size: 8
-  num_workers: 4
+  batch_size: 16
+  num_workers: 8
   drop_last: False
