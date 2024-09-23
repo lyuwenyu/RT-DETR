@@ -1,0 +1,9 @@
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  './include/dataloader_regnet.yml',
+  './include/optimizer_regnet.yml',
+  './include/rtdetr_regnet.yml',
+]
+
+output_dir: ./output/rtdetr_regnet_6x_coco
