@@ -27,10 +27,10 @@ def _load_checkpoint(path: str, map_location='cpu'):
     return state
 
 
-def _build_model(args, ):
+def _build_model(args, num_classes=80):
     """main
     """
-    cfg = YAMLConfig(args.config)
+    cfg = YAMLConfig(args.config, num_classes=num_classes)
 
     if args.resume:
         checkpoint = _load_checkpoint(args.resume, map_location='cpu') 
@@ -47,14 +47,13 @@ def _build_model(args, ):
         def __init__(self, ) -> None:
             super().__init__()
             self.model = cfg.model.deploy()
-            self.postprocessor = cfg.postprocessor.deploy()
+            self.postprocessor = cfg.postprocessor
             
-        def forward(self, images, orig_target_sizes):
+        def forward(self, images):
             outputs = self.model(images)
-            outputs = self.postprocessor(outputs, orig_target_sizes)
             return outputs
 
-    return Model()
+    return cfg.model
 
 
 CONFIG = {

@@ -19,10 +19,11 @@ __all__ = ['DetNMSPostProcessor', ]
 class DetNMSPostProcessor(torch.nn.Module):
     def __init__(self, \
                 iou_threshold=0.7, 
-                score_threshold=0.01, 
+                score_threshold=0.1, 
                 keep_topk=300, 
                 box_fmt='cxcywh',
-                logit_fmt='sigmoid') -> None:
+                logit_fmt='sigmoid',
+                image_dimensions=(640,640)) -> None:
         super().__init__()
         self.iou_threshold = iou_threshold
         self.score_threshold = score_threshold
@@ -31,11 +32,18 @@ class DetNMSPostProcessor(torch.nn.Module):
         self.logit_fmt = logit_fmt.lower()
         self.logit_func = getattr(F, self.logit_fmt, None)
         self.deploy_mode = False 
+        self.image_dimensions = image_dimensions
     
-    def forward(self, outputs: Dict[str, Tensor], orig_target_sizes: Tensor):
+    def forward(self, outputs: Dict[str, Tensor], **kwargs):
+        iou_threshold = kwargs.get('iou_threshold', self.iou_threshold)
+        score_threshold = kwargs.get('score_threshold', self.score_threshold)
+        keep_topk = kwargs.get('keep_topk', self.keep_topk)
         logits, boxes = outputs['pred_logits'], outputs['pred_boxes']
+        patch_size = torch.tensor(self.image_dimensions, dtype=torch.float32).to(boxes.device)
+        patch_size = patch_size.repeat(boxes.size(0), 1)  # Repeat for batch size
+
         pred_boxes = torchvision.ops.box_convert(boxes, in_fmt=self.box_fmt, out_fmt='xyxy')
-        pred_boxes *= orig_target_sizes.repeat(1, 2).unsqueeze(1)
+        pred_boxes *= patch_size.repeat(1, 2).unsqueeze(1)
 
         values, pred_labels = torch.max(logits, dim=-1)
         
@@ -55,13 +63,13 @@ class DetNMSPostProcessor(torch.nn.Module):
 
         results = []
         for i in range(logits.shape[0]):
-            score_keep = pred_scores[i] > self.score_threshold
+            score_keep = pred_scores[i] > score_threshold
             pred_box = pred_boxes[i][score_keep]
             pred_label = pred_labels[i][score_keep]
             pred_score = pred_scores[i][score_keep]
 
-            keep = torchvision.ops.batched_nms(pred_box, pred_score, pred_label, self.iou_threshold)            
-            keep = keep[:self.keep_topk]
+            keep = torchvision.ops.batched_nms(pred_box, pred_score, pred_label, iou_threshold)            
+            keep = keep[:keep_topk]
 
             blob = {
                 'labels': pred_label[keep],

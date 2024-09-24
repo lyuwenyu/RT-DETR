@@ -32,7 +32,8 @@ class RTDETRPostProcessor(nn.Module):
         num_classes=80, 
         use_focal_loss=True, 
         num_top_queries=300, 
-        remap_mscoco_category=False
+        remap_mscoco_category=False,
+        image_dimensions=(640, 640)
     ) -> None:
         super().__init__()
         self.use_focal_loss = use_focal_loss
@@ -40,17 +41,18 @@ class RTDETRPostProcessor(nn.Module):
         self.num_classes = int(num_classes)
         self.remap_mscoco_category = remap_mscoco_category 
         self.deploy_mode = False 
+        self.image_dimensions = image_dimensions
 
     def extra_repr(self) -> str:
         return f'use_focal_loss={self.use_focal_loss}, num_classes={self.num_classes}, num_top_queries={self.num_top_queries}'
     
-    # def forward(self, outputs, orig_target_sizes):
-    def forward(self, outputs, orig_target_sizes: torch.Tensor):
+    def forward(self, outputs):
         logits, boxes = outputs['pred_logits'], outputs['pred_boxes']
-        # orig_target_sizes = torch.stack([t["orig_size"] for t in targets], dim=0)        
+        patch_size = torch.tensor(self.image_dimensions, dtype=torch.float32).to(boxes.device)       
+        patch_size = patch_size.repeat(boxes.size(0), 1)  # Repeat for batch size
 
         bbox_pred = torchvision.ops.box_convert(boxes, in_fmt='cxcywh', out_fmt='xyxy')
-        bbox_pred *= orig_target_sizes.repeat(1, 2).unsqueeze(1)
+        bbox_pred *= patch_size.repeat(1, 2).unsqueeze(1)
 
         if self.use_focal_loss:
             scores = F.sigmoid(logits)
@@ -71,7 +73,15 @@ class RTDETRPostProcessor(nn.Module):
         
         # TODO for onnx export
         if self.deploy_mode:
-            return labels, boxes, scores
+            results = []
+            for lab, box, sco in zip(labels, boxes, scores):
+                result = {
+                    "labels": lab,
+                    "boxes": box,
+                    "scores": sco
+                }
+                results.append(result)
+            return results
 
         # TODO
         if self.remap_mscoco_category:

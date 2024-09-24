@@ -12,6 +12,7 @@ import copy
 from .box_ops import box_cxcywh_to_xyxy, box_iou, generalized_box_iou
 from ...misc.dist_utils import get_world_size, is_dist_available_and_initialized
 from ...core import register
+from .matcher import HungarianMatcher
 
 
 @register()
@@ -25,10 +26,14 @@ class RTDETRCriterionv2(nn.Module):
     __inject__ = ['matcher', ]
 
     def __init__(self, \
-        matcher, 
-        weight_dict, 
-        losses, 
-        alpha=0.2, 
+        matcher = HungarianMatcher(
+        weight_dict={'cost_class': 2, 'cost_bbox': 5, 'cost_giou': 2},
+        use_focal_loss=True,
+        alpha=0.25,
+        gamma=2.0),
+        weight_dict={'loss_vfl': 1, 'loss_bbox': 5, 'loss_giou': 2},
+        losses = ['vfl', 'boxes'],
+        alpha=0.75, 
         gamma=2.0, 
         num_classes=80, 
         boxes_weight_format=None,
