@@ -18,7 +18,7 @@ __all__ = ['DetNMSPostProcessor', ]
 @register()
 class DetNMSPostProcessor(torch.nn.Module):
     def __init__(self, \
-                iou_threshold=0.7, 
+                iou_threshold=0.01, 
                 score_threshold=0.1, 
                 keep_topk=300, 
                 box_fmt='cxcywh',
