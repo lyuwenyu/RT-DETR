@@ -307,7 +307,7 @@ class TransformerDecoder(nn.Module):
             if bbox_output.shape[2] > 5:
                 angle_output = bbox_output[:, :, 4]
             else:
-                angle_output = torch.zeros_like(bbox_output[0])
+                angle_output = torch.zeros_like(bbox_output[:,:,0])
             bbox_output = bbox_output[:, :, :4]
             inter_ref_bbox = F.sigmoid(bbox_output + inverse_sigmoid(ref_points_detach))
 
