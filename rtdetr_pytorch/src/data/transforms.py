@@ -22,7 +22,7 @@ __all__ = ['Compose', ]
 
 RandomPhotometricDistort = register(T.RandomPhotometricDistort)
 RandomZoomOut = register(T.RandomZoomOut)
-# RandomIoUCrop = register(T.RandomIoUCrop)
+RandomIoUCrop = register(T.RandomIoUCrop)
 RandomHorizontalFlip = register(T.RandomHorizontalFlip)
 Resize = register(T.Resize)
 ToImage = register(T.ToImage)
@@ -30,7 +30,7 @@ ToDtype = register(T.ToDtype)
 SanitizeBoundingBox = register(T.SanitizeBoundingBoxes)
 RandomCrop = register(T.RandomCrop)
 Normalize = register(T.Normalize)
-
+ConvertBox = register(T.ConvertBoundingBoxFormat)
 
 @register
 class Compose(T.Compose):
@@ -40,6 +40,8 @@ class Compose(T.Compose):
             for op in ops:
                 if isinstance(op, dict):
                     name = op.pop('type')
+                    if name == 'ToDtype':
+                        op['dtype'] = torch.float32
                     transfom = getattr(GLOBAL_CONFIG[name]['_pymodule'], name)(**op)
                     transforms.append(transfom)
                     # op['type'] = name
@@ -134,7 +136,7 @@ class RandomIoUCrop(T.RandomIoUCrop):
             spatial_size = inpt.spatial_size
             in_fmt = inpt.format.value.lower()
             inpt = torchvision.ops.box_convert(inpt, in_fmt=in_fmt, out_fmt=self.out_fmt)
-            inpt = tv_tensors.BoundingBox(inpt, format=self.data_fmt[self.out_fmt], spatial_size=spatial_size)
+            inpt = tv_tensors.BoundingBox(inpt, format=self.data_fmt[self.out_fmt], canvas_size=spatial_size)
 
         if self.normalize:
             inpt = inpt / torch.tensor(inpt.spatial_size[::-1]).tile(2)[None]

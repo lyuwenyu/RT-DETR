@@ -698,9 +698,9 @@ class RTDETRTransformer(nn.Module):
             dn_out_logits, out_logits = torch.split(
                 out_logits, dn_meta["dn_num_split"], dim=2
             )
-            dn_out_angles, out_angles = torch.split(
-                out_angles, dn_meta["dn_num_split"], dim=2
-            )
+            # dn_out_angles, out_angles = torch.split(
+            #     out_angles, dn_meta["dn_num_split"], dim=2
+            # )
 
         out = {
             "pred_logits": out_logits[-1],

@@ -58,7 +58,7 @@ class RTDETRPostProcessor(nn.Module):
             boxes = bbox_pred.gather(
                 dim=1, index=index.unsqueeze(-1).repeat(1, 1, bbox_pred.shape[-1])
             )
-            angles = angles.gather(dim=1, index=index)
+            # angles = angles.gather(dim=1, index=index)
 
 
         else:
