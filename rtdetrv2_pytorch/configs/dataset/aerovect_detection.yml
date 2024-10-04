@@ -4,23 +4,14 @@ evaluator:
   type: CocoEvaluator
   iou_types: ['bbox', ]
 
-# num_classes: 365
-# remap_mscoco_category: False
-
-# num_classes: 91
-# remap_mscoco_category: False
-
 num_classes: 80
-remap_mscoco_category: True
-
 
 train_dataloader:
   type: DataLoader
   dataset:
-    type: CocoDetection
-    img_folder: ./dataset/coco/trainval
-    ann_file: ./dataset/coco/annotations_trainval2017/annotations/instances_train2017.json
-    return_masks: False
+    type: AerovectDetection
+    image_paths: ./dataset/aerovect/aerovect_image_dataset/processed/**/images/*.jpg
+    label_paths: ./dataset/aerovect/aerovect_image_dataset/processed/**/labels/*.txt
     transforms:
       type: Compose
       ops: ~
@@ -34,10 +25,9 @@ train_dataloader:
 val_dataloader:
   type: DataLoader
   dataset:
-    type: CocoDetection
-    img_folder: ./dataset/coco/val2017
-    ann_file: ./dataset/coco/annotations_trainval2017/annotations/instances_val2017.json
-    return_masks: False
+    type: AerovectDetection
+    image_paths: ./dataset/aerovect/aerovect_image_dataset/processed/**/images/*.jpg
+    label_paths: ./dataset/aerovect/aerovect_image_dataset/processed/**/labels/*.txt
     transforms:
       type: Compose
       ops: ~
