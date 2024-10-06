@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path 
 from typing import Dict
 import atexit
+import wandb
 
 from ..misc import dist_utils
 from ..core import BaseConfig
@@ -55,12 +56,15 @@ class BaseSolver(object):
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.writer = cfg.writer
 
+        self.wandb_writer = wandb.init(project="bcs-object-detection", job_type="training", name="training", config=cfg.__dict__, sync_tensorboard=True)
+
         if self.writer:
             atexit.register(self.writer.close)
             if dist_utils.is_main_process():
                 self.writer.add_text(f'config', '{:s}'.format(cfg.__repr__()), 0)
 
     def cleanup(self, ):
+        self.wandb_writer.finish()
         if self.writer:
             atexit.register(self.writer.close)
 

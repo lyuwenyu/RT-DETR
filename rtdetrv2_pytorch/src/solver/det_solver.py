@@ -1,6 +1,6 @@
 """Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
-
+import os
 import time 
 import json
 import datetime
@@ -47,7 +47,8 @@ class DetSolver(BaseSolver):
                 ema=self.ema, 
                 scaler=self.scaler, 
                 lr_warmup_scheduler=self.lr_warmup_scheduler,
-                writer=self.writer
+                writer=self.writer,
+                wandb_writer=self.wandb_writer
             )
 
             if self.lr_warmup_scheduler is None or self.lr_warmup_scheduler.finished():
@@ -62,6 +63,12 @@ class DetSolver(BaseSolver):
                     checkpoint_paths.append(self.output_dir / f'checkpoint{epoch:04}.pth')
                 for checkpoint_path in checkpoint_paths:
                     dist_utils.save_on_master(self.state_dict(), checkpoint_path)
+
+                    artifact_name = f"{self.wandb_writer.run.id}_context_model"
+                    at = self.wandb_writer.Artifact(artifact_name, type="model")
+                    at.add_file(checkpoint_path)
+                    base_name, _ = os.path.splitext(checkpoint_path)
+                    self.wandb_writer.log_artifact(at, aliases=[base_name])
 
             module = self.ema.module if self.ema else self.model
             test_stats, coco_evaluator = evaluate(
@@ -78,7 +85,11 @@ class DetSolver(BaseSolver):
                 if self.writer and dist_utils.is_main_process():
                     for i, v in enumerate(test_stats[k]):
                         self.writer.add_scalar(f'Test/{k}_{i}'.format(k), v, epoch)
-            
+
+                if self.wandb_writer and dist_utils.is_main_process():
+                    for i, v in enumerate(test_stats[k]):
+                        self.wandb_writer.log({f'Test/{k}_{i}'.format(k): v})
+
                 if k in best_stat:
                     best_stat['epoch'] = epoch if test_stats[k][0] > best_stat[k] else best_stat['epoch']
                     best_stat[k] = max(best_stat[k], test_stats[k][0])

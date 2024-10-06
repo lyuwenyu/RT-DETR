@@ -4,6 +4,8 @@
 import os 
 import sys 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+import os
+os.environ["WANDB_API_KEY"] = "cad7b90a8d425f23d79621b423048a1c00564dc0"
 
 import argparse
 
