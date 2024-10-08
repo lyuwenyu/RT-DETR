@@ -10,8 +10,8 @@ train_dataloader:
   type: DataLoader
   dataset:
     type: AerovectDetection
-    image_paths: ./dataset/aerovect/aerovect_image_dataset/processed/**/images/*.jpg
-    label_paths: ./dataset/aerovect/aerovect_image_dataset/processed/**/labels/*.txt
+    image_paths: ./dataset/aerovect_image_dataset/processed/**/images/*.jpg
+    label_paths: ./dataset/aerovect_image_dataset/processed/**/labels/*.txt
     transforms:
       type: Compose
       ops: ~
@@ -26,8 +26,8 @@ val_dataloader:
   type: DataLoader
   dataset:
     type: AerovectDetection
-    image_paths: ./dataset/aerovect/aerovect_image_dataset/processed/**/images/*.jpg
-    label_paths: ./dataset/aerovect/aerovect_image_dataset/processed/**/labels/*.txt
+    image_paths: ./dataset/aerovect_image_dataset/processed/**/images/*.jpg
+    label_paths: ./dataset/aerovect_image_dataset/processed/**/labels/*.txt
     transforms:
       type: Compose
       ops: ~
