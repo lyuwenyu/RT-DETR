@@ -4,6 +4,7 @@ import os
 import time 
 import json
 import datetime
+import wandb
 
 import torch 
 
@@ -64,11 +65,11 @@ class DetSolver(BaseSolver):
                 for checkpoint_path in checkpoint_paths:
                     dist_utils.save_on_master(self.state_dict(), checkpoint_path)
 
-                    artifact_name = f"{self.wandb_writer.run.id}_context_model"
-                    at = self.wandb_writer.Artifact(artifact_name, type="model")
-                    at.add_file(checkpoint_path)
-                    base_name, _ = os.path.splitext(checkpoint_path)
-                    self.wandb_writer.log_artifact(at, aliases=[base_name])
+                    if dist_utils.is_main_process():
+                        if 'last.pth' not in str(checkpoint_path):
+                            at = wandb.Artifact("rtdetr_r18vd", type="model")
+                            at.add_file(checkpoint_path)
+                            self.wandb_writer.log_artifact(at)
 
             module = self.ema.module if self.ema else self.model
             test_stats, coco_evaluator = evaluate(
