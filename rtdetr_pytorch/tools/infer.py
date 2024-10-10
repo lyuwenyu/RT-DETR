@@ -18,7 +18,7 @@ from src.solver import TASKS
 
 import numpy as np
 
-def postprocess(labels, boxes, scores, iou_threshold=0.8, distance_threshold=20):
+def postprocess(labels, boxes, scores, iou_threshold=0.8):
     def calculate_iou(box1, box2):
 
         x1, y1, x2, y2 = box1
@@ -40,19 +40,6 @@ def postprocess(labels, boxes, scores, iou_threshold=0.8, distance_threshold=20)
 
         iou = inter_area / union_area if union_area != 0 else 0
         return iou
-
-    def calculate_centroid_distance(box1, box2):
-        # Calculate the Euclidean distance between the centers of two boxes.
-        x1, y1, x2, y2 = box1
-        x3, y3, x4, y4 = box2
-
-        center_x1 = (x1 + x2) / 2.0
-        center_y1 = (y1 + y2) / 2.0
-        center_x2 = (x3 + x4) / 2.0
-        center_y2 = (y3 + y4) / 2.0
-
-        distance = np.sqrt((center_x1 - center_x2) ** 2 + (center_y1 - center_y2) ** 2)
-        return distance
 
     merged_labels = []
     merged_boxes = []
@@ -81,9 +68,8 @@ def postprocess(labels, boxes, scores, iou_threshold=0.8, distance_threshold=20)
             other_box = boxes[j]
 
             iou = calculate_iou(current_box, other_box)
-            distance = calculate_centroid_distance(current_box, other_box)
 
-            if iou >= iou_threshold or distance <= distance_threshold:
+            if iou >= iou_threshold:
                 boxes_to_merge.append(other_box.tolist())  
                 scores_to_merge.append(scores[j])
                 used_indices.add(j)
