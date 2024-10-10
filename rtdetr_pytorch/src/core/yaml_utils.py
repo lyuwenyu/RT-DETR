@@ -19,6 +19,7 @@ def register(cls: type):
         cls (type): Module class to be registered.
     '''
     if cls.__name__ in GLOBAL_CONFIG:
+        return
         raise ValueError('{} already registered'.format(cls.__name__))
 
     if inspect.isfunction(cls):
@@ -91,7 +92,8 @@ def create(type_or_name, **kwargs):
         
         return create(name)
 
-
+    if '_pymodule' not in cfg:
+        raise LookupError(f'The module {name} is not registered. {cfg}')
     cls = getattr(cfg['_pymodule'], name)
     argspec = inspect.getfullargspec(cls.__init__)
     arg_names = [arg for arg in argspec.args if arg != 'self']

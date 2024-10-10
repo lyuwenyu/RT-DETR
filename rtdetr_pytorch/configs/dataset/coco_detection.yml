@@ -6,9 +6,9 @@ remap_mscoco_category: True
 train_dataloader: 
   type: DataLoader
   dataset: 
-    type: CocoDetection
-    img_folder: ./dataset/coco/train2017/
-    ann_file: ./dataset/coco/annotations/instances_train2017.json
+    type: HRSC2016Dataset
+    img_folder: ../data/HRSC2016-MS/AllImages
+    ann_folder: ../data/HRSC2016-MS/Annotations
     transforms:
       type: Compose
       ops: ~
@@ -21,9 +21,9 @@ train_dataloader:
 val_dataloader:
   type: DataLoader
   dataset: 
-    type: CocoDetection
-    img_folder: ./dataset/coco/val2017/
-    ann_file: ./dataset/coco/annotations/instances_val2017.json
+    type: HRSC2016Dataset
+    img_folder: ../data/HRSC2016-MS/AllImages
+    ann_folder: ../data/HRSC2016-MS/Annotations
     transforms:
       type: Compose
       ops: ~ 
