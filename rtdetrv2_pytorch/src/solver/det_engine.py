@@ -5,7 +5,7 @@ https://github.com/facebookresearch/detr/blob/main/engine.py
 Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
-import sys
+import os, sys
 import math
 from typing import Iterable
 
@@ -207,6 +207,7 @@ def evaluate(
     device,
     # CUSTOM EVAL PARAMETERS - TOGGLE ME
     output_predictions=True,
+    output_dir="output/aerovect",
     additional_postprocess_methods={
         # Uncomment to enable (disabled by default)
         # "nms": {"nms_threshold": 0.2},
@@ -261,10 +262,12 @@ def evaluate(
             coco_evaluator.update(res)
 
     if output_predictions:
-        with open("predictions.txt", "w") as f:
+        os.makedirs(output_dir, exist_ok=True)
+
+        with open(f"{output_dir}/predictions.txt", "w") as f:
             f.write("\n".join(output_lines))
 
-        with open("image_ids.txt", "w") as f:
+        with open(f"{output_dir}/image_ids.txt", "w") as f:
             f.write("\n".join(np.array(coco_evaluator.img_ids).astype(str)))
 
     # gather the stats from all processes

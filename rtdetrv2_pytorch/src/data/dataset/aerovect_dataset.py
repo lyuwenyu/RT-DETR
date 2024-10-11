@@ -5,6 +5,7 @@ import torchvision.transforms.v2 as T
 
 import os
 import glob
+import json
 from PIL import Image
 from typing import Optional, Callable
 
@@ -138,6 +139,18 @@ labels_map_unused = {
 
 # Combine all label maps
 labels_map = reduce(lambda a, b: {**a, **b}, labels_maps_list)
+
+
+def dump_json(data, output_file) -> None:
+    """Dump a dir object to a JSON file."""
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+    with open(output_file, "w") as out_f:
+        json.dump(data, out_f, indent=4)
+        out_f.write("\n")
+
+
+dump_json(labels_map, "output/aerovect/labels_map.json")
 
 
 @register()
