@@ -46,8 +46,8 @@ This is the official implementation of papers
 
 
 ## 🚀 Updates
-- \[2024.10.10\] Added Sliced Inference Support for Better results on Distant Objects.
-- \[2024.09.23\] Added Backbone Support for Regnet and DLA34.
+- \[2024.10.10\] Add sliced inference support for small object detecion. [#468](https://github.com/lyuwenyu/RT-DETR/pull/468)
+- \[2024.09.23\] Add ✅[Regnet and DLA34](https://github.com/lyuwenyu/RT-DETR/tree/main/rtdetr_pytorch) for RTDETR.
 - \[2024.08.27\] Add hubconf.py file to support torch hub.
 - \[2024.08.22\] Improve the performance of ✅ [RT-DETRv2-S](./rtdetrv2_pytorch/) to 48.1 mAP (<font color=green>+1.6</font> compared to RT-DETR-R18).
 - \[2024.07.24\] Release ✅ [RT-DETRv2](./rtdetrv2_pytorch/)!
