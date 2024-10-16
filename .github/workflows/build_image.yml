@@ -1,0 +1,26 @@
+name: Docker Image Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_version:
+        description: 'Docker Image Tag (without "v")'
+        required: true
+        type: string
+      sdk_version:
+        description: "Supervisely SDK version (optional) - only needed if SDK is installed from branch"
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  docker-build-and-push:
+    uses: supervisely-ecosystem/workflows/.github/workflows/build_image.yml@master
+    secrets:
+      DOCKERHUB_USERNAME: "${{  secrets.DOCKERHUB_USERNAME  }}"
+      DOCKERHUB_TOKEN: "${{  secrets.DOCKERHUB_TOKEN  }}"
+    with:
+      tag_version: ${{ github.event.inputs.tag_version }}
+      dockerfile_path: docker/Dockerfile
+      image_name: "" # <- optional, if not set, will be equal to repository name
+      sdk_version: ${{ github.event.inputs.sdk_version }}
