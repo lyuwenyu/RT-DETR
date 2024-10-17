@@ -20,7 +20,8 @@ __all__ = ['DetNMSPostProcessor', ]
 class DetNMSPostProcessor(torch.nn.Module):
     def __init__(self, \
                 iou_threshold=0.01, 
-                score_threshold=0.1, 
+                score_threshold=0.1,
+                apply_score_filtering_and_nms=True,
                 keep_topk=300, 
                 box_fmt='cxcywh',
                 logit_fmt='sigmoid',
@@ -28,6 +29,7 @@ class DetNMSPostProcessor(torch.nn.Module):
         super().__init__()
         self.iou_threshold = iou_threshold
         self.score_threshold = score_threshold
+        self.apply_score_filtering_and_nms = apply_score_filtering_and_nms
         self.keep_topk = keep_topk
         self.box_fmt = box_fmt.lower()
         self.logit_fmt = logit_fmt.lower()
@@ -36,9 +38,12 @@ class DetNMSPostProcessor(torch.nn.Module):
         self.image_dimensions = image_dimensions
     
     def forward(self, outputs: Dict[str, Tensor], **kwargs) -> List[Dict[str, Tensor]]:
-        #iou_threshold = kwargs.get('iou_threshold', self.iou_threshold)
-        #score_threshold = kwargs.get('score_threshold', self.score_threshold)
-        #keep_topk = kwargs.get('keep_topk', self.keep_topk)
+        # Override default values with kwargs if provided
+        iou_threshold = kwargs.get('iou_threshold', self.iou_threshold)
+        score_threshold = kwargs.get('score_threshold', self.score_threshold)
+        apply_score_filtering_and_nms = kwargs.get('apply_score_filtering_and_nms', self.apply_score_filtering_and_nms)
+        keep_topk = kwargs.get('keep_topk', self.keep_topk)
+
         logits, boxes = outputs['pred_logits'], outputs['pred_boxes']
         patch_size = torch.tensor(self.image_dimensions, dtype=torch.float32).to(boxes.device)
         patch_size = patch_size.repeat(boxes.size(0), 1)  # Repeat for batch size
@@ -53,42 +58,35 @@ class DetNMSPostProcessor(torch.nn.Module):
         else:
             pred_scores = values
 
-        # TODO for onnx export
-        blobs = {
-            'labels': pred_labels, 
-            'boxes': pred_boxes,
-            'scores': pred_scores
-        }
-        return blobs
+        # Apply score filtering and NMS if enabled
+        results = []
+        if apply_score_filtering_and_nms:
+            for i in range(logits.shape[0]):
+                # Apply score threshold
+                score_keep = pred_scores[i] > score_threshold
+                pred_box = pred_boxes[i][score_keep]
+                pred_label = pred_labels[i][score_keep]
+                pred_score = pred_scores[i][score_keep]
 
-        # results = []
-        # for i in range(logits.shape[0]):
-        #     score_keep = pred_scores[i] > score_threshold
-        #     pred_box = pred_boxes[i][score_keep]
-        #     pred_label = pred_labels[i][score_keep]
-        #     pred_score = pred_scores[i][score_keep]
+                # Perform NMS
+                keep = torchvision.ops.batched_nms(pred_box, pred_score, pred_label, iou_threshold=iou_threshold)
+                keep = keep[:keep_topk]
+                blob = {
+                    'labels': pred_label[keep],
+                    'boxes': pred_box[keep],
+                    'scores': pred_score[keep],
+                }
+                results.append(blob)
+        else:
+            for i in range(pred_boxes.size(0)):
+                out = {
+                    "boxes": pred_boxes[i],
+                    "labels": pred_labels[i],
+                    "scores": pred_scores[i],
+                }
+                results.append(out)
 
-        #     keep = torchvision.ops.batched_nms(pred_box, pred_score, pred_label, iou_threshold)            
-        #     keep = keep[:keep_topk]
-
-        #     blob = {
-        #         'labels': pred_label[keep],
-        #         'boxes': pred_box[keep],
-        #         'scores': pred_score[keep],
-        #     }
-
-        #     results.append(blob)
-        
-        # # Add debug logs
-        # print("results")
-        # print(type(results))
-        # for idx, result in enumerate(results):
-        #     print(f"Type of results[{idx}]:", type(result))
-        #     print(f"Keys in results[{idx}]:", result.keys())
-        #     for key in result:
-        #         print(f"Type of results[{idx}]['{key}']:", type(result[key]))
-
-        # return blobs
+        return results
 
     def deploy(self, ):
         self.eval()
