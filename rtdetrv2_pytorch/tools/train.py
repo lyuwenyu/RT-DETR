@@ -29,7 +29,7 @@ def main(args, ) -> None:
     cfg = YAMLConfig(args.config, **update_dict)
     print('cfg: ', cfg.__dict__)
 
-    solver = TASKS[cfg.yaml_cfg['task']](cfg)
+    solver = TASKS[cfg.yaml_cfg['task']](cfg, args)
     
     if args.test_only:
         solver.val()
@@ -62,6 +62,8 @@ if __name__ == '__main__':
     parser.add_argument('--print-rank', type=int, default=0, help='print rank id')
 
     parser.add_argument('--local-rank', type=int, help='local rank id')
+
+    parser.add_argument('--project-name', type=str, default='bcs-object-detection')
     args = parser.parse_args()
 
     main(args)

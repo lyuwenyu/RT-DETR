@@ -21,8 +21,9 @@ def to(m: nn.Module, device: str):
 
 
 class BaseSolver(object):
-    def __init__(self, cfg: BaseConfig) -> None:
+    def __init__(self, cfg: BaseConfig, args) -> None:
         self.cfg = cfg 
+        self.args = args
 
     def _setup(self, ):
         """Avoid instantiating unnecessary classes 
@@ -56,7 +57,9 @@ class BaseSolver(object):
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.writer = cfg.writer
 
-        self.wandb_writer = wandb.init(project="bcs-object-detection", job_type="training", name="training", config=cfg.__dict__, sync_tensorboard=True)
+        wandb_job_type = "training" if self.args.test_only is False else "testing"
+        wandb_name = "training" if self.args.test_only is False else "testing"
+        self.wandb_writer = wandb.init(project=self.args.project_name, job_type=wandb_job_type, name=wandb_name, config=cfg.__dict__, sync_tensorboard=True)
 
         if self.writer:
             atexit.register(self.writer.close)
