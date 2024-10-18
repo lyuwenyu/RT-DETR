@@ -105,7 +105,7 @@ class LogPrinter(Callback):
                 epoch_id = status['epoch_id']
                 step_id = status['step_id']
                 steps_per_epoch = status['steps_per_epoch']
-                training_staus = status['training_staus']
+                training_status = status['training_status']
                 batch_time = status['batch_time']
                 data_time = status['data_time']
 
@@ -113,7 +113,7 @@ class LogPrinter(Callback):
                 batch_size = self.model.cfg['{}Reader'.format(mode.capitalize(
                 ))]['batch_size']
 
-                logs = training_staus.log()
+                logs = training_status.log()
                 space_fmt = ':' + str(len(str(steps_per_epoch))) + 'd'
                 if step_id % self.model.cfg.log_iter == 0:
                     eta_steps = (epoches - epoch_id) * steps_per_epoch - step_id
@@ -278,8 +278,8 @@ class VisualDLWriter(Callback):
         mode = status['mode']
         if dist.get_world_size() < 2 or dist.get_rank() == 0:
             if mode == 'train':
-                training_staus = status['training_staus']
-                for loss_name, loss_value in training_staus.get().items():
+                training_status = status['training_status']
+                for loss_name, loss_value in training_status.get().items():
                     self.vdl_writer.add_scalar(loss_name, loss_value,
                                                self.vdl_loss_step)
                 self.vdl_loss_step += 1
@@ -401,7 +401,7 @@ class WandbCallback(Callback):
         mode = status['mode']
         if dist.get_world_size() < 2 or dist.get_rank() == 0:
             if mode == 'train':
-                training_status = status['training_staus'].get()
+                training_status = status['training_status'].get()
                 for k, v in training_status.items():
                     training_status[k] = float(v)
 
