@@ -193,9 +193,9 @@ def draw(images, labels, boxes, scores, thrh = 0.6):
         lab = labels[i][scr > thrh]
         box = boxes[i][scr > thrh]
 
-        for b in box:
+        for l, b in enumerate(box):
             draw.rectangle(list(b), outline='red',)
-            draw.text((b[0], b[1]), text=str(lab[i].item()), fill='blue', )
+            draw.text((b[0], b[1]), text=str(lab[l].item()), fill='blue', )
 
         im.save(f'results_{i}.jpg')
 
