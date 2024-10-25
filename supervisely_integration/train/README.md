@@ -1,6 +1,6 @@
 <div align="center" markdown>
 
-<img src=""/>  
+<img src="https://github.com/user-attachments/assets/ae6ec55e-63eb-43d1-99de-f62650939c69"/>  
 
 # Train RT-DETR
 
