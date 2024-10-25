@@ -22,4 +22,4 @@ jobs:
       RELEASE_VERSION: "${{ github.event.release.tag_name }}"
       RELEASE_DESCRIPTION: "${{ github.event.release.name }}"
       RELEASE_TYPE: "release"
-      SUBAPP_PATHS: "train, serve"
+      SUBAPP_PATHS: "supervisely_integration/train, supervisely_integration/serve"
