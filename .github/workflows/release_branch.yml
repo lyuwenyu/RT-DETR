@@ -20,4 +20,4 @@ jobs:
       RELEASE_VERSION: "${{ github.ref_name }}"
       RELEASE_DESCRIPTION: "'${{ github.ref_name }}' branch release"
       RELEASE_TYPE: "release-branch"
-      SUBAPP_PATHS: "serve, train"
+      SUBAPP_PATHS: "supervisely_integration/serve, supervisely_integration/train"
