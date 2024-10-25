@@ -16,4 +16,4 @@ jobs:
       RELEASE_VERSION: ""
       RELEASE_DESCRIPTION: ""
       RELEASE_TYPE: "publish"
-      SUBAPP_PATHS: "serve, train"
+      SUBAPP_PATHS: "supervisely_integration/serve, supervisely_integration/train"
