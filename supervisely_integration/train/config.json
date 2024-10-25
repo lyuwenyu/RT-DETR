@@ -21,5 +21,6 @@
 	},
 	"license": {
 		"type": "Apache-2.0"
-	}
+	},
+	"instance_version": "6.11.22"
 }
