@@ -22,5 +22,5 @@ jobs:
     with:
       tag_version: ${{ github.event.inputs.tag_version }}
       dockerfile_path: docker/Dockerfile
-      image_name: "" # <- optional, if not set, will be equal to repository name
+      image_name: "rt-detr" # <- optional, if not set, will be equal to repository name
       sdk_version: ${{ github.event.inputs.sdk_version }}

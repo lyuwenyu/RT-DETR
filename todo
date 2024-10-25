@@ -1,10 +1,32 @@
 Train:
++ How to update charts (yield)? metric_logger?
++ How to modify checkpoint interval and val interval
++ Visualize predictions (LOGS)
++ metrics, how to add class-wise
++ lr_schedulers? can we plot them? which ones are implemented?
++ augmentations? add imgaug? можно сделать выбор rt-detr / imgaug
++ прочие параметры: ema, ema_decay, etc.
+- do not download splits
+- lr_schedulers: warmup + scheduler, visualization
+- augmentations, handle imgaug in config
+- add grad_norm to LOGS and graphs
+- Resume training from Team Files checkpoint
 - fix re-serve button (config is global and not updated)
 - EMA or not EMA
 - Stop / pause training
 - Consistency in imgsz: Input Size, Resize, 
         cfg.yaml_cfg["HybridEncoder"]["eval_spatial_size"] = size
         cfg.yaml_cfg["RTDETRTransformer"]["eval_spatial_size"] = size
+
+
+- augmentations in UI, 3 tabs, readonly=False
+- charts:
+        Loss, Learning Rate, Grad Norm, CUDA Memory;
+        AP@IoU=0.50:0.95|maxDets=100
+        AR@IoU=0.50:0.95|maxDets=100
+        per_class_ap
+        per_class_ar
+
 
 
 Serve:

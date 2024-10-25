@@ -171,4 +171,9 @@ rtdetr_pytorch/configs/rtdetr/custom.yml
 /sly_dataset*
 /models
 /output
+temp/
+/imgaug.json
 imgaug.json
+supervisely_integration/train/data
+supervisely
+app_data

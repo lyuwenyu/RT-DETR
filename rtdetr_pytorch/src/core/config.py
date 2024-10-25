@@ -128,7 +128,6 @@ class BaseConfig(object):
     def lr_warmup(self, ) -> LRScheduler:
         return self._lr_warmup
 
-
     @property
     def train_dataloader(self):
         if self._train_dataloader is None and self.train_dataset is not None:

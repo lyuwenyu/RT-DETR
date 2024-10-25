@@ -1,0 +1,10 @@
+supervisely
+pycocotools
+torch==2.0.1
+torchvision==0.15.2
+scipy
+imgaug
+onnx==1.14.0
+onnxruntime==1.15.1
+PyYAML
+scipy

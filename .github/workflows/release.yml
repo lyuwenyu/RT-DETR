@@ -1,0 +1,25 @@
+name: Release
+run-name: Release version "${{ github.event.release.tag_name }}"
+on:
+  release:
+    types: [published]
+    branches:
+      - main
+      - master
+jobs:
+  Supervisely-Release:
+    if: "!github.event.release.prerelease"
+    uses: supervisely-ecosystem/workflows/.github/workflows/common.yml@master
+    secrets:
+      SUPERVISELY_DEV_API_TOKEN: "${{ secrets.SUPERVISELY_DEV_API_TOKEN }}"
+      SUPERVISELY_PRIVATE_DEV_API_TOKEN: "${{ secrets.SUPERVISELY_PRIVATE_DEV_API_TOKEN }}"
+      SUPERVISELY_PROD_API_TOKEN: "${{ secrets.SUPERVISELY_PROD_API_TOKEN }}"
+      GH_ACCESS_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    with:
+      SUPERVISELY_SERVER_ADDRESS: "${{ vars.SUPERVISELY_DEV_SERVER_ADDRESS }}"
+      SUPERVISELY_PROD_SERVER_ADDRESS: "${{ vars.SUPERVISELY_PROD_SERVER_ADDRESS }}"
+      SLUG: "${{ github.repository }}"
+      RELEASE_VERSION: "${{ github.event.release.tag_name }}"
+      RELEASE_DESCRIPTION: "${{ github.event.release.name }}"
+      RELEASE_TYPE: "release"
+      SUBAPP_PATHS: "train, serve"

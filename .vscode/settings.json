@@ -1,24 +1,51 @@
 {
-    // "python.defaultInterpreterPath": ".venv/bin/python",
     "files.exclude": {
         "**/__pycache__": true,
+        "build": true,
+        "supervisely.egg-info": true,
         ".venv": true
     },
-    "editor.formatOnSave": false,
-    "editor.formatOnPaste": false,
-    "editor.formatOnType": false,
+    "python.defaultInterpreterPath": ".venv/bin/python",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
     "black-formatter.args": [
         "--line-length",
         "100"
     ],
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
-    },
     "[html]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[json]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+    },
+    "isort.args": [
+        "--profile",
+        "black"
+    ],
     "debug.inlineValues": "off",
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.autoImportCompletions": false,
+    "autoDocstring.docstringFormat": "sphinx",
+    "autoDocstring.customTemplatePath": "docs/.mustache",
+    "python.testing.pytestArgs": [
+        "tests/inference_cache"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "workbench.colorCustomizations": {
+        "minimap.errorHighlight": "#ff0000",
+        "editorOverviewRuler.errorForeground": "#ff0000",
+        "editorOverviewRuler.warningForeground": "#ff9900",
+        "minimap.warningHighlight": "#ff9900",
+        "minimap.infoHighlight": "#00a8aa",
+        "editorOverviewRuler.infoForeground": "#00a8aa"        
+    }
 }

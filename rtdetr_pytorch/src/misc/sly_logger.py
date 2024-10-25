@@ -9,6 +9,8 @@ class Logs:
         self.loss = None
         self.lrs: dict = None
         self.grad_norm = None
+        # self.data_time = None  # seconds
+        # self.iter_time = None  # seconds
         self.cuda_memory = 0  # MB
 
         self.preview_imgs = None
