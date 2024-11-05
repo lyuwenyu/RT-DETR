@@ -42,17 +42,6 @@ def _build_model(args, num_classes=80):
         # NOTE load train mode state
         cfg.model.load_state_dict(state)
 
-
-    class Model(nn.Module):
-        def __init__(self, ) -> None:
-            super().__init__()
-            self.model = cfg.model.deploy()
-            self.postprocessor = cfg.postprocessor
-            
-        def forward(self, images):
-            outputs = self.model(images)
-            return outputs
-
     return cfg.model
 
 

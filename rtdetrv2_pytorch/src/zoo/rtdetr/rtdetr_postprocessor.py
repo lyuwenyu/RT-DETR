@@ -48,11 +48,11 @@ class RTDETRPostProcessor(nn.Module):
     
     def forward(self, outputs):
         logits, boxes = outputs['pred_logits'], outputs['pred_boxes']
-        patch_size = torch.tensor(self.image_dimensions, dtype=torch.float32).to(boxes.device)       
-        patch_size = patch_size.repeat(boxes.size(0), 1)  # Repeat for batch size
+        orig_target_sizes = torch.tensor(self.image_dimensions, dtype=torch.float32).to(boxes.device)       
+        orig_target_sizes = orig_target_sizes.repeat(boxes.size(0), 1)  # Repeat for batch size
 
         bbox_pred = torchvision.ops.box_convert(boxes, in_fmt='cxcywh', out_fmt='xyxy')
-        bbox_pred *= patch_size.repeat(1, 2).unsqueeze(1)
+        bbox_pred *= orig_target_sizes.repeat(1, 2).unsqueeze(1)
 
         if self.use_focal_loss:
             scores = F.sigmoid(logits)
