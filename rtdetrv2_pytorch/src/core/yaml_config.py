@@ -18,6 +18,11 @@ class YAMLConfig(BaseConfig):
         super().__init__()
 
         cfg = load_config(cfg_path)
+
+        if 'num_classes' in kwargs:
+            cfg['num_classes'] = kwargs['num_classes']
+            print(f"Overriding num_classes  in cfg with {kwargs['num_classes']}")
+
         cfg = merge_dict(cfg, kwargs)
 
         self.yaml_cfg = copy.deepcopy(cfg) 
