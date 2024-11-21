@@ -304,7 +304,7 @@ class TransformerDecoder(nn.Module):
 
             bbox_output = bbox_head[i](output)
             # backwards compatibility for models without angle/rotation
-            if bbox_output.shape[2] > 5:
+            if bbox_output.shape[2] == 5:
                 angle_output = bbox_output[:, :, 4]
             else:
                 angle_output = torch.zeros_like(bbox_output[:,:,0])
