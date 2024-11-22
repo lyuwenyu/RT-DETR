@@ -307,7 +307,7 @@ class TransformerDecoder(nn.Module):
             if bbox_output.shape[2] == 5:
                 angle_output = bbox_output[:, :, 4]
             else:
-                angle_output = torch.zeros_like(bbox_output[:,:,0])
+                angle_output = torch.zeros_like(bbox_output[:, :, 0])
             bbox_output = bbox_output[:, :, :4]
             inter_ref_bbox = F.sigmoid(bbox_output + inverse_sigmoid(ref_points_detach))
 
@@ -641,7 +641,6 @@ class RTDETRTransformer(nn.Module):
         return target, reference_points_unact.detach(), enc_topk_bboxes, enc_topk_logits
 
     def forward(self, feats, targets=None):
-
         # input projection and embedding
         (memory, spatial_shapes, level_start_index) = self._get_encoder_input(feats)
 
@@ -698,9 +697,6 @@ class RTDETRTransformer(nn.Module):
             dn_out_logits, out_logits = torch.split(
                 out_logits, dn_meta["dn_num_split"], dim=2
             )
-            # dn_out_angles, out_angles = torch.split(
-            #     out_angles, dn_meta["dn_num_split"], dim=2
-            # )
 
         out = {
             "pred_logits": out_logits[-1],

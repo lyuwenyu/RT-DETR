@@ -58,8 +58,6 @@ class RTDETRPostProcessor(nn.Module):
             boxes = bbox_pred.gather(
                 dim=1, index=index.unsqueeze(-1).repeat(1, 1, bbox_pred.shape[-1])
             )
-            # angles = angles.gather(dim=1, index=index)
-
 
         else:
             scores = F.softmax(logits)[:, :, :-1]
@@ -91,8 +89,12 @@ class RTDETRPostProcessor(nn.Module):
 
         results = []
         # features untested when self.deploy_mode==False
-        for lab, box, angle, sco, feat in zip(labels, boxes, angles, scores, features):  # , features):
-            result = dict(labels=lab, boxes=box, angles=angle, scores=sco, features=feat)
+        for lab, box, angle, sco, feat in zip(
+            labels, boxes, angles, scores, features
+        ):  # , features):
+            result = dict(
+                labels=lab, boxes=box, angles=angle, scores=sco, features=feat
+            )
             results.append(result)
 
         return results
