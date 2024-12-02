@@ -135,6 +135,33 @@ class SetCriterion(nn.Module):
         loss = loss.mean(1).sum() * src_logits.shape[1] / num_boxes
         return {'loss_vfl': loss}
 
+    def loss_angles(self, outputs, targets, indices, num_boxes, **kwargs):
+        if "pred_angles" not in outputs or num_boxes == 0:
+            return {"loss_angles": 0}
+        src_idx = self._get_src_permutation_idx(indices)
+        src_angles = outputs["pred_angles"][src_idx]
+        target_angles = torch.cat(
+            [t["angles"][i] for t, (_, i) in zip(targets, indices)], dim=0
+        )
+
+        # Create a mask where the target angle is not zero
+        mask = (target_angles != 0).float()
+
+        # Calculate the loss
+        loss = nn.functional.mse_loss(
+            src_angles * mask, target_angles * mask, reduction="sum"
+        )
+
+        # Normalize the loss by the number of non-zero elements to avoid skewing the loss value
+        num_nonzero = mask.sum()
+        print("num_nonzero", num_nonzero)
+
+        if num_nonzero > 0:
+            loss = loss / num_nonzero
+
+        return {"loss_angles": loss}
+
+
     @torch.no_grad()
     def loss_cardinality(self, outputs, targets, indices, num_boxes):
         """ Compute the cardinality error, ie the absolute error in the number of predicted non-empty boxes
@@ -217,7 +244,7 @@ class SetCriterion(nn.Module):
             'cardinality': self.loss_cardinality,
             'boxes': self.loss_boxes,
             'masks': self.loss_masks,
-
+            'angles': self.loss_angles,
             'bce': self.loss_labels_bce,
             'focal': self.loss_labels_focal,
             'vfl': self.loss_labels_vfl,

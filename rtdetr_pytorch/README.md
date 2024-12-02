@@ -109,3 +109,11 @@ python tools/export_onnx.py -c configs/rtdetr/rtdetr_r18vd_6x_coco.yml -r path/t
 
 2. add `-t path/to/checkpoint` (optinal) to tuning rtdetr based on pretrained checkpoint. see [training script details](./tools/README.md).
 </details>
+
+
+<details open>
+<summary>list of wheel release</summary>
+
+- rtrdetr-0.1.1-py3-none-any.whl - updated to use torchvision =< 0.16.0
+- rtrdetr-0.2.3-py3-none-any.whl - merged rotation feature with torchvision update
+
