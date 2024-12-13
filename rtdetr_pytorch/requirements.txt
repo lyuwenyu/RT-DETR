@@ -5,3 +5,4 @@ onnxruntime==1.15.1
 pycocotools
 PyYAML
 scipy
+transformers
