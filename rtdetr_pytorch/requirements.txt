@@ -2,6 +2,7 @@ torch==2.0.1
 torchvision==0.15.2
 onnx==1.14.0
 onnxruntime==1.15.1
+numpy==1.26.4
 pycocotools
 PyYAML
 scipy
