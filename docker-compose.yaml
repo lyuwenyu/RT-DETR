@@ -1,0 +1,27 @@
+services:
+  rt_detr:
+    container_name: rt_detr
+    image: rt_detr:latest
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+      args:
+        - TARGET_PATH=.
+    volumes:
+      - ./rtdetrv2_pytorch:/home/ros/RT-DETR
+      - ./benchmark:/home/ros/RT-DETR/benchmark
+      - /mnt/gr-nas/visionai-data:/home/ros/RT-DETR/data
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    env_file: docker/.env
+    privileged: true
+    working_dir: /home/ros/RT-DETR
+    user: ros
+    ipc: host
+    network_mode: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['0']
+            capabilities: [gpu]

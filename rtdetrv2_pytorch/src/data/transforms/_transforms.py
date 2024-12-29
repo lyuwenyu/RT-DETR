@@ -13,6 +13,10 @@ import torchvision.transforms.v2.functional as F
 import PIL
 import PIL.Image
 
+# Suppress DecompressionBombWarning 
+# caused by RandomZoomOut augmentation on 4K images
+PIL.Image.MAX_IMAGE_PIXELS = None
+
 from typing import Any, Dict, List, Optional
 
 from .._misc import convert_to_tv_tensor, _boxes_keys

@@ -9,7 +9,7 @@ import onnxruntime as ort
 from PIL import Image, ImageDraw
 
 
-def draw(images, labels, boxes, scores, thrh = 0.6):
+def draw(images, labels, boxes, scores, thrh = 0.7):
     for i, im in enumerate(images):
         draw = ImageDraw.Draw(im)
 
@@ -17,9 +17,14 @@ def draw(images, labels, boxes, scores, thrh = 0.6):
         lab = labels[i][scr > thrh]
         box = boxes[i][scr > thrh]
 
-        for b in box:
+        for b,l,s in zip(box, lab, scr):
             draw.rectangle(list(b), outline='red',)
-            draw.text((b[0], b[1]), text=str(lab[i].item()), fill='blue', )
+            draw.text((b[0], b[1]), text=str(np.round(l,2)), fill='blue', )
+            draw.text((b[2], b[3]), text=str(np.round(s,2)), fill='black', )
+
+        # for b, l in zip(box,scr):
+        #     draw.rectangle(list(b), outline='red',)
+        #     draw.text((b[0], b[1]), text=f"{l.item():0.2f}", fill='blue', )
 
         im.save(f'results_{i}.jpg')
 
@@ -35,7 +40,7 @@ def main(args, ):
     orig_size = torch.tensor([w, h])[None]
 
     transforms = T.Compose([
-        T.Resize((640, 640)),
+        T.Resize((1280, 1280)),
         T.ToTensor(),
     ])
     im_data = transforms(im_pil)[None]
