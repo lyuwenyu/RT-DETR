@@ -91,7 +91,7 @@ def inference(image_paths, id2cat):
 
     return outputs, inf_times
 
-def draw_boxes(image_paths, output, score_th = 0.1):
+def draw_boxes(image_paths, output, score_th = 0.3):
     
     for img_path, output in zip(image_paths,outputs):
         im = cv2.imread(str(img_path))        

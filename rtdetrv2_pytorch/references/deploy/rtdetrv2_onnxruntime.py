@@ -50,6 +50,7 @@ def main(args, ):
         im_resized = im_pil.resize((1280,1280), Image.BILINEAR)
         im_data_pil = np.transpose(np.array(im_resized).astype(np.float32) / 255.0, (2, 0, 1))  # Shape: (C, H, W)
         im_data = np.expand_dims(im_data_pil, axis=0)  # Shape: (1, C, H, W)
+        im_data = np.ascontiguousarray(im_data)
 
     output = sess.run(
         output_names=None,

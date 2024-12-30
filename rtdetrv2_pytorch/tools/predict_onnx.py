@@ -38,7 +38,7 @@ def main(args, ):
     sess = ort.InferenceSession(args.model, sess_options=sess_options, providers=providers)
     
     img_path_list = []
-    possible_img_extension = ['.jpg', '.jpeg', '.JPG', '.bmp', '.png'] # 이미지 확장자들
+    possible_img_extension = ['.jpg', '.jpeg', '.JPG', '.bmp', '.png'] 
     for (root, dirs, files) in os.walk(args.img):
         if len(files) > 0:
             for file_name in files:

@@ -72,21 +72,22 @@ def main(args, ):
         do_constant_folding=True,
     )
 
-    if args.check:
-        onnx_model = onnx.load(args.output_file)
-        onnx.checker.check_model(onnx_model)
-        print('Check export onnx model done...')
-    
+    onnx_model = onnx.load(args.output_file)
     add_meta(onnx_model, 
              key="data", 
              value=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     add_meta(onnx_model, 
              key="classes", 
-             value=json.dumps(args.class_names))
+             value=json.dumps({k:v for k, v in enumerate(args.class_names)}))
     add_meta(onnx_model, 
              key="model", 
              value="RT-DETR")
     onnx.save(onnx_model, args.output_file)
+
+    if args.check:
+        onnx_model = onnx.load(args.output_file)
+        onnx.checker.check_model(onnx_model)
+        print('Check export onnx model done...')
 
     if args.simplify:
         onnx_model_simplify, check = onnxsim.simplify(args.output_file)
