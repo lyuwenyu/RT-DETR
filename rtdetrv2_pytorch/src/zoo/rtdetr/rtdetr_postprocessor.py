@@ -69,10 +69,12 @@ class RTDETRPostProcessor(nn.Module):
             padded_unique_indices = torch.zeros(scores.shape, device=scores.device, dtype=torch.long)
             for b in range(batch_size):
                 unique_box_indices, inverse_indices = torch.unique(index[b], dim=0, return_inverse=True)
-                a = torch.scatter_reduce(torch.zeros(self.num_top_queries, device=scores.device, dtype=scores.dtype), 
+                unique_box_indices = F.pad(unique_box_indices, (0, self.num_top_queries - unique_box_indices.size(0)), value=0.0)
+
+                reduced_scores = torch.scatter_reduce(torch.zeros(self.num_top_queries, device=scores.device, dtype=scores.dtype), 
                                     dim=0, index=inverse_indices, src=scores[b], reduce='amax')
-                max_scores[b] = a
-                padded_unique_indices[b, :len(unique_box_indices)] = unique_box_indices
+                max_scores[b] = reduced_scores
+                padded_unique_indices[b] = unique_box_indices
 
             scores = max_scores
             index = padded_unique_indices
