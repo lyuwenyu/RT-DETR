@@ -7,9 +7,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 
 import torch
 import torch.nn as nn 
-
+import datetime
 from src.core import YAMLConfig
+import json
+import onnx
+import onnxsim
 
+def add_meta(onnx_model, key, value):
+    # Add meta to model
+    meta = onnx_model.metadata_props.add()
+    meta.key = key
+    meta.value = value
 
 def main(args, ):
     """main
@@ -65,20 +73,25 @@ def main(args, ):
     )
 
     if args.check:
-        import onnx
         onnx_model = onnx.load(args.output_file)
         onnx.checker.check_model(onnx_model)
         print('Check export onnx model done...')
+    
+    add_meta(onnx_model, 
+             key="data", 
+             value=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    add_meta(onnx_model, 
+             key="classes", 
+             value=json.dumps(args.class_names))
+    add_meta(onnx_model, 
+             key="model", 
+             value="RT-DETR")
+    onnx.save(onnx_model, args.output_file)
 
     if args.simplify:
-        import onnx 
-        import onnxsim
-        dynamic = True 
-        # input_shapes = {'images': [1, 3, 1280, 1280], 'orig_target_sizes': [1, 2]} if dynamic else None
-        input_shapes = {'images': data.shape, 'orig_target_sizes': size.shape} if dynamic else None
-        onnx_model_simplify, check = onnxsim.simplify(args.output_file, input_shapes=input_shapes, dynamic_input_shape=dynamic)
+        onnx_model_simplify, check = onnxsim.simplify(args.output_file)
         onnx.save(onnx_model_simplify, args.output_file)
-        print(f'Simplify onnx model {check}...')
+        print(f'Successfully simplified onnx model: {check}...')
 
 
 if __name__ == '__main__':
@@ -87,9 +100,9 @@ if __name__ == '__main__':
     parser.add_argument('--config', '-c', type=str, )
     parser.add_argument('--resume', '-r', type=str, )
     parser.add_argument('--output_file', '-o', type=str, default='model.onnx')
+    parser.add_argument('--class_names', nargs='+', default=['marine_mammal', 'marker', 'unknown', 'vessel'], help='class list in the same order as class enum')
     parser.add_argument('--check',  action='store_true', default=False,)
     parser.add_argument('--simplify',  action='store_true', default=False,)
-
     args = parser.parse_args()
 
     main(args)
