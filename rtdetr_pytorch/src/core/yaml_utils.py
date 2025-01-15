@@ -2,7 +2,7 @@
 """
 
 import os
-import yaml 
+import yaml
 import inspect
 import importlib
 
@@ -23,14 +23,14 @@ def register(cls: type):
 
     if inspect.isfunction(cls):
         GLOBAL_CONFIG[cls.__name__] = cls
-    
+
     elif inspect.isclass(cls):
         GLOBAL_CONFIG[cls.__name__] = extract_schema(cls)
 
     else:
         raise ValueError(f'register {cls}')
 
-    return cls 
+    return cls
 
 
 def extract_schema(cls: type):
@@ -38,7 +38,7 @@ def extract_schema(cls: type):
     Args:
         cls (type),
     Return:
-        Dict, 
+        Dict,
     '''
     argspec = inspect.getfullargspec(cls.__init__)
     arg_names = [arg for arg in argspec.args if arg != 'self']
@@ -55,15 +55,15 @@ def extract_schema(cls: type):
         if name in schame['_share']:
             assert i >= num_requires, 'share config must have default value.'
             value = argspec.defaults[i - num_requires]
-        
+
         elif i >= num_requires:
             value = argspec.defaults[i - num_requires]
 
         else:
-            value = None 
+            value = None
 
         schame[name] = value
-        
+
     return schame
 
 
@@ -85,20 +85,20 @@ def create(type_or_name, **kwargs):
 
     if isinstance(cfg, dict) and 'type' in cfg:
         _cfg: dict = GLOBAL_CONFIG[cfg['type']]
-        _cfg.update(cfg) # update global cls default args 
+        _cfg.update(cfg) # update global cls default args
         _cfg.update(kwargs) # TODO
         name = _cfg.pop('type')
-        
+
         return create(name)
 
 
     cls = getattr(cfg['_pymodule'], name)
     argspec = inspect.getfullargspec(cls.__init__)
     arg_names = [arg for arg in argspec.args if arg != 'self']
-    
+
     cls_kwargs = {}
     cls_kwargs.update(cfg)
-    
+
     # shared var
     for k in cfg['_share']:
         if k in GLOBAL_CONFIG:
@@ -113,16 +113,16 @@ def create(type_or_name, **kwargs):
         if _k is None:
             continue
 
-        if isinstance(_k, str):            
+        if isinstance(_k, str):
             if _k not in GLOBAL_CONFIG:
                 raise ValueError(f'Missing inject config of {_k}.')
 
             _cfg = GLOBAL_CONFIG[_k]
-            
+
             if isinstance(_cfg, dict):
                 cls_kwargs[k] = create(_cfg['_name'])
             else:
-                cls_kwargs[k] = _cfg 
+                cls_kwargs[k] = _cfg
 
         elif isinstance(_k, dict):
             if 'type' not in _k.keys():
@@ -135,7 +135,7 @@ def create(type_or_name, **kwargs):
             # TODO modified inspace, maybe get wrong result for using `> 1`
             _cfg: dict = GLOBAL_CONFIG[_type]
             # _cfg_copy = copy.deepcopy(_cfg)
-            _cfg.update(_k) # update 
+            _cfg.update(_k) # update
             cls_kwargs[k] = create(_type)
             # _cfg.update(_cfg_copy) # resume
 
@@ -149,9 +149,12 @@ def create(type_or_name, **kwargs):
 
 
 
-def load_config(file_path, cfg=dict()):
+def load_config(file_path, cfg=None):
     '''load config
     '''
+    if cfg is None:
+        cfg = {}
+
     _, ext = os.path.splitext(file_path)
     assert ext in ['.yml', '.yaml'], "only support yaml files for now"
 
@@ -201,7 +204,7 @@ def merge_config(config, another_cfg=None):
     """
     global GLOBAL_CONFIG
     dct = GLOBAL_CONFIG if another_cfg is None else another_cfg
-    
+
     return merge_dict(dct, config)
 
 
