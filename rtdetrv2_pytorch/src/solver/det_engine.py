@@ -108,27 +108,19 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessor, 
     model.eval()
     criterion.eval()
     coco_evaluator.cleanup()
+    iou_types = coco_evaluator.iou_types
 
     metric_logger = MetricLogger(delimiter="  ")
-    # metric_logger.add_meter('class_error', SmoothedValue(window_size=1, fmt='{value:.2f}'))
     header = 'Test:'
     
-    # iou_types = tuple(k for k in ('segm', 'bbox') if k in postprocessor.keys())
-    iou_types = coco_evaluator.iou_types
-    # coco_evaluator = CocoEvaluator(base_ds, iou_types)
-    # coco_evaluator.coco_eval[iou_types[0]].params.iouThrs = [0, 0.1, 0.5, 0.75]
-
     for samples, targets in metric_logger.log_every(data_loader, 10, header):
         samples = samples.to(device)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
         outputs = model(samples)
-        # with torch.autocast(device_type=str(device)):
-        #     outputs = model(samples)
 
         # TODO (lyuwenyu), fix dataset converted using `convert_to_coco_api`?
         orig_target_sizes = torch.stack([t["orig_size"] for t in targets], dim=0)
-        # orig_target_sizes = torch.tensor([[samples.shape[-1], samples.shape[-2]]], device=samples.device)
         
         results = postprocessor(outputs, orig_target_sizes)
 
