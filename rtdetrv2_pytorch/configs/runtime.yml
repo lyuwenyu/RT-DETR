@@ -1,7 +1,7 @@
 
 print_freq: 100
 output_dir: './logs'
-checkpoint_freq: 1
+checkpoint_freq: 20
 
 
 sync_bn: True
