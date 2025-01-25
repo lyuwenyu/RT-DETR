@@ -300,7 +300,7 @@ class Trainer(object):
             self.cfg.log_iter, fmt='{avg:.4f}')
         self.status['data_time'] = stats.SmoothedValue(
             self.cfg.log_iter, fmt='{avg:.4f}')
-        self.status['training_staus'] = stats.TrainingStats(self.cfg.log_iter)
+        self.status['training_status'] = stats.TrainingStats(self.cfg.log_iter)
 
         profiler_options = self.cfg.get('profiler_options', None)
 
@@ -385,7 +385,7 @@ class Trainer(object):
                 self.status['learning_rate'] = curr_lr
 
                 if self._nranks < 2 or self._local_rank == 0:
-                    self.status['training_staus'].update(outputs)
+                    self.status['training_status'].update(outputs)
 
                 self.status['batch_time'].update(time.time() - iter_tic)
                 self._compose_callback.on_step_end(self.status)
