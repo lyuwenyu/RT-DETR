@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--config", "rtdetrv2_pytorch/configs/rtdetrv2/rtdetrv2_r18vd_120e_coco.yml", 
+                "--resume", "/models/rtdetrv2_r18vd_120e_coco_rerun_48.1.pth",
+                "--device", "cuda:0",
+                "--use-amp",
+                "--output-dir", "/data/rtdetrv2_r18vd_120e_coco",
+                "--test-only"
+            ],
+            "justMyCode": true
+        }
+    ]
+}

@@ -1,0 +1,27 @@
+services:
+  train:
+    build:
+      context: .
+      target: train
+      dockerfile: rtdetrv2_pytorch/Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    shm_size: '8gb'
+    volumes:
+      - ${DS_MODEL_PATH:?error}:/models
+      - ${DS_DATA_PATH:?error}:/data
+    command: [
+      "python", "rtdetrv2_pytorch/tools/train.py", 
+      "--config", "rtdetrv2_pytorch/configs/rtdetrv2/rtdetrv2_r18vd_120e_coco.yml",
+      "--resume", "/models/rtdetrv2_r18vd_120e_coco_rerun_48.1.pth",
+      "--device", "cuda:0",
+      "--use-amp",
+      "--output-dir", "/data/rtdetrv2_r18vd_120e_coco",
+      "--test-only"
+    ]
+

@@ -6,6 +6,8 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 import argparse
+import json
+import time
 
 from src.misc import dist_utils
 from src.core import YAMLConfig, yaml_utils
@@ -25,12 +27,20 @@ def main(args, ) -> None:
         if k not in ['update', ] and v is not None})
 
     cfg = YAMLConfig(args.config, **update_dict)
-    print('cfg: ', cfg.__dict__)
+    print('cfg:', json.dumps(cfg.__dict__, indent=2))
 
     solver = TASKS[cfg.yaml_cfg['task']](cfg)
     
     if args.test_only:
+        start_time = time.time()
         solver.val()
+        end_time = time.time()
+        total_time = end_time - start_time
+        print(f"Validation completed in {total_time:.2f} seconds")
+        num_images = len(solver.val_dataloader.dataset)
+        print(f"Number of images: {num_images}")
+        fps = num_images / total_time
+        print(f"Average throughput: {fps:.2f} FPS")
     else:
         solver.fit()
 
