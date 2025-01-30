@@ -8,6 +8,7 @@ Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 import sys
 import math
 from typing import Iterable
+import numpy as np
 
 import torch
 import torch.amp 
@@ -30,6 +31,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     
     print_freq = kwargs.get('print_freq', 10)
     writer :SummaryWriter = kwargs.get('writer', None)
+    wandb_run = kwargs.get('wandb_run', None)
 
     ema :ModelEMA = kwargs.get('ema', None)
     scaler :GradScaler = kwargs.get('scaler', None)
@@ -96,6 +98,15 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                 writer.add_scalar(f'Lr/pg_{j}', pg['lr'], global_step)
             for k, v in loss_dict_reduced.items():
                 writer.add_scalar(f'Loss/{k}', v.item(), global_step)
+
+        if wandb_run and dist_utils.is_main_process():
+            wandb_run.log({
+                'Loss/total': loss_value.item(),
+                **{f'Loss/{k}': v.item() for k, v in loss_dict_reduced.items()},
+                **{f'Lr/pg_{j}': pg['lr'] for j, pg in enumerate(optimizer.param_groups)},
+                'epoch': epoch,
+                'step': global_step
+            })
                 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
@@ -152,6 +163,3 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessor, 
             stats['coco_eval_masks'] = coco_evaluator.coco_eval['segm'].stats.tolist()
             
     return stats, coco_evaluator
-
-
-

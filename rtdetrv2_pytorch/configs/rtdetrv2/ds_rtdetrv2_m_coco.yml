@@ -1,0 +1,58 @@
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  './include/dataloader.yml',
+  './include/optimizer.yml',
+  './include/rtdetrv2_r50vd.yml',
+]
+
+output_dir: ./output/rtdetrv2_r50vd_m_6x_coco
+
+
+HybridEncoder:
+  expansion: 0.5
+
+
+RTDETRTransformerv2:
+  eval_idx: 2 # use 3th decoder layer to eval
+
+
+epoches: 36
+
+optimizer:
+  type: AdamW
+  params: 
+    - 
+      params: '^(?=.*backbone)(?!.*norm).*$'
+      lr: 0.00001
+    - 
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.
+
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+
+train_dataloader: 
+  dataset:
+    img_folder: /data/data
+    ann_file: /data/train.json 
+    transforms:
+      policy:
+        epoch: 24
+  collate_fn:
+    scales: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
+    stop_epoch: 24
+
+val_dataloader:
+  type: DataLoader
+  dataset: 
+    img_folder: /data/data
+    ann_file: /data/val.json
+
+wandb:
+  project: 'platform-balidation'
+  group: rtdetr
+  name: rtdetrv2_m
+  tags: ['ds-yolov4-full', 'rtdetr-v2', 'batch-16']

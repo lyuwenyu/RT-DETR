@@ -4,6 +4,7 @@
 import time 
 import json
 import datetime
+import wandb
 
 import torch 
 
@@ -18,7 +19,16 @@ class DetSolver(BaseSolver):
     def fit(self, ):
         print("Start training")
         self.train()
-        args = self.cfg
+        args: dict = self.cfg.yaml_cfg
+
+        # Initialize W&B run
+        wandb_run = None
+        if args.get('wandb', None):
+            _project = args.get('wandb', {}).get('project', None)
+            _tags = args.get('wandb', {}).get('tags', None)
+            _name = args.get('wandb', {}).get('name', None)
+            _group = args.get('wandb', {}).get('group', None)
+            wandb_run = wandb.init(project=_project, config=args, tags=_tags, name=_name, group=_group)
 
         n_parameters = sum([p.numel() for p in self.model.parameters() if p.requires_grad])
         print(f'number of trainable parameters: {n_parameters}')
@@ -47,7 +57,8 @@ class DetSolver(BaseSolver):
                 ema=self.ema, 
                 scaler=self.scaler, 
                 lr_warmup_scheduler=self.lr_warmup_scheduler,
-                writer=self.writer
+                writer=self.writer,
+                wandb_run=wandb_run
             )
 
             if self.lr_warmup_scheduler is None or self.lr_warmup_scheduler.finished():
@@ -92,11 +103,15 @@ class DetSolver(BaseSolver):
             print(f'best_stat: {best_stat}')
 
             log_stats = {
-                **{f'train_{k}': v for k, v in train_stats.items()},
-                **{f'test_{k}': v for k, v in test_stats.items()},
+                **{f'train/{k}': v for k, v in train_stats.items()},
+                **{f'test/{k}': v for k, v in test_stats.items()},
                 'epoch': epoch,
                 'n_parameters': n_parameters
             }
+
+            # Log metrics to W&B
+            if wandb_run:
+                wandb_run.log(log_stats)
 
             if self.output_dir and dist_utils.is_main_process():
                 with (self.output_dir / "log.txt").open("a") as f:

@@ -4,3 +4,4 @@ pycocotools
 PyYAML
 tensorboard
 scipy
+wandb>=0.15.0
