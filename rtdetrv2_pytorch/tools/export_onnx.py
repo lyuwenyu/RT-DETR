@@ -43,8 +43,8 @@ def main(args, ):
 
     model = Model()
 
-    data = torch.rand(1, 3, 640, 640)
-    size = torch.tensor([[640, 640]])
+    data = torch.rand(1, 3, args.input_size, args.input_size)
+    size = torch.tensor([[args.input_size, args.input_size]])
     _ = model(data, size)
 
     dynamic_axes = {
@@ -87,8 +87,10 @@ if __name__ == '__main__':
     parser.add_argument('--config', '-c', type=str, )
     parser.add_argument('--resume', '-r', type=str, )
     parser.add_argument('--output_file', '-o', type=str, default='model.onnx')
+    parser.add_argument('--input_size', '-s', type=int, default=640)
     parser.add_argument('--check',  action='store_true', default=False,)
     parser.add_argument('--simplify',  action='store_true', default=False,)
+    
 
     args = parser.parse_args()
 
