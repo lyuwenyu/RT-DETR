@@ -8,7 +8,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 import argparse
 import json
 import time
-import wandb
 
 from src.misc import dist_utils
 from src.core import YAMLConfig, yaml_utils
@@ -45,9 +44,6 @@ def main(args, ) -> None:
     else:
         # Initialize wandb
         solver.fit()
-        
-        if args.wandb and dist_utils.is_main_process():
-            wandb.finish()
 
     dist_utils.cleanup()
     

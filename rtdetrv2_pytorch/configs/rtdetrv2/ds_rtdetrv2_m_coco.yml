@@ -37,22 +37,22 @@ optimizer:
 train_dataloader: 
   dataset:
     img_folder: /data/data
-    ann_file: /data/train.json 
+    ann_file: /data/train_subsample.json
     transforms:
       policy:
         epoch: 24
   collate_fn:
     scales: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
     stop_epoch: 24
+  total_batch_size: 8
 
 val_dataloader:
   type: DataLoader
   dataset: 
     img_folder: /data/data
-    ann_file: /data/val.json
+    ann_file: /data/val_small.json
 
 wandb:
-  project: 'platform-balidation'
+  project: 'platform-validation'
   group: rtdetr
-  name: rtdetrv2_m
-  tags: ['ds-yolov4-full', 'rtdetr-v2', 'batch-16']
+  tags: ['ds-yolov4-full', 'rtdetr-v2', 'batch-8']

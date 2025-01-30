@@ -23,12 +23,16 @@ class DetSolver(BaseSolver):
 
         # Initialize W&B run
         wandb_run = None
-        if args.get('wandb', None):
+        if args.get('wandb', None) and dist_utils.is_main_process():
             _project = args.get('wandb', {}).get('project', None)
             _tags = args.get('wandb', {}).get('tags', None)
-            _name = args.get('wandb', {}).get('name', None)
             _group = args.get('wandb', {}).get('group', None)
-            wandb_run = wandb.init(project=_project, config=args, tags=_tags, name=_name, group=_group)
+            wandb_run = wandb.init(project=_project, config=args, tags=_tags, group=_group)
+            if self.output_dir:
+                self.output_dir = self.output_dir / wandb_run.id
+                self.output_dir.mkdir(exist_ok=True, parents=True)
+
+
 
         n_parameters = sum([p.numel() for p in self.model.parameters() if p.requires_grad])
         print(f'number of trainable parameters: {n_parameters}')
@@ -38,7 +42,7 @@ class DetSolver(BaseSolver):
         start_time = time.time()
         start_epcoch = self.last_epoch + 1
         
-        for epoch in range(start_epcoch, args.epoches):
+        for epoch in range(start_epcoch, self.cfg.epoches):
 
             self.train_dataloader.set_epoch(epoch)
             # self.train_dataloader.dataset.set_epoch(epoch)
@@ -52,8 +56,8 @@ class DetSolver(BaseSolver):
                 self.optimizer, 
                 self.device, 
                 epoch, 
-                max_norm=args.clip_max_norm, 
-                print_freq=args.print_freq, 
+                max_norm=self.cfg.clip_max_norm, 
+                print_freq=self.cfg.print_freq, 
                 ema=self.ema, 
                 scaler=self.scaler, 
                 lr_warmup_scheduler=self.lr_warmup_scheduler,
@@ -69,7 +73,7 @@ class DetSolver(BaseSolver):
             if self.output_dir:
                 checkpoint_paths = [self.output_dir / 'last.pth']
                 # extra checkpoint before LR drop and every 100 epochs
-                if (epoch + 1) % args.checkpoint_freq == 0:
+                if (epoch + 1) % self.cfg.checkpoint_freq == 0:
                     checkpoint_paths.append(self.output_dir / f'checkpoint{epoch:04}.pth')
                 for checkpoint_path in checkpoint_paths:
                     dist_utils.save_on_master(self.state_dict(), checkpoint_path)
@@ -102,15 +106,14 @@ class DetSolver(BaseSolver):
 
             print(f'best_stat: {best_stat}')
 
-            log_stats = {
-                **{f'train/{k}': v for k, v in train_stats.items()},
-                **{f'test/{k}': v for k, v in test_stats.items()},
-                'epoch': epoch,
-                'n_parameters': n_parameters
-            }
-
             # Log metrics to W&B
-            if wandb_run:
+            if wandb_run and dist_utils.is_main_process():
+                log_stats = {
+                    **{f'train/{k}': v for k, v in train_stats.items()},
+                    **{f'test/{k}_{i}': v for k in test_stats for i, v in enumerate(test_stats[k])},
+                    'epoch': epoch,
+                    'n_parameters': n_parameters
+                }
                 wandb_run.log(log_stats)
 
             if self.output_dir and dist_utils.is_main_process():
