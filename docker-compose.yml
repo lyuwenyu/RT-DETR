@@ -54,9 +54,9 @@ services:
       "--use-amp",
       "--output-dir", "/models/ds_rtdetrv2_m_coco",
       "--update",
-      "train_dataloader.dataset.ann_file=/data/train_subsample.json",
+      "train_dataloader.dataset.ann_file=/data/train.json",
       "train_dataloader.dataset.img_folder=/data/data",
-      "val_dataloader.dataset.ann_file=/data/val_small.json",
+      "val_dataloader.dataset.ann_file=/data/val.json",
       "val_dataloader.dataset.img_folder=/data/data",
       "num_classes=1"
     ]
