@@ -6,6 +6,7 @@ __include__: [
   './include/rtdetrv2_r50vd.yml',
 ]
 
+eval_spatial_size: [512, 704] # h, w
 output_dir: ./output/rtdetrv2_r50vd_m_6x_coco
 
 
@@ -40,9 +41,16 @@ train_dataloader:
       policy:
         epoch: 24
   collate_fn:
-    scales: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
+    scales: [480, 512, 544, 576, 608, 640, 704, 704, 704, 704]
     stop_epoch: 24
   total_batch_size: 8
+
+val_dataloader:
+  dataset: 
+    transforms:
+      ops: 
+        - {type: Resize, size: [512, 704]}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}   
 
 wandb:
   project: 'platform-validation'
