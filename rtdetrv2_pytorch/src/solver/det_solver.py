@@ -29,7 +29,7 @@ class DetSolver(BaseSolver):
             _group = args.get('wandb', {}).get('group', None)
             wandb_run = wandb.init(project=_project, config=args, tags=_tags, group=_group)
             if self.output_dir:
-                self.output_dir = self.output_dir / wandb_run.id
+                self.output_dir = self.output_dir / wandb_run.name
                 self.output_dir.mkdir(exist_ok=True, parents=True)
 
 
