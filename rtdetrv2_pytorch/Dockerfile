@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y git
 
 WORKDIR /app
 
-COPY rtdetrv2_pytorch/requirements.txt requirements.txt
+COPY . .
 
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install -r rtdetrv2_pytorch/requirements.txt

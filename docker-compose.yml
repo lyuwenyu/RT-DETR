@@ -48,11 +48,16 @@ services:
       - ${DS_DATA_PATH:?error}:/data
     command: [
       "python", "rtdetrv2_pytorch/tools/train.py", 
-      "--config", "rtdetrv2_pytorch/configs/rtdetrv2/rtdetrv2_r50vd_m_7x_coco.yml",
-      "--resume", "/models/rtdetrv2_r50vd_m_7x_coco_ema.pth",
+      "--config", "rtdetrv2_pytorch/configs/rtdetrv2/ds_rtdetrv2_m_coco.yml",
+      "--tuning", "/models/rtdetrv2_r50vd_m_7x_coco_ema.pth",
       "--device", "cuda:0",
       "--use-amp",
-      "--output-dir", "/data/rtdetrv2_r18vd_120e_coco",
-      "--test-only"
+      "--output-dir", "/models/ds_rtdetrv2_m_coco",
+      "--update",
+      "train_dataloader.dataset.ann_file=/data/train_subsample.json",
+      "train_dataloader.dataset.img_folder=/data/data",
+      "val_dataloader.dataset.ann_file=/data/val_small.json",
+      "val_dataloader.dataset.img_folder=/data/data",
+      "num_classes=1"
     ]
 
