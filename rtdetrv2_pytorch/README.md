@@ -125,7 +125,7 @@ python tools/export_onnx.py -c path/to/config -r path/to/checkpoint --check
 
 Support torch, onnxruntime, tensorrt and openvino, see details in *references/deploy*
 ```shell
-python references/deploy/rtdetrv2_onnx.py --onnx-file=model.onnx --im-file=xxxx
+python references/deploy/rtdetrv2_onnxruntime.py --onnx-file=model.onnx --im-file=xxxx
 python references/deploy/rtdetrv2_tensorrt.py --trt-file=model.trt --im-file=xxxx
 python references/deploy/rtdetrv2_torch.py -c path/to/config -r path/to/checkpoint --im-file=xxx --device=cuda:0
 ```
