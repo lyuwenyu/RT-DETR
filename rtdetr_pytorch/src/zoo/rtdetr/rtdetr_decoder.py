@@ -220,7 +220,7 @@ class TransformerDecoderLayer(nn.Module):
         # ffn
         tgt2 = self.forward_ffn(tgt)
         tgt = tgt + self.dropout4(tgt2)
-        tgt = self.norm3(tgt)
+        tgt = self.norm3(tgt.clamp(min=-65504, max=65504))
 
         return tgt
 
