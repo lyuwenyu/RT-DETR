@@ -76,8 +76,8 @@ def main(args, ):
         dynamic = True 
         # input_shapes = {'images': [1, 3, 640, 640], 'orig_target_sizes': [1, 2]} if dynamic else None
         input_shapes = {'images': data.shape, 'orig_target_sizes': size.shape} if dynamic else None
-        onnx_model_simplify, check = onnxsim.simplify(args.file_name, input_shapes=input_shapes, dynamic_input_shape=dynamic)
-        onnx.save(onnx_model_simplify, args.file_name)
+        onnx_model_simplify, check = onnxsim.simplify(args.output_file, input_shapes=input_shapes, dynamic_input_shape=dynamic)
+        onnx.save(onnx_model_simplify, args.output_file)
         print(f'Simplify onnx model {check}...')
 
 
