@@ -54,4 +54,4 @@ val_dataloader:
 wandb:
   project: 'platform-validation'
   group: rtdetr
-  tags: ['ds-yolov4-full', 'rtdetr-v2', 'batch-8', 'medium','batch-8', '512x704'
+  tags: ['ds-yolov4-full', 'rtdetr-v2', 'batch-8', 'medium','batch-8', '512x704']
