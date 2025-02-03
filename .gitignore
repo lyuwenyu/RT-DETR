@@ -161,6 +161,7 @@ cython_debug/
 
 
 .DS_Store
+**/wandb/
 *.ipynb
 *.pth 
 *.pdparams
