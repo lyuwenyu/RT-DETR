@@ -6,43 +6,46 @@ __include__: [
   './include/rtdetrv2_r50vd.yml',
 ]
 
-eval_spatial_size: [512, 704] # h, w
+
+eval_spatial_size: [512, 704]
+
+
+PResNet:
+  depth: 18
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: True
 
 
 HybridEncoder:
+  in_channels: [128, 256, 512]
+  hidden_dim: 256
   expansion: 0.5
 
 
 RTDETRTransformerv2:
-  eval_idx: 2 # use 3th decoder layer to eval
+  num_layers: 3
 
 
 epoches: 36
 
 optimizer:
   type: AdamW
-  params: 
+  params:
     - 
-      params: '^(?=.*backbone)(?!.*norm).*$'
-      lr: 0.00001
-    - 
-      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn)).*$'
+      params: '^(?=.*(?:norm|bn)).*$'
       weight_decay: 0.
-
-  lr: 0.0001
-  betas: [0.9, 0.999]
-  weight_decay: 0.0001
 
 
 train_dataloader: 
-  dataset:
+  dataset: 
     transforms:
       policy:
-        epoch: 24
+        epoch: 32
   collate_fn:
     scales: [480, 512, 544, 576, 608, 640, 704, 704, 704, 704]
-    stop_epoch: 24
-  total_batch_size: 8
+    stop_epoch: 32
+  total_batch_size: 16
 
 val_dataloader:
   dataset: 
@@ -54,4 +57,4 @@ val_dataloader:
 wandb:
   project: 'platform-validation'
   group: rtdetr
-  tags: ['ds-yolov4-full', 'rtdetr-v2', 'batch-8', 'medium','batch-8', '512x704'
+  tags: ['ds-yolov4-full', 'rtdetr-v2', 'small','batch-16', '512x704']

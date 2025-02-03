@@ -13,16 +13,21 @@ services:
               capabilities: [gpu]
     shm_size: '8gb'
     volumes:
-      - .:/app
       - ${DS_MODEL_PATH:?error}:/models
       - ${DS_DATA_PATH:?error}:/data
     command: [
       "python", "rtdetrv2_pytorch/tools/train.py", 
-      "--config", "rtdetrv2_pytorch/configs/rtdetrv2/rtdetrv2_r50vd_m_7x_coco.yml",
-      "--resume", "/models/rtdetrv2_r50vd_m_7x_coco_ema.pth",
+      "--config", "rtdetrv2_pytorch/configs/rtdetrv2/ds_rtdetrv2_m_coco.yml",
+      "--resume", "/models/ds_rtdetrv2_m_coco/solar-surf-34/checkpoint0020.pth",
       "--device", "cuda:0",
       "--use-amp",
-      "--output-dir", "/data/rtdetrv2_r18vd_120e_coco",
+      "--output-dir", "/models/ds_rtdetrv2_m_coco",
+      "--update",
+      "train_dataloader.dataset.img_folder=/data/data",
+      "val_dataloader.dataset.img_folder=/data/data",
+      "train_dataloader.dataset.ann_file=/data/train.json",
+      "val_dataloader.dataset.ann_file=/data/val.json",
+      "num_classes=1",
       "--test-only"
     ]
   train:
@@ -43,16 +48,15 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility  # Enable CUDA and nvidia-smi
       - WANDB_API_KEY=${WANDB_API_KEY:?please specify WANDB_API_KEY}
     volumes:
-      - .:/app
       - ${DS_MODEL_PATH:?error}:/models
       - ${DS_DATA_PATH:?error}:/data
     command: [
       "python", "rtdetrv2_pytorch/tools/train.py", 
-      "--config", "rtdetrv2_pytorch/configs/rtdetrv2/ds_rtdetrv2_m_coco.yml",
-      "--tuning", "/models/rtdetrv2_r50vd_m_7x_coco_ema.pth",
+      "--config", "rtdetrv2_pytorch/configs/rtdetrv2/ds_rtdetrv2_s_coco.yml",
+      "--tuning", "/models/rtdetrv2_r18vd_120e_coco_rerun_48.1.pth",
       "--device", "cuda:0",
       "--use-amp",
-      "--output-dir", "/models/ds_rtdetrv2_m_coco",
+      "--output-dir", "/models/ds_rtdetrv2_s_coco",
       "--update",
       "train_dataloader.dataset.img_folder=/data/data",
       "val_dataloader.dataset.img_folder=/data/data",
