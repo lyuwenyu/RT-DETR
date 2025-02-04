@@ -43,9 +43,9 @@ train_dataloader:
       policy:
         epoch: 32
   collate_fn:
-    scales: [480, 512, 544, 576, 608, 640, 704, 704, 704, 704]
+    scales: [544, 576, 608, 640, 640, 704, 704, 736, 768, 800, 800]
     stop_epoch: 32
-  total_batch_size: 16
+  total_batch_size: 24
 
 val_dataloader:
   dataset: 
@@ -57,4 +57,4 @@ val_dataloader:
 wandb:
   project: 'platform-validation'
   group: rtdetr
-  tags: ['ds-yolov4-full', 'rtdetr-v2', 'small','batch-16', '512x704']
+  tags: ['ds-yolov4-full', 'rtdetr-v2', 'small','batch-24', '512x704']
