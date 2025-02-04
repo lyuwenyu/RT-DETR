@@ -7,8 +7,10 @@ in the end of the file, as python3 can suppress prints with contextlib
 """
 import os
 import contextlib
-import copy
 import numpy as np
+import copy
+from typing import Tuple
+from collections import OrderedDict
 import torch
 
 from pycocotools.cocoeval import COCOeval
@@ -21,6 +23,84 @@ from ...core import register
 __all__ = ['CocoEvaluator',]
 
 
+class COCOevalSilent(COCOeval):
+
+    def summarize(self):
+        '''
+        Compute and display summary metrics for evaluation results.
+        Note this functin can *only* be applied on the default parameter setting
+        '''
+        def _summarize( ap=1, iouThr=None, areaRng='all', maxDets=100 ) -> Tuple[str, float]:
+            p = self.params
+            iStr = ' {:<18} {} @[ IoU={:<9} | area={:>6s} | maxDets={:>3d} ]'
+            titleStr = 'Average Precision' if ap == 1 else 'Average Recall'
+            typeStr = '(AP)' if ap==1 else '(AR)'
+            iouStr = '{:0.2f}:{:0.2f}'.format(p.iouThrs[0], p.iouThrs[-1]) \
+                if iouThr is None else '{:0.2f}'.format(iouThr)
+
+            aind = [i for i, aRng in enumerate(p.areaRngLbl) if aRng == areaRng]
+            mind = [i for i, mDet in enumerate(p.maxDets) if mDet == maxDets]
+            if ap == 1:
+                # dimension of precision: [TxRxKxAxM]
+                s = self.eval['precision']
+                # IoU
+                if iouThr is not None:
+                    t = np.where(iouThr == p.iouThrs)[0]
+                    s = s[t]
+                s = s[:,:,:,aind,mind]
+            else:
+                # dimension of recall: [TxKxAxM]
+                s = self.eval['recall']
+                if iouThr is not None:
+                    t = np.where(iouThr == p.iouThrs)[0]
+                    s = s[t]
+                s = s[:,:,aind,mind]
+            if len(s[s>-1])==0:
+                mean_s = -1
+            else:
+                mean_s = np.mean(s[s>-1])
+            return (
+                iStr.format(titleStr, typeStr, iouStr, areaRng, maxDets), 
+                mean_s
+            )
+        def _summarizeDets():   
+            stats = OrderedDict()
+            _,v = _summarize(1); stats['coco/bbox_mAP']=v
+            _,v = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2]); stats['coco/bbox_mAP_50']=v
+            _,v = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2]); stats['coco/bbox_mAP_75']=v
+            _,v = _summarize(1, areaRng='small', maxDets=self.params.maxDets[2]); stats['coco/bbox_mAP_s']=v
+            _,v = _summarize(1, areaRng='medium', maxDets=self.params.maxDets[2]); stats['coco/bbox_mAP_m']=v
+            _,v = _summarize(1, areaRng='large', maxDets=self.params.maxDets[2]); stats['coco/bbox_mAP_l']=v
+            _,v = _summarize(0, maxDets=self.params.maxDets[0]); stats['coco/bbox_recall_1']=v
+            _,v = _summarize(0, maxDets=self.params.maxDets[1]); stats['coco/bbox_recall_10']=v
+            _,v = _summarize(0, maxDets=self.params.maxDets[2]); stats['coco/bbox_recall_100']=v
+            _,v = _summarize(0, areaRng='small', maxDets=self.params.maxDets[2]); stats['coco/bbox_recall_s']=v
+            _,v = _summarize(0, areaRng='medium', maxDets=self.params.maxDets[2]); stats['coco/bbox_recall_m']=v
+            _,v = _summarize(0, areaRng='large', maxDets=self.params.maxDets[2]); stats['coco/bbox_recall_l']=v
+            return stats
+        def _summarizeKps():
+            stats = OrderedDict()
+            m,v = _summarize(1, maxDets=20); stats[m]=v
+            m,v = _summarize(1, maxDets=20, iouThr=.5); stats[m]=v
+            m,v = _summarize(1, maxDets=20, iouThr=.75); stats[m]=v
+            m,v = _summarize(1, maxDets=20, areaRng='medium'); stats[m]=v
+            m,v = _summarize(1, maxDets=20, areaRng='large'); stats[m]=v
+            m,v = _summarize(0, maxDets=20); stats[m]=v
+            m,v = _summarize(0, maxDets=20, iouThr=.5); stats[m]=v
+            m,v = _summarize(0, maxDets=20, iouThr=.75); stats[m]=v
+            m,v = _summarize(0, maxDets=20, areaRng='medium'); stats[m]=v
+            m,v = _summarize(0, maxDets=20, areaRng='large'); stats[m]=v
+            return stats
+        if not self.eval:
+            raise Exception('Please run accumulate() first')
+        iouType = self.params.iouType
+        if iouType == 'segm' or iouType == 'bbox':
+            summarize = _summarizeDets
+        elif iouType == 'keypoints':
+            summarize = _summarizeKps
+        self.stats = summarize()
+
+
 @register()
 class CocoEvaluator(object):
     def __init__(self, coco_gt, iou_types):
@@ -31,7 +111,7 @@ class CocoEvaluator(object):
         
         self.coco_eval = {}
         for iou_type in iou_types:
-            self.coco_eval[iou_type] = COCOeval(coco_gt, iouType=iou_type)
+            self.coco_eval[iou_type] = COCOevalSilent(coco_gt, iouType=iou_type)
 
         self.img_ids = []
         self.eval_imgs = {k: [] for k in iou_types}
@@ -39,7 +119,7 @@ class CocoEvaluator(object):
     def cleanup(self):
         self.coco_eval = {}
         for iou_type in self.iou_types:
-            self.coco_eval[iou_type] = COCOeval(self.coco_gt, iouType=iou_type)
+            self.coco_eval[iou_type] = COCOevalSilent(self.coco_gt, iouType=iou_type)
         self.img_ids = []
         self.eval_imgs = {k: [] for k in self.iou_types}
     

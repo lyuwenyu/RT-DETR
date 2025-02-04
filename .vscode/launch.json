@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Python: test",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "rtdetrv2_pytorch/tools/train.py",
             "console": "integratedTerminal",
             "args": [
                 "--config", "rtdetrv2_pytorch/configs/rtdetrv2/rtdetrv2_r18vd_120e_coco.yml", 
@@ -16,9 +16,14 @@
                 "--device", "cuda:0",
                 "--use-amp",
                 "--output-dir", "/models/rtdetrv2_r18vd_120e_coco",
-                "--wandb"
+                "--test-only",
+                "--update",
+                "train_dataloader.dataset.ann_file=/data/val_small.json",
+                "train_dataloader.dataset.img_folder=/data/data",
+                "val_dataloader.dataset.ann_file=/data/val_small.json",
+                "val_dataloader.dataset.img_folder=/data/data"
             ],
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Python: train",

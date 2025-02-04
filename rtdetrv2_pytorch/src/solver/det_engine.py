@@ -4,7 +4,7 @@ https://github.com/facebookresearch/detr/blob/main/engine.py
 
 Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
-
+import copy
 import sys
 import math
 from typing import Iterable
@@ -158,8 +158,10 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, postprocessor, 
     # stats = {k: meter.global_avg for k, meter in metric_logger.meters.items()}
     if coco_evaluator is not None:
         if 'bbox' in iou_types:
-            stats['coco_eval_bbox'] = coco_evaluator.coco_eval['bbox'].stats.tolist()
+            stats['coco_eval_bbox'] = [(m,float(v)) for m,v in coco_evaluator.coco_eval['bbox'].stats.items()]
+            for k, v in stats['coco_eval_bbox']:
+                print(f'{k}: {v:.2%}')
         if 'segm' in iou_types:
-            stats['coco_eval_masks'] = coco_evaluator.coco_eval['segm'].stats.tolist()
+            stats['coco_eval_masks'] = [(m,float(v)) for m,v in coco_evaluator.coco_eval['segm'].stats.items()]
             
     return stats, coco_evaluator

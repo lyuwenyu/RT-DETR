@@ -91,15 +91,15 @@ class DetSolver(BaseSolver):
             # TODO 
             for k in test_stats:
                 if self.writer and dist_utils.is_main_process():
-                    for i, v in enumerate(test_stats[k]):
+                    for i, v in test_stats[k]:
                         self.writer.add_scalar(f'Test/{k}_{i}'.format(k), v, epoch)
             
                 if k in best_stat:
-                    best_stat['epoch'] = epoch if test_stats[k][0] > best_stat[k] else best_stat['epoch']
-                    best_stat[k] = max(best_stat[k], test_stats[k][0])
+                    best_stat['epoch'] = epoch if test_stats[k][0][1] > best_stat[k] else best_stat['epoch']
+                    best_stat[k] = max(best_stat[k], test_stats[k][0][1])
                 else:
                     best_stat['epoch'] = epoch
-                    best_stat[k] = test_stats[k][0]
+                    best_stat[k] = test_stats[k][0][1]
 
                 if best_stat['epoch'] == epoch and self.output_dir:
                     dist_utils.save_on_master(self.state_dict(), self.output_dir / 'best.pth')
@@ -109,8 +109,8 @@ class DetSolver(BaseSolver):
             # Log metrics to W&B
             if wandb_run and dist_utils.is_main_process():
                 log_stats = {
-                    **{f'train/{k}': v for k, v in train_stats.items()},
-                    **{f'test/{k}_{i}': v for k in test_stats for i, v in enumerate(test_stats[k])},
+                    **{k: v for k, v in train_stats.items()},
+                    **{i: v for k in test_stats for i, v in test_stats[k]},
                     'epoch': epoch,
                     'n_parameters': n_parameters
                 }
