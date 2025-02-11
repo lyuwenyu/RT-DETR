@@ -9,15 +9,14 @@ import torch
 import torch.utils.data
 import torchvision
 import torchvision.transforms.functional as TVF
-from pycocotools import mask as coco_mask
-from pycocotools.coco import COCO
-
+from faster_coco_eval import COCO
+import faster_coco_eval.core.mask as mask_util
 
 def convert_coco_poly_to_mask(segmentations, height, width):
     masks = []
     for polygons in segmentations:
-        rles = coco_mask.frPyObjects(polygons, height, width)
-        mask = coco_mask.decode(rles)
+        rles = mask_util.frPyObjects(polygons, height, width)
+        mask = mask_util.decode(rles)
         if len(mask.shape) < 3:
             mask = mask[..., None]
         mask = torch.as_tensor(mask, dtype=torch.uint8)
@@ -169,7 +168,7 @@ def convert_to_coco_api(ds):
             ann["iscrowd"] = iscrowd[i]
             ann["id"] = ann_id
             if "masks" in targets:
-                ann["segmentation"] = coco_mask.encode(masks[i].numpy())
+                ann["segmentation"] = mask_util.encode(masks[i].numpy())
             if "keypoints" in targets:
                 ann["keypoints"] = keypoints[i]
                 ann["num_keypoints"] = sum(k != 0 for k in keypoints[i][2::3])
