@@ -12,7 +12,7 @@ import torchvision
 torchvision.disable_beta_transforms_warning()
 
 from PIL import Image 
-from pycocotools import mask as coco_mask
+from faster_coco_eval.core import mask as coco_mask
 
 from ._dataset import DetDataset
 from .._misc import convert_to_tv_tensor
