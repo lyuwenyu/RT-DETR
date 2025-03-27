@@ -30,7 +30,8 @@ class RTDETRCriterionv2(nn.Module):
         losses, 
         alpha=0.2, 
         gamma=2.0, 
-        num_classes=80, 
+        num_classes=80,
+        num_layers=6,
         boxes_weight_format=None,
         share_matched_indices=False):
         """Create the criterion.
@@ -51,6 +52,7 @@ class RTDETRCriterionv2(nn.Module):
         self.share_matched_indices = share_matched_indices
         self.alpha = alpha
         self.gamma = gamma
+        self.num_layers = num_layers
 
     def loss_labels_focal(self, outputs, targets, indices, num_boxes):
         assert 'pred_logits' in outputs
@@ -189,6 +191,20 @@ class RTDETRCriterionv2(nn.Module):
                     l_dict = {k: l_dict[k] * self.weight_dict[k] for k in l_dict if k in self.weight_dict}
                     l_dict = {k + f'_dn_{i}': v for k, v in l_dict.items()}
                     losses.update(l_dict)
+        else:
+            bbox_loss_names = ["loss_bbox_dn_" + str(i) for i in range(self.num_layers)]
+            giou_loss_names = ["loss_giou_dn_" + str(i) for i in range(self.num_layers)]
+            if "focal" in self.losses:
+                cls_loss_names = ["loss_focal_dn_" + str(i) for i in range(self.num_layers)]
+            elif "vfl" in self.losses:
+                cls_loss_names = ["loss_vfl_dn_" + str(i) for i in range(self.num_layers)]
+            else:
+                print("Wrong loss type")
+            device = losses["loss_bbox"].device
+            for i in range(self.num_layers):
+                losses[cls_loss_names[i]] = torch.tensor(0, requires_grad=False).to(device)
+                losses[bbox_loss_names[i]] = torch.tensor(0, requires_grad=False).to(device)
+                losses[giou_loss_names[i]] = torch.tensor(0, requires_grad=False).to(device)
 
         # In case of encoder auxiliary losses. For rtdetr v2
         if 'enc_aux_outputs' in outputs:

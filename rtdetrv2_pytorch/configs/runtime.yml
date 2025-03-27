@@ -5,7 +5,7 @@ checkpoint_freq: 1
 
 
 sync_bn: True
-find_unused_parameters: False
+find_unused_parameters: True
 
 
 use_amp: False

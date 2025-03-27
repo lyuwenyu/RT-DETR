@@ -126,7 +126,7 @@ def warp_model(
     model: torch.nn.Module, 
     sync_bn: bool=False, 
     dist_mode: str='ddp', 
-    find_unused_parameters: bool=False, 
+    find_unused_parameters: bool=True, 
     compile: bool=False, 
     compile_mode: str='reduce-overhead', 
     **kwargs
