@@ -140,3 +140,5 @@ class ConvertBox(T.Transform):
 
         return inpt
 
+    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+        return self._transform(inpt, params)

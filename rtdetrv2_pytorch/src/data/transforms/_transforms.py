@@ -112,6 +112,9 @@ class ConvertBoxes(T.Transform):
 
         return inpt
 
+    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+        return self._transform(inpt, params)
+
 
 @register()
 class ConvertPILImage(T.Transform):
@@ -134,3 +137,6 @@ class ConvertPILImage(T.Transform):
         inpt = Image(inpt)
 
         return inpt
+
+    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+        return self._transform(inpt, params)
