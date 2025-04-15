@@ -3,3 +3,5 @@ torchvision>=0.15.2
 faster-coco-eval>=1.6.5
 PyYAML
 tensorboard
+scipy
+pycocotools
