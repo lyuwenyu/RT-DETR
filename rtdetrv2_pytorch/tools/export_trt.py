@@ -63,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--onnx", "-i", type=str, required=True, help="Path to input ONNX model file")
     parser.add_argument("--saveEngine", "-o", type=str, default="model.engine", help="Path to output TensorRT engine file")
     parser.add_argument("--maxBatchSize", "-Mb", type=int, default=32, help="Maximum batch size for inference")
-    parser.add_argument("--optBatchSize", "-ob", type=int, default=16, help="Minimum batch size for inference")
+    parser.add_argument("--optBatchSize", "-ob", type=int, default=16, help="Optimal batch size for inference")
     parser.add_argument("--minBatchSize", "-mb", type=int, default=1, help="Minimum batch size for inference")
     parser.add_argument("--fp16", default=True, action="store_true", help="Enable FP16 precision mode")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
