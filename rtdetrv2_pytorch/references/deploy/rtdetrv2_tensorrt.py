@@ -181,11 +181,6 @@ class TRTInference(object):
 
         return self.time_profile.total / n 
 
-
-    @staticmethod
-    def onnx2tensorrt():
-        pass
-
 def draw(images, labels, boxes, scores, thrh = 0.6):
     for i, im in enumerate(images):
         draw = ImageDraw.Draw(im)
