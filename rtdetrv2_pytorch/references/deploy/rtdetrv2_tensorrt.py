@@ -8,11 +8,12 @@ from collections import OrderedDict
 
 import numpy as np
 from PIL import Image, ImageDraw
+import tensorrt as trt
 
 import torch
 import torchvision.transforms as T 
 
-import tensorrt as trt
+
 
 
 class TimeProfiler(contextlib.ContextDecorator):
@@ -124,10 +125,10 @@ class TRTInference(object):
                 self.context.set_input_shape(n, blob[n].shape) 
                 self.bindings[n] = self.bindings[n]._replace(shape=blob[n].shape)
             
-            # TODO (lyuwenyu): check dtype, 
-            assert self.bindings[n].data.dtype == blob[n].dtype, '{} dtype mismatch'.format(n)
-            # if self.bindings[n].data.dtype != blob[n].shape:
-            #     blob[n] = blob[n].to(self.bindings[n].data.dtype)
+            # TODO (lyuwenyu): check dtype,
+            # assert self.bindings[n].data.dtype == blob[n].dtype, '{} dtype mismatch'.format(n)
+            if self.bindings[n].data.dtype != blob[n].shape:
+                blob[n] = blob[n].to(self.bindings[n].data.dtype)
 
         self.bindings_addr.update({n: blob[n].data_ptr() for n in self.input_names})
         self.context.execute_v2(list(self.bindings_addr.values()))
@@ -179,11 +180,6 @@ class TRTInference(object):
                 _ = self(blob)
 
         return self.time_profile.total / n 
-
-
-    @staticmethod
-    def onnx2tensorrt():
-        pass
 
 def draw(images, labels, boxes, scores, thrh = 0.6):
     for i, im in enumerate(images):

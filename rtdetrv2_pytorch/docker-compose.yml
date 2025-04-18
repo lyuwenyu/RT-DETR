@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  tensorrt-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rtdetr-v2:23.01
+    volumes:
+      - ./:/workspace
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    stdin_open: true
+    tty: true
