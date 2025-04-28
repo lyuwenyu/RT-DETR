@@ -44,7 +44,6 @@ This is the official implementation of papers
 </details>
 
 
-
 ## 🚀 Updates
 - \[2024.11.28\] Add torch tool for parameters and flops statistics. see [run_profile.py](./rtdetrv2_pytorch/tools/run_profile.py)
 - \[2024.10.10\] Add sliced inference support for small object detecion. [#468](https://github.com/lyuwenyu/RT-DETR/pull/468)
@@ -67,6 +66,10 @@ This is the official implementation of papers
 - \[2023.07.13\] Upload ✅ [*training logs on coco*](https://github.com/lyuwenyu/RT-DETR/issues/8).
 - \[2023.05.17\] Release RT-DETR-R18, RT-DETR-R34, RT-DETR-R50-m（example for scaled).
 - \[2023.04.17\] Release RT-DETR-R50, RT-DETR-R101, RT-DETR-L, RT-DETR-X.
+
+## 📣 News
+- RTDETR and RTDETRv2 are now available in Hugging Face Transformers. [#413](https://github.com/lyuwenyu/RT-DETR/issues/413), [#549](https://github.com/lyuwenyu/RT-DETR/issues/549)
+- RTDETR is now available in [ultralytics/ultralytics](https://docs.ultralytics.com/zh/models/rtdetr/).
 
 ## 📍 Implementations
 - 🔥 RT-DETRv2
