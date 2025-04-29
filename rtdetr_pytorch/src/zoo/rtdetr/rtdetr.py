@@ -28,7 +28,11 @@ class RTDETR(nn.Module):
     def forward(self, x, targets=None):
         if self.multi_scale and self.training:
             sz = np.random.choice(self.multi_scale)
-            x = F.interpolate(x, size=[sz, sz])
+            n, c, h, w = x.shape
+            if w > h:  # assuming longer side matches sz
+                x = F.interpolate(x, size=[int(sz * h / w), int(sz)])
+            else:
+                x = F.interpolate(x, size=[int(sz), int(sz * w / h)])
             
         x = self.backbone(x)
         x = self.encoder(x)        
