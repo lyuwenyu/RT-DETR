@@ -11,7 +11,7 @@ import torch.utils.data
 import torchvision
 torchvision.disable_beta_transforms_warning()
 
-from torchvision import datapoints
+from torchvision.tv_tensors import BoundingBoxes, BoundingBoxFormat, Mask
 
 from pycocotools import mask as coco_mask
 
@@ -24,7 +24,7 @@ __all__ = ['CocoDetection']
 class CocoDetection(torchvision.datasets.CocoDetection):
     __inject__ = ['transforms']
     __share__ = ['remap_mscoco_category']
-    
+
     def __init__(self, img_folder, ann_file, transforms, return_masks, remap_mscoco_category=False):
         super(CocoDetection, self).__init__(img_folder, ann_file)
         self._transforms = transforms
@@ -42,13 +42,14 @@ class CocoDetection(torchvision.datasets.CocoDetection):
 
         # ['boxes', 'masks', 'labels']:
         if 'boxes' in target:
-            target['boxes'] = datapoints.BoundingBox(
-                target['boxes'], 
-                format=datapoints.BoundingBoxFormat.XYXY, 
-                spatial_size=img.size[::-1]) # h w
+            target['boxes'] = BoundingBoxes(
+                target['boxes'],
+                format=BoundingBoxFormat.XYXY,
+                spatial_size=img.size[::-1]  # height, width
+            )
 
         if 'masks' in target:
-            target['masks'] = datapoints.Mask(target['masks'])
+            target['masks'] = Mask(target['masks'])
 
         if self._transforms is not None:
             img, target = self._transforms(img, target)

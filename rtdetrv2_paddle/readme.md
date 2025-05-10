@@ -1,1 +1,0 @@
-see https://github.com/PaddlePaddle/PaddleDetection

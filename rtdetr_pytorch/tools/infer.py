@@ -1,17 +1,20 @@
 import torch
-import torch.nn as nn 
+import torch.nn as nn
 import torchvision.transforms as T
 from torch.cuda.amp import autocast
-import numpy as np 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-import os 
-import sys 
+import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import argparse
-import src.misc.dist as dist 
-from src.core import YAMLConfig 
+import src.misc.dist as dist
+from src.core import YAMLConfig
 from src.solver import TASKS
 import numpy as np
+from src.data.coco.coco_dataset import mscoco_category2name, mscoco_category2label, mscoco_label2category
+
 
 def postprocess(labels, boxes, scores, iou_threshold=0.55):
     def calculate_iou(box1, box2):
@@ -29,6 +32,7 @@ def postprocess(labels, boxes, scores, iou_threshold=0.55):
         union_area = box1_area + box2_area - inter_area
         iou = inter_area / union_area if union_area != 0 else 0
         return iou
+
     merged_labels = []
     merged_boxes = []
     merged_scores = []
@@ -46,11 +50,11 @@ def postprocess(labels, boxes, scores, iou_threshold=0.55):
             if j in used_indices:
                 continue
             if labels[j] != current_label:
-                continue  
+                continue
             other_box = boxes[j]
             iou = calculate_iou(current_box, other_box)
             if iou >= iou_threshold:
-                boxes_to_merge.append(other_box.tolist())  
+                boxes_to_merge.append(other_box.tolist())
                 scores_to_merge.append(scores[j])
                 used_indices.add(j)
         xs = np.concatenate([[box[0], box[2]] for box in boxes_to_merge])
@@ -61,14 +65,16 @@ def postprocess(labels, boxes, scores, iou_threshold=0.55):
         merged_labels.append(current_label)
         merged_scores.append(merged_score)
     return [np.array(merged_labels)], [np.array(merged_boxes)], [np.array(merged_scores)]
+
+
 def slice_image(image, slice_height, slice_width, overlap_ratio):
     img_width, img_height = image.size
-    
+
     slices = []
     coordinates = []
     step_x = int(slice_width * (1 - overlap_ratio))
     step_y = int(slice_height * (1 - overlap_ratio))
-    
+
     for y in range(0, img_height, step_y):
         for x in range(0, img_width, step_x):
             box = (x, y, min(x + slice_width, img_width), min(y + slice_height, img_height))
@@ -76,6 +82,8 @@ def slice_image(image, slice_height, slice_width, overlap_ratio):
             slices.append(slice_img)
             coordinates.append((x, y))
     return slices, coordinates
+
+
 def merge_predictions(predictions, slice_coordinates, orig_image_size, slice_width, slice_height, threshold=0.30):
     merged_labels = []
     merged_boxes = []
@@ -89,37 +97,52 @@ def merge_predictions(predictions, slice_coordinates, orig_image_size, slice_wid
         valid_boxes = np.array(boxes).reshape(-1, 4)[valid_indices]
         valid_scores = scores[valid_indices]
         for j, box in enumerate(valid_boxes):
-            box[0] = np.clip(box[0] + x_shift, 0, orig_width)  
+            box[0] = np.clip(box[0] + x_shift, 0, orig_width)
             box[1] = np.clip(box[1] + y_shift, 0, orig_height)
-            box[2] = np.clip(box[2] + x_shift, 0, orig_width)  
-            box[3] = np.clip(box[3] + y_shift, 0, orig_height) 
+            box[2] = np.clip(box[2] + x_shift, 0, orig_width)
+            box[3] = np.clip(box[3] + y_shift, 0, orig_height)
             valid_boxes[j] = box
         merged_labels.extend(valid_labels)
         merged_boxes.extend(valid_boxes)
         merged_scores.extend(valid_scores)
     return np.array(merged_labels), np.array(merged_boxes), np.array(merged_scores)
-def draw(images, labels, boxes, scores, thrh = 0.6, path = ""):
+
+
+def draw(images, labels, boxes, scores, thrh=0.6, path=""):
     for i, im in enumerate(images):
         draw = ImageDraw.Draw(im)
         scr = scores[i]
         lab = labels[i][scr > thrh]
         box = boxes[i][scr > thrh]
         scrs = scores[i][scr > thrh]
-        for j,b in enumerate(box):
-            draw.rectangle(list(b), outline='red',)
-            draw.text((b[0], b[1]), text=f"label: {lab[j].item()} {round(scrs[j].item(),2)}", font=ImageFont.load_default(), fill='blue')
+        original_size = im.size
+        for b, l in zip(box, lab):
+            # Scale the bounding boxes back to the original image size
+            # b = [coord * original_size[j % 2] / 640 for j, coord in enumerate(b)]
+            # Get the category name from the label
+            l_int = l.item()
+            category_name = mscoco_category2name[mscoco_label2category[l_int]]
+            draw.rectangle(list(b), outline='red', width=2)
+            font = ImageFont.truetype("Arial.ttf", 15)
+            draw.text((b[0], b[1]), text=category_name, fill='yellow', font=font)
+
+        # for j,b in enumerate(box):
+        #     draw.rectangle(list(b), outline='red',)
+        #     draw.text((b[0], b[1]), text=f"label: {lab[j].item()} {round(scrs[j].item(),2)}", font=ImageFont.load_default(), fill='blue')
+
         if path == "":
             im.save(f'results_{i}.jpg')
         else:
             im.save(path)
-            
+
+
 def main(args, ):
     """main
     """
     cfg = YAMLConfig(args.config, resume=args.resume)
     if args.resume:
-        checkpoint = torch.load(args.resume, map_location='cpu') 
-        if 'ema' in checkpoint:
+        checkpoint = torch.load(args.resume, map_location='cpu', weights_only=False)
+        if 'ema' in checkpoint and checkpoint['ema'] is not None:
             state = checkpoint['ema']['module']
         else:
             state = checkpoint['model']
@@ -127,32 +150,33 @@ def main(args, ):
         raise AttributeError('Only support resume to load model.state_dict by now.')
     # NOTE load train mode state -> convert to deploy mode
     cfg.model.load_state_dict(state)
+
     class Model(nn.Module):
         def __init__(self, ) -> None:
             super().__init__()
             self.model = cfg.model.deploy()
             self.postprocessor = cfg.postprocessor.deploy()
-            
+
         def forward(self, images, orig_target_sizes):
             outputs = self.model(images)
             outputs = self.postprocessor(outputs, orig_target_sizes)
             return outputs
-    
+
     model = Model().to(args.device)
     im_pil = Image.open(args.im_file).convert('RGB')
     w, h = im_pil.size
     orig_size = torch.tensor([w, h])[None].to(args.device)
-    
+
     transforms = T.Compose([
-        T.Resize((640, 640)),  
+        T.Resize((640, 640)),
         T.ToTensor(),
     ])
     im_data = transforms(im_pil)[None].to(args.device)
     if args.sliced:
         num_boxes = args.numberofboxes
-        
+
         aspect_ratio = w / h
-        num_cols = int(np.sqrt(num_boxes * aspect_ratio)) 
+        num_cols = int(np.sqrt(num_boxes * aspect_ratio))
         num_rows = int(num_boxes / num_cols)
         slice_height = h // num_rows
         slice_width = w // num_cols
@@ -163,31 +187,36 @@ def main(args, ):
             slice_tensor = transforms(slice_img)[None].to(args.device)
             with autocast():  # Use AMP for each slice
                 output = model(slice_tensor, torch.tensor([[slice_img.size[0], slice_img.size[1]]]).to(args.device))
-            torch.cuda.empty_cache() 
+            torch.cuda.empty_cache()
             labels, boxes, scores = output
-            
+
             labels = labels.cpu().detach().numpy()
             boxes = boxes.cpu().detach().numpy()
             scores = scores.cpu().detach().numpy()
             predictions.append((labels, boxes, scores))
-        
-        merged_labels, merged_boxes, merged_scores = merge_predictions(predictions, coordinates, (h, w), slice_width, slice_height)
+
+        merged_labels, merged_boxes, merged_scores = merge_predictions(predictions, coordinates, (h, w), slice_width,
+                                                                       slice_height)
         labels, boxes, scores = postprocess(merged_labels, merged_boxes, merged_scores)
     else:
         output = model(im_data, orig_size)
         labels, boxes, scores = output
-        
+
     draw([im_pil], labels, boxes, scores, 0.6)
-  
+
+
 if __name__ == '__main__':
+    # python tools/infer.py \ -c configs/rtdetr/rtdetr_r101vd_6x_coco.yml \ -r ./tools/rtdetr-l.pt \ --im-file='./tools/test.png' \ --device=cuda:0 \ -s True \ -nc 35
     import argparse
+    import os
+    print(os.getcwd())
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', type=str, )
-    parser.add_argument('-r', '--resume', type=str, )
-    parser.add_argument('-f', '--im-file', type=str, )
+    parser.add_argument('-c', '--config', type=str, default='../configs/rtdetr/rtdetr_r18vd_6x_coco.yml')
+    parser.add_argument('-r', '--resume', type=str, default='../../pretrained_checkpoints/rtdetr_r18vd_dec3_6x_coco_from_paddle.pth')
+    parser.add_argument('-f', '--im-file', type=str, default='./test.png')
     parser.add_argument('-s', '--sliced', type=bool, default=False)
     parser.add_argument('-d', '--device', type=str, default='cpu')
-    parser.add_argument('-nc', '--numberofboxes', type=int, default=25)
+    parser.add_argument('-nc', '--numberofboxes', type=int, default=5)
     args = parser.parse_args()
     main(args)
 
