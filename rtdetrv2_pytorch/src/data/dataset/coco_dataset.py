@@ -6,10 +6,8 @@ Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
 import torch
-import torch.utils.data
-
+from faster_coco_eval.utils.pytorch import FasterCocoDetection
 import torchvision
-torchvision.disable_beta_transforms_warning()
 
 from PIL import Image 
 from faster_coco_eval.core import mask as coco_mask
@@ -20,14 +18,15 @@ from ...core import register
 
 __all__ = ['CocoDetection']
 
+torchvision.disable_beta_transforms_warning()
 
 @register()
-class CocoDetection(torchvision.datasets.CocoDetection, DetDataset):
+class CocoDetection(FasterCocoDetection, DetDataset):
     __inject__ = ['transforms', ]
     __share__ = ['remap_mscoco_category']
     
     def __init__(self, img_folder, ann_file, transforms, return_masks=False, remap_mscoco_category=False):
-        super(CocoDetection, self).__init__(img_folder, ann_file)
+        super(FasterCocoDetection, self).__init__(img_folder, ann_file)
         self._transforms = transforms
         self.prepare = ConvertCocoPolysToMask(return_masks)
         self.img_folder = img_folder
@@ -42,7 +41,7 @@ class CocoDetection(torchvision.datasets.CocoDetection, DetDataset):
         return img, target
 
     def load_item(self, idx):
-        image, target = super(CocoDetection, self).__getitem__(idx)
+        image, target = super(FasterCocoDetection, self).__getitem__(idx)
         image_id = self.ids[idx]
         target = {'image_id': image_id, 'annotations': target}
 
