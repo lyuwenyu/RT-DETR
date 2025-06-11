@@ -39,8 +39,13 @@ def _build_model(args, num_classes=80):
         else:
             state = checkpoint['model']
 
+        # Remove keys related to classification heads, such that we can handle a different number of classes
+        filtered_state = {k: v for k, v in state.items() if not (
+            'dec_score_head' in k or 'enc_score_head' in k or 'denoising_class_embed' in k
+        )}
+
         # NOTE load train mode state
-        cfg.model.load_state_dict(state)
+        cfg.model.load_state_dict(filtered_state, strict=False)
 
     return cfg.model
 
