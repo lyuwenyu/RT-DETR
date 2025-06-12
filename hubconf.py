@@ -18,35 +18,10 @@ import torch.nn as nn
 dependencies = ['torch', 'torchvision',]
 
 
-def _load_checkpoint(path: str, map_location='cpu'):
-    scheme = urlparse(str(path)).scheme
-    if not scheme:
-        state = torch.load(path, map_location=map_location)
-    else:
-        state = torch.hub.load_state_dict_from_url(path, map_location=map_location)
-    return state
-
-
 def _build_model(args, num_classes=80):
     """main
     """
     cfg = YAMLConfig(args.config, num_classes=num_classes)
-
-    if args.resume:
-        checkpoint = _load_checkpoint(args.resume, map_location='cpu') 
-        if 'ema' in checkpoint:
-            state = checkpoint['ema']['module']
-        else:
-            state = checkpoint['model']
-
-        # Remove keys related to classification heads, such that we can handle a different number of classes
-        filtered_state = {k: v for k, v in state.items() if not (
-            'dec_score_head' in k or 'enc_score_head' in k or 'denoising_class_embed' in k
-        )}
-
-        # NOTE load train mode state
-        cfg.model.load_state_dict(filtered_state, strict=False)
-
     return cfg.model
 
 
