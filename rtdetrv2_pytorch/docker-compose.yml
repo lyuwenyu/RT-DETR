@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     image: rtdetr-v2:25.06
     container_name: rtdetr-v2-trt
+    ports:
+      - "6006:6006" # tensorboard
     volumes:
       - ./:/workspace
     deploy:
@@ -15,7 +17,7 @@ services:
               count: all
               capabilities: [gpu]
     working_dir: /workspace
-    restart: always
+    restart: unless-stopped
     stdin_open: true
     tty: true
     command: bash
