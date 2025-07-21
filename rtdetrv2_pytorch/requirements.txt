@@ -7,4 +7,3 @@ scipy
 pycocotools
 onnx
 onnxruntime-gpu
-tensorrt==8.5.2.2
