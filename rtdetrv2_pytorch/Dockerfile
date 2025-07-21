@@ -1,5 +1,4 @@
-# tensorrt:23.01-py3 (8.5.2.2)
-FROM nvcr.io/nvidia/tensorrt:23.01-py3
+FROM nvcr.io/nvidia/pytorch:25.06-py3
 
 WORKDIR /workspace
 

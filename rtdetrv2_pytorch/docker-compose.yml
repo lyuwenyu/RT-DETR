@@ -1,15 +1,23 @@
-version: "3.9"
-
 services:
   tensorrt-container:
     build:
       context: .
       dockerfile: Dockerfile
-    image: rtdetr-v2:23.01
+    image: rtdetr-v2:25.06
+    container_name: rtdetr-v2-trt
+    ports:
+      - "6006:6006" # tensorboard
     volumes:
       - ./:/workspace
-    runtime: nvidia
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    working_dir: /workspace
+    restart: unless-stopped
     stdin_open: true
     tty: true
+    command: bash
