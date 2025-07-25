@@ -18,30 +18,10 @@ import torch.nn as nn
 dependencies = ['torch', 'torchvision',]
 
 
-def _load_checkpoint(path: str, map_location='cpu'):
-    scheme = urlparse(str(path)).scheme
-    if not scheme:
-        state = torch.load(path, map_location=map_location)
-    else:
-        state = torch.hub.load_state_dict_from_url(path, map_location=map_location)
-    return state
-
-
 def _build_model(args, num_classes=80):
     """main
     """
     cfg = YAMLConfig(args.config, num_classes=num_classes)
-
-    if args.resume:
-        checkpoint = _load_checkpoint(args.resume, map_location='cpu') 
-        if 'ema' in checkpoint:
-            state = checkpoint['ema']['module']
-        else:
-            state = checkpoint['model']
-
-        # NOTE load train mode state
-        cfg.model.load_state_dict(state)
-
     return cfg.model
 
 

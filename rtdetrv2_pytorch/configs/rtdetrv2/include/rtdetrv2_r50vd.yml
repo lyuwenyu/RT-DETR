@@ -22,7 +22,7 @@ PResNet:
   return_idx: [1, 2, 3]
   num_stages: 4
   freeze_norm: True
-  pretrained: True 
+  pretrained: False 
 
 
 HybridEncoder:
