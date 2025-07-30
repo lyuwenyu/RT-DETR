@@ -27,5 +27,5 @@ RUN curl -L -o /app/repo/models/rtdetr_r18vd_coco_objects365.pth https://github.
 RUN curl -L -o /app/repo/models/rtdetr_r50vd_coco_objects365.pth https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetr_r50vd_2x_coco_objects365_from_paddle.pth
 RUN curl -L -o /app/repo/models/rtdetr_r101vd_coco_objects365.pth https://github.com/lyuwenyu/storage/releases/download/v0.1/rtdetr_r101vd_2x_coco_objects365_from_paddle.pth
 
-RUN python3 -m pip install supervisely==6.73.216
-RUN python3 -m pip install supervisely[model-benchmark]==6.73.216
+RUN python3 -m pip install supervisely==6.73.408
+RUN python3 -m pip install supervisely[model-benchmark]==6.73.408
