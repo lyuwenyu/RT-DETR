@@ -17,6 +17,9 @@ from supervisely.io.fs import get_file_name, get_file_name_with_ext
 from supervisely.nn.benchmark import ObjectDetectionBenchmark
 from supervisely.nn.inference import SessionJSON
 from supervisely_integration.train.serve import RTDETRModelMB
+from supervisely.nn.artifacts.artifacts import TrainInfo
+from supervisely.nn.artifacts.rtdetr import RTDETR as RTDETRArtifacts
+from dataclasses import asdict
 
 
 def get_eval_results_dir_name(api: sly.Api, task_id: int, project_info: ProjectInfo) -> str:
@@ -45,6 +48,7 @@ def run_model_benchmark(
     creating_report_f: Field,
     model_benchmark_pbar: SlyTqdm,
     model_benchmark_pbar_secondary: Progress,
+    remote_artifacts_dir: str
 ) -> bool:
     model_benchmark_done = False
     try:
@@ -207,4 +211,53 @@ def run_model_benchmark(
                 api.project.remove(bm.diff_project_info.id)
         except Exception as e2:
             pass
+    finally:
+        exp_train_info = {
+            "app_name": "Train RT-DETR",
+            "task_id": g.TASK_ID,
+            "artifacts_folder": remote_artifacts_dir,
+            "session_link": session.base_url,
+            "task_type": bm.cv_task,
+            "project_name": project_info.name,
+            "checkpoints": g.rtdetr_artifacts.get_weights_path(remote_artifacts_dir),
+            "config_path": g.rtdetr_artifacts.get_config_path(remote_artifacts_dir),
+        }
+        model_name = "RT-DETR"
+        exp_info = RTDETRArtifacts(g.TEAM_ID).convert_train_to_experiment_info(TrainInfo(**exp_train_info))
+        exp_info.experiment_name = f"{g.TASK_ID} {project_info.name} {model_name}"
+        exp_info.model_name = model_name
+        exp_info.train_size = len(train_set)
+        exp_info.val_size = len(val_set)
+
+        local_config_path = g.rtdetr_artifacts.get_config_path(local_artifacts_dir)
+
+        model_files = {}
+        with open(local_config_path, "r") as f:
+            model_files["config"] = f.read()
+
+        state_dict = torch.load(checkpoint_path)
+        state_dict["model_info"] = {
+            "model_name": model_name,
+            "framework": exp_info.framework_name,
+            "checkpoint": best_filename,
+            "experiment": exp_info.experiment_name,
+        }
+
+        obj_classes = [sly.ObjClass(name, sly.Rectangle) for name in selected_classes]
+        model_meta = sly.ProjectMeta(obj_classes=sly.ObjClassCollection(obj_classes))
+        state_dict["model_meta"] = model_meta.to_json()
+        state_dict["model_files"] = model_files
+        torch.save(state_dict, checkpoint_path)
+
+        if model_benchmark_done:
+            exp_info.evaluation_report_id = bm.report.id
+            exp_info.evaluation_report_link = f"/model-benchmark?id={str(bm.report.id)}"
+            exp_info.evaluation_metrics = bm.key_metrics
+
+        exp_info_json = asdict(exp_info)
+        exp_info_json["project_preview"] = project_info.image_preview_url
+        sly.json.dump_json_file(exp_info_json, "experiment_info.json")
+        api.storage.upload(g.TEAM_ID, "experiment_info.json", remote_artifacts_dir + "/experiment_info.json")
+
+        api.task.set_output_experiment(g.TASK_ID, exp_info_json)
     return model_benchmark_done
