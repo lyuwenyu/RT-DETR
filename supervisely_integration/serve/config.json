@@ -1,22 +1,22 @@
 {
-	"name": "Serve RT-DETR",
-	"type": "app",
-	"version": "2.0.0",
-	"description": "Deploy RT-DETR as a REST API service",
-	"categories": ["neural network", "images", "object detection", "serve"],
-	"icon": "https://github.com/user-attachments/assets/78ab2d6f-e98a-42d9-bfff-0167ffdf16eb",
-	"icon_cover": true,
-	"poster": "https://github.com/user-attachments/assets/0d12aa66-a97e-485b-aa16-a70ca3c924fa",
-	"need_gpu": false,
-	"gpu": "preferred",
-	"session_tags": ["deployed_nn"],
-	"community_agent": false,
-	"docker_image": "supervisely/rt-detr:1.0.5",
-	"entrypoint": "python3 -m uvicorn main:model.app --host 0.0.0.0 --port 8000 --ws websockets --app-dir supervisely_integration/serve",
-	"port": 8000,
-	"task_location": "application_sessions",
-	"license": {
-		"type": "Apache-2.0"
-	},
-	"instance_version": "6.14.0"
+  "name": "Serve RT-DETR",
+  "type": "app",
+  "version": "2.0.0",
+  "description": "Deploy RT-DETR as a REST API service",
+  "categories": ["neural network", "images", "object detection", "serve"],
+  "icon": "https://github.com/user-attachments/assets/78ab2d6f-e98a-42d9-bfff-0167ffdf16eb",
+  "icon_cover": true,
+  "poster": "https://github.com/user-attachments/assets/0d12aa66-a97e-485b-aa16-a70ca3c924fa",
+  "need_gpu": false,
+  "gpu": "preferred",
+  "session_tags": ["deployed_nn"],
+  "community_agent": false,
+  "docker_image": "supervisely/rt-detr:1.0.6",
+  "entrypoint": "python3 -m uvicorn main:model.app --host 0.0.0.0 --port 8000 --ws websockets --app-dir supervisely_integration/serve",
+  "port": 8000,
+  "task_location": "application_sessions",
+  "license": {
+    "type": "Apache-2.0"
+  },
+  "instance_version": "6.14.4"
 }

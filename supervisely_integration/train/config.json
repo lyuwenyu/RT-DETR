@@ -1,25 +1,25 @@
 {
-	"type": "app",
-	"version": "2.0.0",
-	"name": "Train RT-DETR",
-	"entrypoint": "python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --ws websockets --app-dir supervisely_integration/train",
-	"port": 8000,
-	"categories": ["neural network", "images", "object detection", "train"],
-	"icon": "https://github.com/user-attachments/assets/b4f91538-7f2b-46f5-baf9-16527fa7c1a7",
-	"icon_cover": true,
-	"poster": "https://github.com/user-attachments/assets/ae6ec55e-63eb-43d1-99de-f62650939c69",
-	"description": "Train RT-DETR model on your data",
-	"docker_image": "supervisely/rt-detr:1.0.4",
-	"instance_version": "6.11.22",
-	"task_location": "workspace_tasks",
-	"need_gpu": true,
-	"gpu": "required",
-	"community_agent": false,
-	"context_menu": {
-		"target": ["images_project"],
-		"context_root": "Neural Networks"
-	},
-	"license": {
-		"type": "Apache-2.0"
-	}
+  "type": "app",
+  "version": "2.0.0",
+  "name": "Train RT-DETR",
+  "entrypoint": "python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --ws websockets --app-dir supervisely_integration/train",
+  "port": 8000,
+  "categories": ["neural network", "images", "object detection", "train"],
+  "icon": "https://github.com/user-attachments/assets/b4f91538-7f2b-46f5-baf9-16527fa7c1a7",
+  "icon_cover": true,
+  "poster": "https://github.com/user-attachments/assets/ae6ec55e-63eb-43d1-99de-f62650939c69",
+  "description": "Train RT-DETR model on your data",
+  "docker_image": "supervisely/rt-detr:1.0.6",
+  "instance_version": "6.14.4",
+  "task_location": "workspace_tasks",
+  "need_gpu": true,
+  "gpu": "required",
+  "community_agent": false,
+  "context_menu": {
+    "target": ["images_project"],
+    "context_root": "Neural Networks"
+  },
+  "license": {
+    "type": "Apache-2.0"
+  }
 }

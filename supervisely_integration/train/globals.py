@@ -68,6 +68,9 @@ USE_CACHE = True
 STOP_TRAINING = False
 
 rtdetr_artifacts = RTDETR(TEAM_ID)
+sly_rtdetr_generated_metadata = None
+train_size = None
+val_size = None
 
 # endregion
 api = sly.Api.from_env()
@@ -95,7 +98,6 @@ latest_checkpoint_name = "last.pth"
 latest_checkpoint_path = None
 
 app = None
-
 
 def update_step(back: Optional[bool] = False, step: Optional[int] = None) -> None:
     if step is None:

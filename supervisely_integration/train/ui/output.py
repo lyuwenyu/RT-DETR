@@ -7,6 +7,10 @@ import numpy as np
 import yaml
 from pycocotools.coco import COCO
 
+from supervisely.nn.artifacts.artifacts import TrainInfo
+from supervisely.io.json import dump_json_file
+from dataclasses import asdict
+
 import rtdetr_pytorch.train as train_cli
 import supervisely as sly
 import supervisely_integration.train.globals as g
@@ -133,6 +137,35 @@ card = Card(
 card.lock()
 
 
+def create_experiment(
+    model_name, remote_dir, report_id=None, eval_metrics=None, primary_metric_name=None
+):
+    train_info = TrainInfo(**g.sly_rtdetr_generated_metadata)
+    experiment_info = g.rtdetr_artifacts.convert_train_to_experiment_info(train_info)
+    experiment_info.experiment_name = f"{g.TASK_ID} {g.project_info.name} {model_name}"
+    experiment_info.model_name = model_name
+    experiment_info.framework_name = f"{g.rtdetr_artifacts.framework_name}"
+    experiment_info.train_size = g.train_size
+    experiment_info.val_size = g.val_size
+    experiment_info.evaluation_report_id = report_id
+    experiment_info.experiment_report_id = None
+    if report_id is not None:
+        experiment_info.evaluation_report_link = f"/model-benchmark?id={str(report_id)}"
+    experiment_info.evaluation_metrics = eval_metrics
+
+    experiment_info_json = asdict(experiment_info)
+    experiment_info_json["project_preview"] = g.project_info.image_preview_url
+    experiment_info_json["primary_metric"] = primary_metric_name
+
+    g.api.task.set_output_experiment(g.task_id, experiment_info_json)
+    experiment_info_json.pop("project_preview")
+    experiment_info_json.pop("primary_metric")
+
+    experiment_info_path = os.path.join(g.artifacts_dir, "experiment_info.json")
+    remote_experiment_info_path = os.path.join(remote_dir, "experiment_info.json")
+    dump_json_file(experiment_info_json, experiment_info_path)
+    g.api.file.upload(g.team_id, experiment_info_path, remote_experiment_info_path)
+
 def iter_callback(logs):
     iter_idx = logs.iter_idx
     loss.add_to_series("Loss", (iter_idx, logs.loss))
@@ -228,9 +261,18 @@ def run_training():
     local_artifacts_dir = os.path.join(cfg.output_dir, "upload")
     local_checkpoints_dir = os.path.join(local_artifacts_dir, "weights")
 
+
+    benchmark_report_template, report_id, eval_metrics, primary_metric_name = (
+        None,
+        None,
+        None,
+        None,
+    )
+
+    # Implement model evaluation benchmark here
     model_benchmark_done = False
     if parameters_ui.run_model_benchmark_checkbox.is_checked():
-        model_benchmark_done = run_model_benchmark(
+        model_benchmark_done, benchmark_report_template, report_id, eval_metrics, primary_metric_name = run_model_benchmark(
             api=g.api,
             root_source_path=g.CURRENT_DIR,
             local_artifacts_dir=local_artifacts_dir,
@@ -249,16 +291,32 @@ def run_training():
             model_benchmark_pbar=model_benchmark_pbar,
             model_benchmark_pbar_secondary=model_benchmark_pbar_secondary,
         )
+    # ------------------------------------------
 
     if not model_benchmark_done:
         benchmark_report_template = None
     w.workflow_output(
         g.api,
-        "RT-DETR",  # get_file_name(g.latest_checkpoint_path),
+        "RT-DETR",
         remote_artifacts_dir,
         get_file_name(g.best_checkpoint_path),
         benchmark_report_template,
     )
+
+    try:
+        create_experiment(
+            model_name="RT-DETR",
+            remote_dir=remote_artifacts_dir,
+            report_id=report_id,
+            eval_metrics=eval_metrics,
+            primary_metric_name=primary_metric_name,
+        )
+    except Exception as e:
+        sly.logger.warning(
+            f"Couldn't create experiment, this training session will not appear in experiments table. Error: {e}"
+        )
+
+
 
     # hide buttons
     start_train_btn.hide()
@@ -407,7 +465,7 @@ def upload_model(output_dir):
         )
 
     # Upload train metadata
-    g.rtdetr_artifacts.generate_metadata(
+    g.sly_rtdetr_generated_metadata = g.rtdetr_artifacts.generate_metadata(
         app_name=g.rtdetr_artifacts.app_name,
         task_id=g.TASK_ID,
         artifacts_folder=remote_artifacts_dir,
@@ -429,6 +487,7 @@ def upload_model(output_dir):
 def create_trainval():
     # g.splits = splits.trainval_splits.get_splits()
     train_items, val_items = g.splits
+    g.train_size, g.val_size = len(train_items), len(val_items)
     sly.logger.debug(f"Creating trainval datasets from splits: {g.splits}...")
     train_items: List[sly.project.project.ItemInfo]
     val_items: List[sly.project.project.ItemInfo]
