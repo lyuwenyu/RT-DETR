@@ -2,19 +2,18 @@
 """Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
+import os
+import re
+import sys
+
 import torch
 import torch.nn as nn
-from torch import Tensor 
+from torch import Tensor
 
-import re
-import os 
-import sys 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-from src.core import YAMLConfig, yaml_utils
-from src.solver import TASKS
+from typing import Any, Dict, List, Optional
 
-from typing import Dict, List, Optional, Any
-
+from rtdetrv2.core import YAMLConfig
 
 __all__ = ["profile_stats"]
 

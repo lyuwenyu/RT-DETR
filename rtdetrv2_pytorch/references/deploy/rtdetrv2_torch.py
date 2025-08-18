@@ -2,13 +2,10 @@
 """
 
 import torch
-import torch.nn as nn 
+import torch.nn as nn
 import torchvision.transforms as T
-
-import numpy as np 
 from PIL import Image, ImageDraw
-
-from src.core import YAMLConfig
+from rtdetrv2.core import YAMLConfig
 
 
 def draw(images, labels, boxes, scores, thrh = 0.6):

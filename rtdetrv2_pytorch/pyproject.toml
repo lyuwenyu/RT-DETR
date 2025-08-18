@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rtdetrv2"
+authors = [
+    { name = "Wenyu Lv" },
+    { name = "Yian Zhao" },
+    { name = "Qinyao Chang" },
+    { name = "Kui Huang" },
+    { name = "Guanzhong Wang" },
+    { name = "Yi Liu" },
+    { name = "Leaf Ying", email = "leaf.ying.work@gmail.com" },
+]
+readme = "README.md"
+requires-python = ">=3.8"
+version = "0.0.1"
+dynamic = ["dependencies"]
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]

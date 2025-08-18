@@ -1,14 +1,14 @@
 """Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
-import os 
-import sys 
+import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 import torch
-import torch.nn as nn 
-
-from src.core import YAMLConfig
+import torch.nn as nn
+from rtdetrv2.core import YAMLConfig
 
 
 def main(args, ):
@@ -71,7 +71,7 @@ def main(args, ):
         print('Check export onnx model done...')
 
     if args.simplify:
-        import onnx 
+        import onnx
         import onnxsim
         dynamic = True 
         # input_shapes = {'images': [1, 3, 640, 640], 'orig_target_sizes': [1, 2]} if dynamic else None
