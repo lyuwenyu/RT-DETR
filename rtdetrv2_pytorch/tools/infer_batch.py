@@ -18,7 +18,7 @@ from PIL import Image, ImageDraw
 from src.core import YAMLConfig
 
 
-def convert_to_coco_format(results):
+def convert_to_coco_format(results, score_thresh):
     images = []
     annotations = []
     categories = []
@@ -41,6 +41,9 @@ def convert_to_coco_format(results):
         scores = result['scores'].cpu().detach().numpy().flatten()
 
         for i in range(len(labels)):
+            if scores[i] < score_thresh:
+                continue
+
             x1, y1, x2, y2 = boxes[i]
             width = x2 - x1
             height = y2 - y1
@@ -123,7 +126,7 @@ def main(args, ):
 
     # draw([im_pil], labels, boxes, scores)
 
-    coco_results = convert_to_coco_format(results)
+    coco_results = convert_to_coco_format(results, args.score_thresh)
     with open(args.output_file, 'w') as f:
         json.dump(coco_results, f, indent=4)
 
@@ -135,6 +138,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--resume', type=str, )
     parser.add_argument('--im-dir', type=str, help='path to image directory')
     parser.add_argument('--output-file', type=str, default='coco_annotations.json', help='path to output COCO annotations file')
+    parser.add_argument('--score-thresh', type=float, default=0.3, help='score threshold for filtering annotations')
     parser.add_argument('-d', '--device', type=str, default='cpu')
     args = parser.parse_args()
     main(args)

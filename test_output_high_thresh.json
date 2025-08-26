@@ -1,0 +1,525 @@
+{
+    "images": [
+        {
+            "id": 0,
+            "width": 640,
+            "height": 480,
+            "file_name": "000000039769.jpg"
+        }
+    ],
+    "annotations": [
+        {
+            "id": 1,
+            "image_id": 0,
+            "category_id": 15,
+            "bbox": [
+                13.706817626953125,
+                54.117679595947266,
+                303.8200988769531,
+                418.5331115722656
+            ],
+            "area": 127158.7734375,
+            "score": 0.9559804797172546,
+            "iscrowd": 0
+        },
+        {
+            "id": 2,
+            "image_id": 0,
+            "category_id": 15,
+            "bbox": [
+                343.72509765625,
+                23.684062957763672,
+                296.5596923828125,
+                349.3697204589844
+            ],
+            "area": 103608.9765625,
+            "score": 0.9497572183609009,
+            "iscrowd": 0
+        },
+        {
+            "id": 3,
+            "image_id": 0,
+            "category_id": 57,
+            "bbox": [
+                0.19775390625,
+                1.3188886642456055,
+                639.9764404296875,
+                473.0584716796875
+            ],
+            "area": 302746.28125,
+            "score": 0.941831648349762,
+            "iscrowd": 0
+        },
+        {
+            "id": 4,
+            "image_id": 0,
+            "category_id": 65,
+            "bbox": [
+                40.59649658203125,
+                73.20852661132812,
+                135.14279174804688,
+                45.12425231933594
+            ],
+            "area": 6098.21728515625,
+            "score": 0.9307460784912109,
+            "iscrowd": 0
+        }
+    ],
+    "categories": [
+        {
+            "id": 1,
+            "name": "1",
+            "supercategory": "object"
+        },
+        {
+            "id": 2,
+            "name": "2",
+            "supercategory": "object"
+        },
+        {
+            "id": 3,
+            "name": "3",
+            "supercategory": "object"
+        },
+        {
+            "id": 4,
+            "name": "4",
+            "supercategory": "object"
+        },
+        {
+            "id": 5,
+            "name": "5",
+            "supercategory": "object"
+        },
+        {
+            "id": 6,
+            "name": "6",
+            "supercategory": "object"
+        },
+        {
+            "id": 7,
+            "name": "7",
+            "supercategory": "object"
+        },
+        {
+            "id": 8,
+            "name": "8",
+            "supercategory": "object"
+        },
+        {
+            "id": 9,
+            "name": "9",
+            "supercategory": "object"
+        },
+        {
+            "id": 10,
+            "name": "10",
+            "supercategory": "object"
+        },
+        {
+            "id": 11,
+            "name": "11",
+            "supercategory": "object"
+        },
+        {
+            "id": 12,
+            "name": "12",
+            "supercategory": "object"
+        },
+        {
+            "id": 13,
+            "name": "13",
+            "supercategory": "object"
+        },
+        {
+            "id": 14,
+            "name": "14",
+            "supercategory": "object"
+        },
+        {
+            "id": 15,
+            "name": "15",
+            "supercategory": "object"
+        },
+        {
+            "id": 16,
+            "name": "16",
+            "supercategory": "object"
+        },
+        {
+            "id": 17,
+            "name": "17",
+            "supercategory": "object"
+        },
+        {
+            "id": 18,
+            "name": "18",
+            "supercategory": "object"
+        },
+        {
+            "id": 19,
+            "name": "19",
+            "supercategory": "object"
+        },
+        {
+            "id": 20,
+            "name": "20",
+            "supercategory": "object"
+        },
+        {
+            "id": 21,
+            "name": "21",
+            "supercategory": "object"
+        },
+        {
+            "id": 22,
+            "name": "22",
+            "supercategory": "object"
+        },
+        {
+            "id": 23,
+            "name": "23",
+            "supercategory": "object"
+        },
+        {
+            "id": 24,
+            "name": "24",
+            "supercategory": "object"
+        },
+        {
+            "id": 25,
+            "name": "25",
+            "supercategory": "object"
+        },
+        {
+            "id": 26,
+            "name": "26",
+            "supercategory": "object"
+        },
+        {
+            "id": 27,
+            "name": "27",
+            "supercategory": "object"
+        },
+        {
+            "id": 28,
+            "name": "28",
+            "supercategory": "object"
+        },
+        {
+            "id": 29,
+            "name": "29",
+            "supercategory": "object"
+        },
+        {
+            "id": 30,
+            "name": "30",
+            "supercategory": "object"
+        },
+        {
+            "id": 31,
+            "name": "31",
+            "supercategory": "object"
+        },
+        {
+            "id": 32,
+            "name": "32",
+            "supercategory": "object"
+        },
+        {
+            "id": 33,
+            "name": "33",
+            "supercategory": "object"
+        },
+        {
+            "id": 34,
+            "name": "34",
+            "supercategory": "object"
+        },
+        {
+            "id": 35,
+            "name": "35",
+            "supercategory": "object"
+        },
+        {
+            "id": 36,
+            "name": "36",
+            "supercategory": "object"
+        },
+        {
+            "id": 37,
+            "name": "37",
+            "supercategory": "object"
+        },
+        {
+            "id": 38,
+            "name": "38",
+            "supercategory": "object"
+        },
+        {
+            "id": 39,
+            "name": "39",
+            "supercategory": "object"
+        },
+        {
+            "id": 40,
+            "name": "40",
+            "supercategory": "object"
+        },
+        {
+            "id": 41,
+            "name": "41",
+            "supercategory": "object"
+        },
+        {
+            "id": 42,
+            "name": "42",
+            "supercategory": "object"
+        },
+        {
+            "id": 43,
+            "name": "43",
+            "supercategory": "object"
+        },
+        {
+            "id": 44,
+            "name": "44",
+            "supercategory": "object"
+        },
+        {
+            "id": 45,
+            "name": "45",
+            "supercategory": "object"
+        },
+        {
+            "id": 46,
+            "name": "46",
+            "supercategory": "object"
+        },
+        {
+            "id": 47,
+            "name": "47",
+            "supercategory": "object"
+        },
+        {
+            "id": 48,
+            "name": "48",
+            "supercategory": "object"
+        },
+        {
+            "id": 49,
+            "name": "49",
+            "supercategory": "object"
+        },
+        {
+            "id": 50,
+            "name": "50",
+            "supercategory": "object"
+        },
+        {
+            "id": 51,
+            "name": "51",
+            "supercategory": "object"
+        },
+        {
+            "id": 52,
+            "name": "52",
+            "supercategory": "object"
+        },
+        {
+            "id": 53,
+            "name": "53",
+            "supercategory": "object"
+        },
+        {
+            "id": 54,
+            "name": "54",
+            "supercategory": "object"
+        },
+        {
+            "id": 55,
+            "name": "55",
+            "supercategory": "object"
+        },
+        {
+            "id": 56,
+            "name": "56",
+            "supercategory": "object"
+        },
+        {
+            "id": 57,
+            "name": "57",
+            "supercategory": "object"
+        },
+        {
+            "id": 58,
+            "name": "58",
+            "supercategory": "object"
+        },
+        {
+            "id": 59,
+            "name": "59",
+            "supercategory": "object"
+        },
+        {
+            "id": 60,
+            "name": "60",
+            "supercategory": "object"
+        },
+        {
+            "id": 61,
+            "name": "61",
+            "supercategory": "object"
+        },
+        {
+            "id": 62,
+            "name": "62",
+            "supercategory": "object"
+        },
+        {
+            "id": 63,
+            "name": "63",
+            "supercategory": "object"
+        },
+        {
+            "id": 64,
+            "name": "64",
+            "supercategory": "object"
+        },
+        {
+            "id": 65,
+            "name": "65",
+            "supercategory": "object"
+        },
+        {
+            "id": 66,
+            "name": "66",
+            "supercategory": "object"
+        },
+        {
+            "id": 67,
+            "name": "67",
+            "supercategory": "object"
+        },
+        {
+            "id": 68,
+            "name": "68",
+            "supercategory": "object"
+        },
+        {
+            "id": 69,
+            "name": "69",
+            "supercategory": "object"
+        },
+        {
+            "id": 70,
+            "name": "70",
+            "supercategory": "object"
+        },
+        {
+            "id": 71,
+            "name": "71",
+            "supercategory": "object"
+        },
+        {
+            "id": 72,
+            "name": "72",
+            "supercategory": "object"
+        },
+        {
+            "id": 73,
+            "name": "73",
+            "supercategory": "object"
+        },
+        {
+            "id": 74,
+            "name": "74",
+            "supercategory": "object"
+        },
+        {
+            "id": 75,
+            "name": "75",
+            "supercategory": "object"
+        },
+        {
+            "id": 76,
+            "name": "76",
+            "supercategory": "object"
+        },
+        {
+            "id": 77,
+            "name": "77",
+            "supercategory": "object"
+        },
+        {
+            "id": 78,
+            "name": "78",
+            "supercategory": "object"
+        },
+        {
+            "id": 79,
+            "name": "79",
+            "supercategory": "object"
+        },
+        {
+            "id": 80,
+            "name": "80",
+            "supercategory": "object"
+        },
+        {
+            "id": 81,
+            "name": "81",
+            "supercategory": "object"
+        },
+        {
+            "id": 82,
+            "name": "82",
+            "supercategory": "object"
+        },
+        {
+            "id": 83,
+            "name": "83",
+            "supercategory": "object"
+        },
+        {
+            "id": 84,
+            "name": "84",
+            "supercategory": "object"
+        },
+        {
+            "id": 85,
+            "name": "85",
+            "supercategory": "object"
+        },
+        {
+            "id": 86,
+            "name": "86",
+            "supercategory": "object"
+        },
+        {
+            "id": 87,
+            "name": "87",
+            "supercategory": "object"
+        },
+        {
+            "id": 88,
+            "name": "88",
+            "supercategory": "object"
+        },
+        {
+            "id": 89,
+            "name": "89",
+            "supercategory": "object"
+        },
+        {
+            "id": 90,
+            "name": "90",
+            "supercategory": "object"
+        },
+        {
+            "id": 91,
+            "name": "91",
+            "supercategory": "object"
+        }
+    ]
+}
