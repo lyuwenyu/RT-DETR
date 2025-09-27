@@ -1,20 +1,18 @@
-
 """Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
 import torch
 import torch.nn as nn
-from torch import Tensor 
+from torch import Tensor
 
 import re
-import os 
-import sys 
+import os
+import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from src.core import YAMLConfig, yaml_utils
 from src.solver import TASKS
 
 from typing import Dict, List, Optional, Any
-
 
 __all__ = ["profile_stats"]
 
@@ -24,7 +22,6 @@ def profile_stats(
     shape: List[int]=[1, 3, 640, 640], 
     verbose: bool=False
 ) -> Dict[str, Any]:
-    
     is_training = model.training
 
     model.train()
@@ -67,7 +64,7 @@ def profile_stats(
 
     if is_training:
         model.train()
-    
+
     info = p.key_averages().table(sort_by='self_cuda_time_total', row_limit=-1)
     num_flops = sum([float(v.strip()) for v in re.findall('(\d+.?\d+ *\n)', info)]) / active
 
@@ -79,15 +76,18 @@ def profile_stats(
     return {'n_parameters': num_params, 'n_flops': num_flops, 'info': info}
 
 
-
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, required=True)
     parser.add_argument('-d', '--device', type=str, default='cuda:0', help='device',)
+    parser.add_argument('-u', '--update', nargs='+', help='Update yaml config from command line.')
     args = parser.parse_args()
 
-    cfg = YAMLConfig(args.config, device=args.device)
+    update_dict = yaml_utils.parse_cli(args.update) if args.update else {}
+    update_dict.update({k: v for k, v in args.__dict__.items() \
+                        if k not in ['update', ] and v is not None})
+    cfg = YAMLConfig(args.config, **update_dict)
     model = cfg.model.to(args.device)
 
     profile_stats(model, verbose=True)
