@@ -1,23 +1,26 @@
 """Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
-import os 
-import sys 
+import os
+import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 import torch
-import torch.nn as nn 
+import torch.nn as nn
 
-from src.core import YAMLConfig
+from src.core import YAMLConfig, yaml_utils
 
 
 def main(args, ):
     """main
     """
-    cfg = YAMLConfig(args.config, resume=args.resume)
+    update_dict = yaml_utils.parse_cli(args.update) if args.update else {}
+    update_dict.update({k: v for k, v in args.__dict__.items() \
+                        if k not in ['update', ] and v is not None})
+    cfg = YAMLConfig(args.config, **update_dict)
 
     if args.resume:
-        checkpoint = torch.load(args.resume, map_location='cpu') 
+        checkpoint = torch.load(args.resume, map_location='cpu')
         if 'ema' in checkpoint:
             state = checkpoint['ema']['module']
         else:
@@ -35,7 +38,7 @@ def main(args, ):
             super().__init__()
             self.model = cfg.model.deploy()
             self.postprocessor = cfg.postprocessor.deploy()
-            
+
         def forward(self, images, orig_target_sizes):
             outputs = self.model(images)
             outputs = self.postprocessor(outputs, orig_target_sizes)
@@ -53,13 +56,13 @@ def main(args, ):
     }
 
     torch.onnx.export(
-        model, 
-        (data, size), 
+        model,
+        (data, size),
         args.output_file,
         input_names=['images', 'orig_target_sizes'],
         output_names=['labels', 'boxes', 'scores'],
         dynamic_axes=dynamic_axes,
-        opset_version=16, 
+        opset_version=16,
         verbose=False,
         do_constant_folding=True,
     )
@@ -84,13 +87,13 @@ def main(args, ):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', '-c', type=str, )
-    parser.add_argument('--resume', '-r', type=str, )
+    parser.add_argument('--config', '-c', type=str)
+    parser.add_argument('--resume', '-r', type=str)
     parser.add_argument('--output_file', '-o', type=str, default='model.onnx')
     parser.add_argument('--input_size', '-s', type=int, default=640)
-    parser.add_argument('--check',  action='store_true', default=False,)
-    parser.add_argument('--simplify',  action='store_true', default=False,)
-    
+    parser.add_argument('--check', action='store_true', default=False)
+    parser.add_argument('--simplify', action='store_true', default=False)
+    parser.add_argument('--update', '-u', nargs='+', help='update yaml config')
 
     args = parser.parse_args()
 
