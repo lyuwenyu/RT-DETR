@@ -45,6 +45,8 @@ This is the official implementation of papers
 
 
 ## 🚀 Updates
+- \[2025.11.18\] Release the **newest** member of the RT-DETR family: [RT-DETRv4:Painlessly Furthering Real-Time Object Detection with Vision Foundation Models](https://github.com/RT-DETRs/RT-DETRv4).
+By harnessing the rapidly evolving capabilities of Vision Foundation Models (VFMs), we boost lightweight detectors and, without incurring any extra inference latency, significantly improve the performance of the full-size model.
 - \[2024.11.28\] Add torch tool for parameters and flops statistics. see [run_profile.py](./rtdetrv2_pytorch/tools/run_profile.py)
 - \[2024.10.10\] Add sliced inference support for small object detecion. [#468](https://github.com/lyuwenyu/RT-DETR/pull/468)
 - \[2024.09.23\] Add ✅[Regnet and DLA34](https://github.com/lyuwenyu/RT-DETR/tree/main/rtdetr_pytorch) for RTDETR.
