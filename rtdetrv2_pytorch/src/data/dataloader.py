@@ -20,7 +20,7 @@ from ..core import register
 __all__ = [
     'DataLoader',
     'BaseCollateFunction', 
-    'BatchImageCollateFuncion',
+    'BatchImageCollateFunction',
     'batch_image_collate_fn'
 ]
 
@@ -76,7 +76,7 @@ class BaseCollateFunction(object):
 
 
 @register()
-class BatchImageCollateFuncion(BaseCollateFunction):
+class BatchImageCollateFunction(BaseCollateFunction):
     def __init__(
         self, 
         scales=None, 
