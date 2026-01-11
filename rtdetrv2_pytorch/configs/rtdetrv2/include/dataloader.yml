@@ -18,7 +18,7 @@ train_dataloader:
         ops: ['RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop']
   
   collate_fn:
-    type: BatchImageCollateFuncion
+    type: BatchImageCollateFunction
     scales: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
     stop_epoch: 71 # epoch in [71, ~) stop `multiscales`
 

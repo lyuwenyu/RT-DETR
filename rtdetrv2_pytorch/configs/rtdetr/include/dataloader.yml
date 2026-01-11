@@ -14,7 +14,7 @@ train_dataloader:
         - {type: ConvertPILImage, dtype: 'float32', scale: True}   
         - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}  
   collate_fn:
-    type: BatchImageCollateFuncion
+    type: BatchImageCollateFunction
     scales: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
   shuffle: True
   num_workers: 4

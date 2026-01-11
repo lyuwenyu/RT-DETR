@@ -123,7 +123,13 @@ nohup python3 tools/train.py -c path/to/config -t path/to/checkpoint --use-amp -
 python tools/export_onnx.py -c path/to/config -r path/to/checkpoint --check --simplify
 ```
 
-<!-- <summary>5. Inference </summary> -->
+<!-- <summary>5. Export tensorrt </summary> -->
+5. Export tensorrt
+```shell
+python tools/export_trt.py -i path/to/onnxfile
+```
+
+<!-- <summary>6. Inference </summary> -->
 5. Inference
 
 Support torch, onnxruntime, tensorrt and openvino, see details in *references/deploy*

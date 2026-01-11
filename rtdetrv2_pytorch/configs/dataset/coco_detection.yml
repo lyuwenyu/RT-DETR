@@ -28,7 +28,7 @@ train_dataloader:
   num_workers: 4
   drop_last: True 
   collate_fn:
-    type: BatchImageCollateFuncion
+    type: BatchImageCollateFunction
 
 
 val_dataloader:
@@ -45,4 +45,4 @@ val_dataloader:
   num_workers: 4
   drop_last: False
   collate_fn:
-    type: BatchImageCollateFuncion
+    type: BatchImageCollateFunction
