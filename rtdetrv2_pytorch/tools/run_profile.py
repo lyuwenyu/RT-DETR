@@ -1,20 +1,35 @@
 """Copyright(c) 2023 lyuwenyu. All Rights Reserved.
 """
 
+import math
+import os
+import sys
+
 import torch
 import torch.nn as nn
 from torch import Tensor
 
-import re
-import os
-import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-from src.core import YAMLConfig, yaml_utils
-from src.solver import TASKS
+from typing import Any, Dict, List, Optional
 
-from typing import Dict, List, Optional, Any
+from src.core import YAMLConfig, yaml_utils
 
 __all__ = ["profile_stats"]
+
+def _auto_scale_flops(flops: float):
+    """Copied from torch.profiler.profile"""
+    flop_headers = [
+        "",
+        "K",
+        "M",
+        "G",
+        "T",
+        "P",
+    ]
+    assert flops > 0
+    log_flops = max(0, min(math.log10(flops) / 3, float(len(flop_headers) - 1)))
+    assert log_flops >= 0 and log_flops < len(flop_headers)
+    return (pow(10, (math.floor(log_flops) * -3.0)), flop_headers[int(log_flops)])
 
 def profile_stats(
     model: nn.Module, 
@@ -65,13 +80,15 @@ def profile_stats(
     if is_training:
         model.train()
 
-    info = p.key_averages().table(sort_by='self_cuda_time_total', row_limit=-1)
-    num_flops = sum([float(v.strip()) for v in re.findall('(\d+.?\d+ *\n)', info)]) / active
+    statistics = p.key_averages()
+    info = statistics.table(sort_by='self_cuda_time_total', row_limit=-1)
+    num_flops = sum(event.flops for event in statistics if event.flops > 0) / active
+    (flops_scale, flops_header) = _auto_scale_flops(num_flops)
 
     if verbose:
         print(info)
         print(f'Total number of trainable parameters: {num_params}')
-        print(f'Total number of flops: {int(num_flops)}M with {shape}')
+        print(f'Total number of flops: {num_flops * flops_scale:.3f}{flops_header} with {shape}')
 
     return {'n_parameters': num_params, 'n_flops': num_flops, 'info': info}
 
