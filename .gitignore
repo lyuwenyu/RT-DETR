@@ -170,3 +170,10 @@ rtdetr_pytorch/output/
 rtdetr_pytorch/dataset/
 rtdetrv2_pytorch/output/
 rtdetrv2_pytorch/dataset/
+test_*/
+.spec-workflow/
+benchmark_results/
+improved_inference_results/
+CLAUDE.md
+inference_results/
+.claude/
