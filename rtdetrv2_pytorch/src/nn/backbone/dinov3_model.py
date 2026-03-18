@@ -3,16 +3,10 @@
 DINOv3 骨干网络封装，用于 RT-DETRv2
 """
 
-import sys
-import os
 import torch
 import torch.nn as nn
 
-# 添加 DINOv3 项目路径
-dinov3_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), '..', '..', 'dinov3')
-if dinov3_path not in sys.path:
-    sys.path.insert(0, dinov3_path)
-
+from .dinov3.hub import backbones as dinov3_backbones
 from ...core import register
 
 
@@ -41,13 +35,10 @@ class DINOv3Model(nn.Module):
 
         # 加载 DINOv3 模型
         if name == "dinov3_vitb16":
-            from dinov3.hub import backbones as dinov3_backbones
             self.backbone = dinov3_backbones.dinov3_vitb16(pretrained=True)
         elif name == "dinov3_vitl16":
-            from dinov3.hub import backbones as dinov3_backbones
             self.backbone = dinov3_backbones.dinov3_vitl16(pretrained=True)
         elif name == "dinov3_vits16":
-            from dinov3.hub import backbones as dinov3_backbones
             self.backbone = dinov3_backbones.dinov3_vits16(pretrained=True)
         else:
             raise ValueError(f"Unsupported model: {name}")
