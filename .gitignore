@@ -177,3 +177,4 @@ improved_inference_results/
 CLAUDE.md
 inference_results/
 .claude/
+*_bmad*/

@@ -7,32 +7,32 @@ evaluator:
 num_classes: 10
 remap_mscoco_category: False
 
-train_dataloader: 
+train_dataloader:
   type: DataLoader
-  dataset: 
+  dataset:
     type: CocoDetection
     img_folder: /home/wh/fj/Datasets/visdrone/VisDrone2019-DET-train/images
-    ann_file: /home/wh/fj/Datasets/visdrone_sample/train_coco.json
+    ann_file: configs/dataset/visdrone_coco/train_coco.json
     return_masks: False
     transforms:
       type: Compose
       ops: ~
   shuffle: True
   num_workers: 4
-  drop_last: True 
+  drop_last: True
   collate_fn:
     type: BatchImageCollateFuncion
 
 val_dataloader:
   type: DataLoader
-  dataset: 
+  dataset:
     type: CocoDetection
     img_folder: /home/wh/fj/Datasets/visdrone/VisDrone2019-DET-val/images
-    ann_file: /home/wh/fj/Datasets/visdrone_sample/val_coco.json
+    ann_file: configs/dataset/visdrone_coco/val_coco.json
     return_masks: False
     transforms:
       type: Compose
-      ops: ~ 
+      ops: ~
   shuffle: False
   num_workers: 4
   drop_last: False
