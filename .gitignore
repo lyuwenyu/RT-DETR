@@ -178,3 +178,12 @@ CLAUDE.md
 inference_results/
 .claude/
 *_bmad*/
+
+# Image files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.webp
+*.svg
