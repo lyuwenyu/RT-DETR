@@ -1,0 +1,33 @@
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  '../rtdetr/include/dataloader.yml',
+  '../rtdetr/include/optimizer.yml',
+  '../rtdetr/include/rtdetr_r50vd.yml',
+]
+
+output_dir: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/runs/train/rtdetr_r50_traco6_v2
+num_classes: 24
+remap_mscoco_category: False
+
+train_dataloader:
+  dataset:
+    type: CocoDetection
+    img_folder: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/data/traco6_rt_detr/
+    ann_file: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/data/traco6_rt_detr/annotations/instances_train.json
+  shuffle: True
+  batch_size: 8
+  num_workers: 4
+  drop_last: True
+
+val_dataloader:
+  dataset:
+    type: CocoDetection
+    img_folder: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/data/traco6_rt_detr/
+    ann_file: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/data/traco6_rt_detr/annotations/instances_val.json
+  shuffle: False
+  batch_size: 8
+  num_workers: 4
+  drop_last: False
+
+epoches: 200

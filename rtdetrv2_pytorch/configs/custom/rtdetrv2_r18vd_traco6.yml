@@ -1,0 +1,84 @@
+# Auto-generated RT-DETRv2 config for TRACO6 dataset
+# Model: r18vd, epochs: 120, num_classes: 24
+
+__include__: [
+  '../dataset/coco_detection.yml',
+  '../runtime.yml',
+  '../rtdetrv2/include/dataloader.yml',
+  '../rtdetrv2/include/optimizer.yml',
+  '../rtdetrv2/include/rtdetrv2_r50vd.yml',
+]
+
+output_dir: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/runs/train/rtdetrv2_r18vd_traco6
+num_classes: 24
+remap_mscoco_category: False
+
+# --- Backbone ---
+PResNet:
+  depth: 18
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: True
+
+# --- Encoder ---
+HybridEncoder:
+  in_channels: [128, 256, 512]
+  hidden_dim: 256
+  expansion: 0.5
+
+# --- Decoder ---
+RTDETRTransformerv2:
+  num_layers: 3
+  num_queries: 300
+
+# --- Post-processor ---
+RTDETRPostProcessor:
+  num_top_queries: 300
+
+# --- Schedule ---
+epoches: 120
+
+# --- Optimizer (backbone LR separate from heads) ---
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.
+    -
+      params: '^(?=.*backbone)(?!.*(?:norm|bn)).*$'
+      lr: 0.0000100000
+  lr: 0.0001000000
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+lr_scheduler:
+  type: MultiStepLR
+  milestones: [1000]
+  gamma: 0.1
+
+# --- Dataset ---
+train_dataloader:
+  dataset:
+    type: CocoDetection
+    img_folder: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/data/traco6_rt_detr/
+    ann_file: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/data/traco6_rt_detr/annotations/instances_train.json
+    transforms:
+      policy:
+        epoch: 117
+  collate_fn:
+    scales: ~
+  shuffle: True
+  total_batch_size: 8
+  num_workers: 4
+  drop_last: True
+
+val_dataloader:
+  dataset:
+    type: CocoDetection
+    img_folder: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/data/traco6_rt_detr/
+    ann_file: /home/csiszi/dev/vgtr3-training-utils/submodules/vgtr3_object_detection_model/data/traco6_rt_detr/annotations/instances_val.json
+  shuffle: False
+  total_batch_size: 8
+  num_workers: 4
+  drop_last: False

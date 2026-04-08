@@ -9,9 +9,21 @@ import torch
 import torch.utils.data
 
 import torchvision
-torchvision.disable_beta_transforms_warning()
 
-from torchvision import datapoints
+try:
+    from torchvision import datapoints
+except ImportError:
+    from torchvision import tv_tensors as datapoints
+
+    class _BBoxCompat(datapoints.BoundingBoxes):
+        def __new__(cls, data, *, format, spatial_size=None, canvas_size=None, **kw):
+            return super().__new__(cls, data, format=format, canvas_size=spatial_size or canvas_size, **kw)
+        @property
+        def spatial_size(self):
+            return self.canvas_size
+
+    datapoints.BoundingBox = _BBoxCompat
+    datapoints.BoundingBoxFormat = datapoints.BoundingBoxFormat
 
 from pycocotools import mask as coco_mask
 

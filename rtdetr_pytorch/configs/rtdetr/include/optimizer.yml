@@ -16,7 +16,7 @@ optimizer:
   params: 
     - 
       params: 'backbone'
-      lr: 0.00001
+      lr: 0.00005
     - 
       params: '^(?=.*encoder(?=.*bias|.*norm.*weight)).*$'
       weight_decay: 0.
@@ -31,6 +31,6 @@ optimizer:
 
 lr_scheduler:
   type: MultiStepLR
-  milestones: [1000]
+  milestones: [160]
   gamma: 0.1
 
