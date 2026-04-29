@@ -28,13 +28,13 @@ class DetNMSPostProcessor(torch.nn.Module):
         self.logit_func = getattr(F, self.logit_fmt, None)
         self.deploy_mode = False 
         self.image_dimensions = image_dimensions
-    
-    def forward(self, 
-                outputs: Dict[str, Tensor], 
-                iou_threshold=0.01, 
-                score_threshold=0.1,
-                apply_score_filtering_and_nms=True,
-                keep_topk=300) -> List[Dict[str, Tensor]]:
+
+    def forward(self,
+                outputs: Dict[str, Tensor],
+                iou_threshold: float = 0.01,
+                score_threshold: float = 0.1,
+                apply_score_filtering_and_nms: bool = True,
+                keep_topk: int = 300) -> List[Dict[str, Tensor]]:
         # Use the provided values directly
         self.iou_threshold = iou_threshold
         self.score_threshold = score_threshold
