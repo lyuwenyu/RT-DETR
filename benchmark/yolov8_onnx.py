@@ -26,7 +26,8 @@ class YOLOv8(torch.nn.Module):
         '''
         pred: torch.Tensor = self.model(x)[0] # n 84 8400,
         pred = pred.permute(0, 2, 1)
-        boxes, scores = pred.split([4, 80], dim=-1)
+        nc = pred.shape[-1] - 4
+        boxes, scores = pred.split([4, nc], dim=-1)
         boxes = torchvision.ops.box_convert(boxes, in_fmt='cxcywh', out_fmt='xyxy')
 
         return boxes, scores
