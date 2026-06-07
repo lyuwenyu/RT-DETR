@@ -2068,7 +2068,8 @@ class DebugVisibleImage(BaseOperator):
                 fill='green')
             # draw label
             text = str(gt_class[i][0])
-            tw, th = draw.textsize(text)
+            left, top, right, bottom = draw.textbbox((0, 0), text)
+            tw, th = right - left, bottom - top
             draw.rectangle(
                 [(xmin + 1, ymin - th), (xmin + tw + 1, ymin)], fill='green')
             draw.text((xmin + 1, ymin - th), text, fill=(255, 255, 255))
