@@ -2,6 +2,7 @@
 """
 
 import copy
+import math
 from collections import OrderedDict
 
 import torch 
@@ -13,7 +14,7 @@ from .utils import get_activation
 from ...core import register
 
 
-__all__ = ['HybridEncoder']
+__all__ = ['HybridEncoder', 'MaskHybridEncoder']
 
 
 
@@ -328,3 +329,147 @@ class HybridEncoder(nn.Module):
             outs.append(out)
 
         return outs
+
+
+class MaskFeatFPN(nn.Module):
+    def __init__(
+        self,
+        in_channels=[256, 256, 256],
+        fpn_strides=[8, 16, 32],
+        feat_channels=256,
+        dropout_ratio=0.0,
+        out_channels=256,
+        align_corners=False,
+        act='silu',
+    ):
+        super().__init__()
+        assert len(in_channels) == len(fpn_strides)
+
+        reorder_index = sorted(range(len(fpn_strides)), key=lambda i: fpn_strides[i])
+        in_channels = [in_channels[i] for i in reorder_index]
+        fpn_strides = [fpn_strides[i] for i in reorder_index]
+        assert min(fpn_strides) == fpn_strides[0]
+
+        self.reorder_index = reorder_index
+        self.fpn_strides = fpn_strides
+        self.dropout_ratio = dropout_ratio
+        self.align_corners = align_corners
+        if self.dropout_ratio > 0:
+            self.dropout = nn.Dropout2d(dropout_ratio)
+
+        self.scale_heads = nn.ModuleList()
+        base_stride = fpn_strides[0]
+        for i, stride in enumerate(fpn_strides):
+            head_length = max(1, int(math.log2(stride) - math.log2(base_stride)))
+            scale_head = []
+            for k in range(head_length):
+                in_c = in_channels[i] if k == 0 else feat_channels
+                scale_head.append(ConvNormLayer(in_c, feat_channels, 3, 1, act=act))
+                if stride != base_stride:
+                    scale_head.append(
+                        nn.Upsample(scale_factor=2, mode='bilinear', align_corners=align_corners)
+                    )
+            self.scale_heads.append(nn.Sequential(*scale_head))
+
+        self.output_conv = ConvNormLayer(feat_channels, out_channels, 3, 1, act=act)
+
+    def forward(self, inputs):
+        x = [inputs[i] for i in self.reorder_index]
+
+        output = self.scale_heads[0](x[0])
+        for i in range(1, len(self.fpn_strides)):
+            output = output + F.interpolate(
+                self.scale_heads[i](x[i]),
+                size=output.shape[-2:],
+                mode='bilinear',
+                align_corners=self.align_corners,
+            )
+
+        if self.dropout_ratio > 0:
+            output = self.dropout(output)
+
+        return self.output_conv(output)
+
+
+@register()
+class MaskHybridEncoder(HybridEncoder):
+    __share__ = ['eval_spatial_size', ]
+
+    def __init__(
+        self,
+        in_channels=[256, 512, 1024, 2048],
+        feat_strides=[4, 8, 16, 32],
+        hidden_dim=256,
+        nhead=8,
+        dim_feedforward=1024,
+        dropout=0.0,
+        enc_act='gelu',
+        use_encoder_idx=[3],
+        num_encoder_layers=1,
+        pe_temperature=10000,
+        expansion=1.0,
+        depth_mult=1.0,
+        mask_feat_channels=[64, 64],
+        num_prototypes=32,
+        act='silu',
+        eval_spatial_size=None,
+        version='v2',
+    ):
+        in_channels = list(in_channels)
+        feat_strides = list(feat_strides)
+        use_encoder_idx = [idx - 1 for idx in use_encoder_idx]
+
+        assert len(in_channels) == len(feat_strides)
+        assert len(in_channels) >= 2
+        assert feat_strides[0] == 4
+
+        x4_in_channels = in_channels[0]
+        super().__init__(
+            in_channels=in_channels[1:],
+            feat_strides=feat_strides[1:],
+            hidden_dim=hidden_dim,
+            nhead=nhead,
+            dim_feedforward=dim_feedforward,
+            dropout=dropout,
+            enc_act=enc_act,
+            use_encoder_idx=use_encoder_idx,
+            num_encoder_layers=num_encoder_layers,
+            pe_temperature=pe_temperature,
+            expansion=expansion,
+            depth_mult=depth_mult,
+            act=act,
+            eval_spatial_size=eval_spatial_size,
+            version=version,
+        )
+
+        self.mask_feat_head = MaskFeatFPN(
+            [hidden_dim] * len(self.feat_strides),
+            self.feat_strides,
+            feat_channels=mask_feat_channels[0],
+            out_channels=mask_feat_channels[1],
+            act=act,
+        )
+        self.enc_mask_lateral = ConvNormLayer(x4_in_channels, mask_feat_channels[1], 3, 1, act=act)
+        self.enc_mask_output = nn.Sequential(
+            ConvNormLayer(mask_feat_channels[1], mask_feat_channels[1], 3, 1, act=act),
+            nn.Conv2d(mask_feat_channels[1], num_prototypes, 1),
+        )
+        self.mask_out_stride = feat_strides[0]
+
+    def forward(self, feats):
+        assert len(feats) == len(self.in_channels) + 1
+
+        x4_feat = feats[0]
+        enc_feats = super().forward(feats[1:])
+
+        mask_feat = self.mask_feat_head(enc_feats)
+        mask_feat = F.interpolate(
+            mask_feat,
+            size=x4_feat.shape[-2:],
+            mode='bilinear',
+            align_corners=False,
+        )
+        mask_feat = mask_feat + self.enc_mask_lateral(x4_feat)
+        mask_feat = self.enc_mask_output(mask_feat)
+
+        return enc_feats, mask_feat

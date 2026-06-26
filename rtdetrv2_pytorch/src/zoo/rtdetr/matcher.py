@@ -17,6 +17,23 @@ from .box_ops import box_cxcywh_to_xyxy, generalized_box_iou
 from ...core import register
 
 
+def batch_sigmoid_ce_loss(inputs: torch.Tensor, targets: torch.Tensor):
+    hw = inputs.shape[1]
+
+    pos = F.binary_cross_entropy_with_logits(inputs, torch.ones_like(inputs), reduction='none')
+    neg = F.binary_cross_entropy_with_logits(inputs, torch.zeros_like(inputs), reduction='none')
+
+    loss = torch.einsum('nc,mc->nm', pos, targets) + torch.einsum('nc,mc->nm', neg, (1 - targets))
+    return loss / hw
+
+
+def batch_dice_loss(inputs: torch.Tensor, targets: torch.Tensor):
+    inputs = inputs.sigmoid()
+    numerator = 2 * torch.einsum('nc,mc->nm', inputs, targets)
+    denominator = inputs.sum(-1)[:, None] + targets.sum(-1)[None, :]
+    return 1 - (numerator + 1) / (denominator + 1)
+
+
 @register()
 class HungarianMatcher(nn.Module):
     """This class computes an assignment between the targets and the predictions of the network
@@ -28,7 +45,7 @@ class HungarianMatcher(nn.Module):
 
     __share__ = ['use_focal_loss', ]
 
-    def __init__(self, weight_dict, use_focal_loss=False, alpha=0.25, gamma=2.0):
+    def __init__(self, weight_dict, use_focal_loss=False, alpha=0.25, gamma=2.0, num_sample_points=12544):
         """Creates the matcher
 
         Params:
@@ -40,12 +57,40 @@ class HungarianMatcher(nn.Module):
         self.cost_class = weight_dict['cost_class']
         self.cost_bbox = weight_dict['cost_bbox']
         self.cost_giou = weight_dict['cost_giou']
+        self.cost_mask = weight_dict.get('cost_mask', 0)
+        self.cost_dice = weight_dict.get('cost_dice', 0)
 
         self.use_focal_loss = use_focal_loss
         self.alpha = alpha
         self.gamma = gamma
+        self.num_sample_points = num_sample_points
 
-        assert self.cost_class != 0 or self.cost_bbox != 0 or self.cost_giou != 0, "all costs cant be 0"
+        assert self.cost_class != 0 or self.cost_bbox != 0 or self.cost_giou != 0 \
+            or self.cost_mask != 0 or self.cost_dice != 0, "all costs cant be 0"
+
+    def _compute_mask_cost(self, out_mask, tgt_mask):
+        if out_mask.numel() == 0 or tgt_mask.numel() == 0:
+            return out_mask.new_zeros((out_mask.shape[0], tgt_mask.shape[0]))
+
+        point_coords = torch.rand(1, self.num_sample_points, 2, device=out_mask.device)
+        point_coords = 2.0 * point_coords.unsqueeze(1) - 1.0
+
+        out_mask = F.grid_sample(
+            out_mask[:, None],
+            point_coords.repeat(out_mask.shape[0], 1, 1, 1),
+            align_corners=False,
+        ).squeeze(1).squeeze(1)
+
+        tgt_mask = F.grid_sample(
+            tgt_mask[:, None].to(out_mask.dtype),
+            point_coords.repeat(tgt_mask.shape[0], 1, 1, 1),
+            align_corners=False,
+        ).squeeze(1).squeeze(1)
+
+        return (
+            self.cost_mask * batch_sigmoid_ce_loss(out_mask, tgt_mask)
+            + self.cost_dice * batch_dice_loss(out_mask, tgt_mask)
+        )
 
     @torch.no_grad()
     def forward(self, outputs: Dict[str, torch.Tensor], targets):
@@ -101,10 +146,18 @@ class HungarianMatcher(nn.Module):
         
         # Final cost matrix
         C = self.cost_bbox * cost_bbox + self.cost_class * cost_class + self.cost_giou * cost_giou
-        C = C.view(bs, num_queries, -1).cpu()
+        C = C.view(bs, num_queries, -1)
 
         sizes = [len(v["boxes"]) for v in targets]
-        indices = [linear_sum_assignment(c[i]) for i, c in enumerate(C.split(sizes, -1))]
+        cost_chunks = C.split(sizes, -1)
+        cost_matrices = []
+        for i, c in enumerate(cost_chunks):
+            cost = c[i]
+            if (self.cost_mask != 0 or self.cost_dice != 0) and 'pred_masks' in outputs and 'masks' in targets[i]:
+                cost = cost + self._compute_mask_cost(outputs['pred_masks'][i], targets[i]['masks'])
+            cost_matrices.append(cost.cpu())
+
+        indices = [linear_sum_assignment(c) for c in cost_matrices]
         indices = [(torch.as_tensor(i, dtype=torch.int64), torch.as_tensor(j, dtype=torch.int64)) for i, j in indices]
 
         return {'indices': indices}
