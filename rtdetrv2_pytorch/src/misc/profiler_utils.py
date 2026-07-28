@@ -55,7 +55,7 @@ def stats(
         model.train()
     
     info = p.key_averages().table(sort_by="self_cuda_time_total", row_limit=-1)
-    num_flops = sum([float(v.strip()) for v in re.findall('(\d+.?\d+ *\n)', info)]) / num_active
+    num_flops = sum([float(v.strip()) for v in re.findall(r'(\d+.?\d+ *\n)', info)]) / num_active
 
     if verbose:
         # print(info)
