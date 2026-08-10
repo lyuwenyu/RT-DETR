@@ -47,7 +47,7 @@ class DetDETRPostProcessor(nn.Module):
             boxes = boxes.gather(dim=1, index=index.unsqueeze(-1).repeat(1, 1, boxes.shape[-1]))
             
         else:
-            scores = F.softmax(logits)[:, :, :-1]
+            scores = F.softmax(logits, dim=-1)[:, :, :-1]
             scores, labels = scores.max(dim=-1)
             if scores.shape[1] > self.num_top_queries:
                 scores, index = torch.topk(scores, self.num_top_queries, dim=-1)
