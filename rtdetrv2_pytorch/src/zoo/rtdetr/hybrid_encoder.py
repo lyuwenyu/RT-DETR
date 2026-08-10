@@ -145,7 +145,7 @@ class TransformerEncoderLayer(nn.Module):
         if self.normalize_before:
             src = self.norm1(src)
         q = k = self.with_pos_embed(src, pos_embed)
-        src, _ = self.self_attn(q, k, value=src, attn_mask=src_mask)
+        src, _ = self.self_attn(q, k, value=src, attn_mask=src_mask, need_weights=False)
 
         src = residual + self.dropout1(src)
         if not self.normalize_before:

@@ -203,7 +203,7 @@ class TransformerDecoderLayer(nn.Module):
         #         torch.zeros_like(attn_mask),
         #         torch.full_like(attn_mask, float('-inf'), dtype=tgt.dtype))
 
-        tgt2, _ = self.self_attn(q, k, value=tgt, attn_mask=attn_mask)
+        tgt2, _ = self.self_attn(q, k, value=tgt, attn_mask=attn_mask, need_weights=False)
         tgt = tgt + self.dropout1(tgt2)
         tgt = self.norm1(tgt)
 
