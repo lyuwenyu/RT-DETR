@@ -2,6 +2,7 @@
 """
 
 import importlib.metadata
+from collections import defaultdict
 from torch import Tensor 
 
 if importlib.metadata.version('torchvision') == '0.15.2':
@@ -11,6 +12,7 @@ if importlib.metadata.version('torchvision') == '0.15.2':
     from torchvision.datapoints import BoundingBox as BoundingBoxes
     from torchvision.datapoints import BoundingBoxFormat, Mask, Image, Video
     from torchvision.transforms.v2 import SanitizeBoundingBox as SanitizeBoundingBoxes
+    from torchvision.transforms.v2.functional import get_spatial_size as get_size
     _boxes_keys = ['format', 'spatial_size']
 
 elif '0.17' > importlib.metadata.version('torchvision') >= '0.16':
@@ -18,6 +20,7 @@ elif '0.17' > importlib.metadata.version('torchvision') >= '0.16':
     torchvision.disable_beta_transforms_warning()
 
     from torchvision.transforms.v2 import SanitizeBoundingBoxes
+    from torchvision.transforms.v2.functional import get_size
     from torchvision.tv_tensors import (
         BoundingBoxes, BoundingBoxFormat, Mask, Image, Video)
     _boxes_keys = ['format', 'canvas_size']
@@ -25,6 +28,7 @@ elif '0.17' > importlib.metadata.version('torchvision') >= '0.16':
 elif importlib.metadata.version('torchvision') >= '0.17':
     import torchvision
     from torchvision.transforms.v2 import SanitizeBoundingBoxes
+    from torchvision.transforms.v2.functional import get_size
     from torchvision.tv_tensors import (
         BoundingBoxes, BoundingBoxFormat, Mask, Image, Video)
     _boxes_keys = ['format', 'canvas_size']
@@ -32,6 +36,15 @@ elif importlib.metadata.version('torchvision') >= '0.17':
 else:
     raise RuntimeError('Please make sure torchvision version >= 0.15.2')
 
+
+
+def get_fill(fill_dict, inpt_type):
+    # torchvision 0.15.2 keys fill by type in a defaultdict, >= 0.16 falls back to an 'others' key
+    if isinstance(fill_dict, defaultdict):
+        return fill_dict[inpt_type]
+    if inpt_type in fill_dict:
+        return fill_dict[inpt_type]
+    return fill_dict.get('others', None)
 
 
 def convert_to_tv_tensor(tensor: Tensor, key: str, box_format='xyxy', spatial_size=None) -> Tensor:
