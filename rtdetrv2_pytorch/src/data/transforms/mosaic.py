@@ -5,12 +5,11 @@ import torch
 import torchvision
 torchvision.disable_beta_transforms_warning()
 import torchvision.transforms.v2 as T
-import torchvision.transforms.v2.functional as F
 
 import random
 from PIL import Image 
 
-from .._misc import convert_to_tv_tensor
+from .._misc import convert_to_tv_tensor, get_size
 from ...core import register
 
 
@@ -38,7 +37,7 @@ class Mosaic(T.Transform):
             images.append(image)
             targets.append(target)
 
-        h, w = F.get_spatial_size(images[0])
+        h, w = get_size(images[0])
         offset = [[0, 0], [w, 0], [0, h], [w, h]]
         image = Image.new(mode=images[0].mode, size=(w * 2, h * 2), color=0)
         for i, im in enumerate(images):
