@@ -3,9 +3,12 @@
 
 import importlib.metadata
 from collections import defaultdict
+from packaging import version
 from torch import Tensor 
 
-if importlib.metadata.version('torchvision') == '0.15.2':
+_torchvision_version = version.parse(importlib.metadata.version('torchvision'))
+
+if version.parse('0.16') > _torchvision_version >= version.parse('0.15.2'):
     import torchvision
     torchvision.disable_beta_transforms_warning()
 
@@ -15,7 +18,7 @@ if importlib.metadata.version('torchvision') == '0.15.2':
     from torchvision.transforms.v2.functional import get_spatial_size as get_size
     _boxes_keys = ['format', 'spatial_size']
 
-elif '0.17' > importlib.metadata.version('torchvision') >= '0.16':
+elif version.parse('0.17') > _torchvision_version >= version.parse('0.16'):
     import torchvision
     torchvision.disable_beta_transforms_warning()
 
@@ -25,7 +28,7 @@ elif '0.17' > importlib.metadata.version('torchvision') >= '0.16':
         BoundingBoxes, BoundingBoxFormat, Mask, Image, Video)
     _boxes_keys = ['format', 'canvas_size']
 
-elif importlib.metadata.version('torchvision') >= '0.17':
+elif _torchvision_version >= version.parse('0.17'):
     import torchvision
     from torchvision.transforms.v2 import SanitizeBoundingBoxes
     from torchvision.transforms.v2.functional import get_size
