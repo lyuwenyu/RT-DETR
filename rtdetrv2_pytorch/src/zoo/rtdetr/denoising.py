@@ -21,19 +21,46 @@ def get_contrastive_denoising_training_group(targets,
 
     num_gts = [len(t['labels']) for t in targets]
     device = targets[0]['labels'].device
-    
-    max_gt_num = max(num_gts)
-    if max_gt_num == 0:
-        return None, None, None, None
 
-    num_group = num_denoising // max_gt_num
-    num_group = 1 if num_group == 0 else num_group
+    max_gt_num = max(num_gts)
+    is_empty_batch = False
+    if max_gt_num == 0:
+        # The local batch on this rank has no annotations at all (can happen
+        # under DDP with datasets that include negative/empty images). Instead
+        # of returning None here -- which would exclude `class_embed` and the
+        # whole denoising module from this rank's computation graph while
+        # other ranks (with annotated images) still run it, causing a DDP
+        # gradient all_reduce mismatch -- we generate a single dummy query
+        # that contributes zero loss but keeps the computation graph
+        # symmetric across all ranks.
+        # See: https://github.com/lyuwenyu/RT-DETR/issues/672
+        max_gt_num = 1
+        is_empty_batch = True
+
+    # For the dummy case, force a single group: there is no benefit in
+    # generating num_denoising groups out of one masked-out query, and it
+    # would needlessly inflate tgt_size / attn_mask.
+    if is_empty_batch:
+        num_group = 1
+    else:
+        num_group = num_denoising // max_gt_num
+        num_group = 1 if num_group == 0 else num_group
+
     # pad gt to max_num of a batch
     bs = len(num_gts)
 
     input_query_class = torch.full([bs, max_gt_num], num_classes, dtype=torch.int32, device=device)
     input_query_bbox = torch.zeros([bs, max_gt_num, 4], device=device)
     pad_gt_mask = torch.zeros([bs, max_gt_num], dtype=torch.bool, device=device)
+
+    if is_empty_batch:
+        # Valid dummy box (image center, small size) instead of all-zeros:
+        # avoids zero width/height when this tensor later goes through
+        # box_cxcywh_to_xyxy / box noise / inverse_sigmoid below.
+        # pad_gt_mask stays False, so this query is never treated as a
+        # positive and never contributes to any real loss.
+        input_query_bbox[..., :2] = 0.5   # cx, cy
+        input_query_bbox[..., 2:] = 0.1   # w, h
 
     for i in range(bs):
         num_gt = num_gts[i]
