@@ -34,8 +34,8 @@ def get_contrastive_denoising_training_group(targets,
         # that contributes zero loss but keeps the computation graph
         # symmetric across all ranks.
         # See: https://github.com/lyuwenyu/RT-DETR/issues/672
-        max_gt_num = 1
         is_empty_batch = True
+        max_gt_num = 1
         num_group = 1
     else:
         num_group = num_denoising // max_gt_num
