@@ -36,11 +36,6 @@ def get_contrastive_denoising_training_group(targets,
         # See: https://github.com/lyuwenyu/RT-DETR/issues/672
         max_gt_num = 1
         is_empty_batch = True
-
-    # For the dummy case, force a single group: there is no benefit in
-    # generating num_denoising groups out of one masked-out query, and it
-    # would needlessly inflate tgt_size / attn_mask.
-    if is_empty_batch:
         num_group = 1
     else:
         num_group = num_denoising // max_gt_num
