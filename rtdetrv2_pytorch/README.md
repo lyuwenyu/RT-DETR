@@ -138,6 +138,24 @@ python references/deploy/rtdetrv2_torch.py -c path/to/config -r path/to/checkpoi
 </details>
 
 
+## Instance Segmentation
+
+Mask RT-DETRv2 follows PaddleDetection 2.9's Mask RT-DETR design: a stride-4 prototype feature map, query-conditioned mask coefficients, mask-aware Hungarian matching, sigmoid focal and dice losses, and COCO `segm` evaluation.
+
+Use COCO instance annotations with the dedicated configuration:
+
+```shell
+# Train
+CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=9909 --nproc_per_node=4 \
+  tools/train.py -c configs/mask_rtdetrv2/mask_rtdetrv2_r50vd_6x_coco.yml
+
+# Evaluate bbox and segm metrics
+python tools/evaluate_mask_rtdetrv2.py \
+  -c configs/mask_rtdetrv2/mask_rtdetrv2_r50vd_6x_coco.yml \
+  -r output/mask_rtdetrv2_r50vd_6x_coco/best.pth
+```
+
+The mask config expects `instances_train2017.json` and `instances_val2017.json`. It enables `return_masks`, preserves masks through geometric transforms, and returns `boxes`, `labels`, `scores`, and `masks` from the postprocessor. A detection checkpoint can initialize the shared backbone and detection branches; mask-specific parameters are initialized from the segmentation model defaults.
 
 ## Citation
 If you use `RTDETR` or `RTDETRv2` in your work, please use the following BibTeX entries:
