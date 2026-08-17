@@ -48,6 +48,19 @@ def _to_cpu(value: Any) -> Any:
     return value
 
 
+def _to_jsonable(value: Any) -> Any:
+    if isinstance(value, bytes):
+        return value.decode("ascii")
+    if torch.is_tensor(value):
+        value = value.detach().cpu()
+        return value.item() if value.ndim == 0 else value.tolist()
+    if isinstance(value, dict):
+        return {key: _to_jsonable(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_to_jsonable(item) for item in value]
+    return value
+
+
 def _named_metrics(values):
     return {name: float(value) for name, value in zip(COCO_METRIC_NAMES, values)}
 
@@ -177,7 +190,9 @@ def main(args):
         if args.save_predictions:
             for iou_type, rows in prediction_results.items():
                 prediction_file = output_dir / f"{args.prediction_prefix}_{iou_type}.json"
-                prediction_file.write_text(json.dumps(rows), encoding="utf-8")
+                prediction_file.write_text(
+                    json.dumps(_to_jsonable(rows)), encoding="utf-8"
+                )
                 print(f"Wrote {iou_type} predictions to {prediction_file}")
 
     dist_utils.cleanup()

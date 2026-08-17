@@ -89,8 +89,11 @@ class CocoDetection(FasterCocoDetection, DetDataset):
 
 def convert_coco_poly_to_mask(segmentations, height, width):
     masks = []
-    for polygons in segmentations:
-        rles = coco_mask.frPyObjects(polygons, height, width)
+    for segmentation in segmentations:
+        if isinstance(segmentation, list):
+            rles = coco_mask.frPyObjects(segmentation, height, width)
+        else:
+            rles = segmentation
         mask = coco_mask.decode(rles)
         if len(mask.shape) < 3:
             mask = mask[..., None]

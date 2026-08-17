@@ -1,7 +1,12 @@
+import json
 import unittest
+from unittest import mock
 
+import numpy as np
 import torch
+from faster_coco_eval.core import mask as coco_mask
 
+from tools.evaluate_mask_rtdetrv2 import _to_jsonable
 from src.data.dataset.coco_dataset import convert_coco_poly_to_mask
 from src.zoo.rtdetr.rtdetr_postprocessor import RTDETRPostProcessor
 from src.zoo.rtdetr.rtdetrv2_criterion import RTDETRCriterionv2
@@ -15,6 +20,56 @@ class MaskRTDETRv2Test(unittest.TestCase):
         )
         self.assertEqual(tuple(masks.shape), (1, 8, 8))
         self.assertEqual(int(masks.sum()), 16)
+
+    def test_compressed_rle_conversion(self):
+        source = np.zeros((8, 8), dtype=np.uint8, order='F')
+        source[1:5, 1:5] = 1
+        rle = coco_mask.encode(source)
+        masks = convert_coco_poly_to_mask([rle], height=8, width=8)
+        self.assertEqual(tuple(masks.shape), (1, 8, 8))
+        self.assertEqual(int(masks.sum()), 16)
+
+    def test_matcher_includes_mask_cost(self):
+        matcher = HungarianMatcher(
+            weight_dict={
+                'cost_class': 0,
+                'cost_bbox': 0,
+                'cost_giou': 0,
+                'cost_mask': 1,
+                'cost_dice': 0,
+            },
+            num_sample_points=8,
+        )
+        outputs = {
+            'pred_logits': torch.zeros(1, 2, 1),
+            'pred_boxes': torch.tensor([[[0.5, 0.5, 0.2, 0.2], [0.5, 0.5, 0.2, 0.2]]]),
+            'pred_masks': torch.zeros(1, 2, 4, 4),
+        }
+        targets = [{
+            'labels': torch.zeros(1, dtype=torch.int64),
+            'boxes': torch.tensor([[0.5, 0.5, 0.2, 0.2]]),
+            'masks': torch.zeros(1, 4, 4),
+        }]
+        mask_cost = torch.tensor([[0.0], [1.0]])
+        with mock.patch.object(matcher, '_compute_mask_cost', return_value=mask_cost) as compute:
+            indices = matcher(outputs, targets)['indices']
+        compute.assert_called_once()
+        self.assertEqual(indices[0][0].tolist(), [0])
+
+    def test_prediction_rows_are_json_serializable(self):
+        rows = [{
+            'image_id': 1,
+            'category_id': 2,
+            'score': torch.tensor(0.75),
+            'segmentation': {
+                'size': [8, 8],
+                'counts': b'4 4',
+            },
+        }]
+        encoded = _to_jsonable(rows)
+        self.assertIsInstance(encoded[0]['score'], float)
+        self.assertIsInstance(encoded[0]['segmentation']['counts'], str)
+        json.dumps(encoded)
 
     def test_mask_criterion_with_empty_targets(self):
         criterion = RTDETRCriterionv2(
