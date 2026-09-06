@@ -170,3 +170,8 @@ rtdetr_pytorch/output/
 rtdetr_pytorch/dataset/
 rtdetrv2_pytorch/output/
 rtdetrv2_pytorch/dataset/
+
+# Blind-assistance mode: downloaded model assets. Checkpoints and the
+# Depth-Anything ONNX file are fetched by the user, never committed.
+rtdetrv2_pytorch/weights/
+rtdetr_pytorch/weights/

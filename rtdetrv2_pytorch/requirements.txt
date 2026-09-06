@@ -7,3 +7,16 @@ scipy
 pycocotools
 onnx
 onnxruntime-gpu
+
+# --- blind-assistance mode (references/deploy/rtdetrv2_assist.py) ---
+opencv-python
+pyttsx3
+sounddevice
+huggingface-hub
+pytest
+
+# NOTE on onnxruntime-gpu: the assist mode runs its depth network through ONNX
+# Runtime's CUDA provider. Recent onnxruntime-gpu builds (1.19+) require
+# CUDA 12 / cuDNN 9, which do not match a torch cu118 install -- the provider
+# silently falls back to CPU and depth inference drops from ~35 ms to ~290 ms.
+# With torch 2.0.1+cu118, pin:  pip install onnxruntime-gpu==1.16.3
