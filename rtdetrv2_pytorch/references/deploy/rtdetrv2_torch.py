@@ -2,13 +2,29 @@
 """
 
 import torch
-import torch.nn as nn 
+import torch.nn as nn
 import torchvision.transforms as T
 
-import numpy as np 
+import numpy as np
 from PIL import Image, ImageDraw
 
 from src.core import YAMLConfig
+
+COCO_CLASSES = [
+    'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train',
+    'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign',
+    'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep',
+    'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella',
+    'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard',
+    'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard',
+    'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup', 'fork',
+    'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange',
+    'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair',
+    'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv',
+    'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave',
+    'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase',
+    'scissors', 'teddy bear', 'hair drier', 'toothbrush'
+]
 
 
 def draw(images, labels, boxes, scores, thrh = 0.6):
@@ -21,8 +37,10 @@ def draw(images, labels, boxes, scores, thrh = 0.6):
         scrs = scores[i][scr > thrh]
 
         for j,b in enumerate(box):
+            cls_id = lab[j].item()
+            cls_name = COCO_CLASSES[cls_id] if cls_id < len(COCO_CLASSES) else str(cls_id)
             draw.rectangle(list(b), outline='red',)
-            draw.text((b[0], b[1]), text=f"{lab[j].item()} {round(scrs[j].item(),2)}", fill='blue', )
+            draw.text((b[0], b[1]), text=f"{cls_name} {round(scrs[j].item(),2)}", fill='blue', )
 
         im.save(f'results_{i}.jpg')
 
