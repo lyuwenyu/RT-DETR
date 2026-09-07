@@ -80,6 +80,8 @@ By harnessing the rapidly evolving capabilities of Vision Foundation Models (VFM
 - 🔥 RT-DETR 
   - paddle: [code&weight](./rtdetr_paddle)
   - pytorch: [code&weight](./rtdetr_pytorch)
+- Community ports
+  - Android (LiteRT GPU): [code&weight](https://github.com/john-rocky/LiteRT-Models#rt-detrv2-s) — RT-DETRv2-S on the LiteRT CompiledModel GPU with a Kotlin sample app, ~615 ms/frame on a Pixel 8a (still-image)
 
 
 | Model | Input shape | Dataset | $AP^{val}$ | $AP^{val}_{50}$| Params(M) | FLOPs(G) | T4 TensorRT FP16(FPS)
