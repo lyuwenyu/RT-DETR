@@ -59,9 +59,12 @@ class RTDETRPostProcessor(nn.Module):
             # Ignore 0-th index (see above comment)
             scores = F.sigmoid(logits[:,:,1:])
             
-            # This gives duplicate indices after integer division
-            scores, index = torch.topk(scores.flatten(1), self.num_top_queries, dim=-1)
-            index = index // (self.num_classes - 1)
+            # # This gives duplicate indices after integer division
+            # scores, index = torch.topk(scores.flatten(1), self.num_top_queries, dim=-1)
+            # index = index // (self.num_classes - 1)
+
+            ## remove duplicate indices
+            scores, index = torch.topk(scores.max(-1).values, self.num_top_queries, dim=-1)
 
             # Probability of each class
             soft_labels = F.softmax(logits[:,:,1:], dim=-1)
