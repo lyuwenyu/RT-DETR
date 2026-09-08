@@ -32,7 +32,10 @@ class RTDETRCriterionv2(nn.Module):
         gamma=2.0, 
         num_classes=80, 
         boxes_weight_format=None,
-        share_matched_indices=False):
+        share_matched_indices=False,
+        num_sample_points=12544,
+        oversample_ratio=3.0,
+        important_sample_ratio=0.75):
         """Create the criterion.
         Parameters:
             matcher: module able to compute a matching between targets and proposals
@@ -51,6 +54,14 @@ class RTDETRCriterionv2(nn.Module):
         self.share_matched_indices = share_matched_indices
         self.alpha = alpha
         self.gamma = gamma
+        assert oversample_ratio >= 1
+        assert 0 <= important_sample_ratio <= 1
+        self.num_sample_points = num_sample_points
+        self.oversample_ratio = oversample_ratio
+        self.important_sample_ratio = important_sample_ratio
+        self.num_oversample_points = int(num_sample_points * oversample_ratio)
+        self.num_important_points = int(num_sample_points * important_sample_ratio)
+        self.num_random_points = num_sample_points - self.num_important_points
 
     def loss_labels_focal(self, outputs, targets, indices, num_boxes):
         assert 'pred_logits' in outputs
@@ -115,6 +126,80 @@ class RTDETRCriterionv2(nn.Module):
         losses['loss_giou'] = loss_giou.sum() / num_boxes
         return losses
 
+    def loss_masks(self, outputs, targets, indices, num_boxes):
+        assert 'pred_masks' in outputs
+        assert 'masks' in targets[0]
+
+        src_idx = self._get_src_permutation_idx(indices)
+        src_masks = outputs['pred_masks'][src_idx]
+
+        target_masks = torch.cat([t['masks'][j] for t, (_, j) in zip(targets, indices)], dim=0)
+        target_masks = target_masks.to(device=src_masks.device, dtype=src_masks.dtype)
+
+        if src_masks.shape[0] == 0:
+            zero = outputs['pred_masks'].sum() * 0.0
+            return {'loss_mask': zero, 'loss_dice': zero}
+
+        point_coords = self._get_point_coords_by_uncertainty(src_masks)
+        point_grid = 2.0 * point_coords.unsqueeze(1) - 1.0
+
+        src_masks = F.grid_sample(
+            src_masks.unsqueeze(1),
+            point_grid,
+            align_corners=False,
+        ).squeeze(1).squeeze(1)
+
+        target_masks = F.grid_sample(
+            target_masks.unsqueeze(1),
+            point_grid,
+            align_corners=False,
+        ).squeeze(1).squeeze(1).detach()
+
+        loss_mask = F.binary_cross_entropy_with_logits(src_masks, target_masks, reduction='none')
+        loss_mask = loss_mask.mean(1).sum() / num_boxes
+        loss_dice = self._dice_loss(src_masks, target_masks, num_boxes)
+
+        return {'loss_mask': loss_mask, 'loss_dice': loss_dice}
+
+    def _dice_loss(self, inputs, targets, num_boxes):
+        inputs = inputs.sigmoid()
+        inputs = inputs.flatten(1)
+        targets = targets.flatten(1)
+        numerator = 2 * (inputs * targets).sum(1)
+        denominator = inputs.sum(-1) + targets.sum(-1)
+        loss = 1 - (numerator + 1) / (denominator + 1)
+        return loss.sum() / num_boxes
+
+    @torch.no_grad()
+    def _get_point_coords_by_uncertainty(self, masks):
+        masks = masks.detach()
+        num_masks = masks.shape[0]
+        point_coords = torch.rand(num_masks, self.num_oversample_points, 2, device=masks.device)
+
+        point_logits = F.grid_sample(
+            masks.unsqueeze(1),
+            2.0 * point_coords.unsqueeze(1) - 1.0,
+            align_corners=False,
+        ).squeeze(1).squeeze(1)
+        point_uncertainties = -point_logits.abs()
+
+        topk_idx = torch.topk(point_uncertainties, self.num_important_points, dim=1).indices
+        shift = self.num_oversample_points * torch.arange(num_masks, dtype=torch.long, device=masks.device)
+        topk_idx = topk_idx + shift[:, None]
+        point_coords = point_coords.reshape(-1, 2)[topk_idx.reshape(-1)]
+        point_coords = point_coords.reshape(num_masks, self.num_important_points, 2)
+
+        if self.num_random_points > 0:
+            point_coords = torch.cat(
+                [
+                    point_coords,
+                    torch.rand(num_masks, self.num_random_points, 2, device=masks.device),
+                ],
+                dim=1,
+            )
+
+        return point_coords
+
     def _get_src_permutation_idx(self, indices):
         # permute predictions following indices
         batch_idx = torch.cat([torch.full_like(src, i) for i, (src, _) in enumerate(indices)])
@@ -132,6 +217,7 @@ class RTDETRCriterionv2(nn.Module):
             'boxes': self.loss_boxes,
             'focal': self.loss_labels_focal,
             'vfl': self.loss_labels_vfl,
+            'masks': self.loss_masks,
         }
         assert loss in loss_map, f'do you really want to compute {loss} loss?'
         return loss_map[loss](outputs, targets, indices, num_boxes, **kwargs)

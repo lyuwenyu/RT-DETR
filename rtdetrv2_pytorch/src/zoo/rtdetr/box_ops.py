@@ -75,9 +75,9 @@ def masks_to_boxes(masks):
 
     h, w = masks.shape[-2:]
 
-    y = torch.arange(0, h, dtype=torch.float)
-    x = torch.arange(0, w, dtype=torch.float)
-    y, x = torch.meshgrid(y, x)
+    y = torch.arange(0, h, dtype=torch.float32, device=masks.device)
+    x = torch.arange(0, w, dtype=torch.float32, device=masks.device)
+    y, x = torch.meshgrid(y, x, indexing='ij')
 
     x_mask = (masks * x.unsqueeze(0))
     x_max = x_mask.flatten(1).max(-1)[0]

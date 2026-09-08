@@ -32,13 +32,15 @@ class RTDETRPostProcessor(nn.Module):
         num_classes=80, 
         use_focal_loss=True, 
         num_top_queries=300, 
-        remap_mscoco_category=False
+        remap_mscoco_category=False,
+        mask_threshold=0.5,
     ) -> None:
         super().__init__()
         self.use_focal_loss = use_focal_loss
         self.num_top_queries = num_top_queries
         self.num_classes = int(num_classes)
         self.remap_mscoco_category = remap_mscoco_category 
+        self.mask_threshold = mask_threshold
         self.deploy_mode = False 
 
     def extra_repr(self) -> str:
@@ -47,6 +49,7 @@ class RTDETRPostProcessor(nn.Module):
     # def forward(self, outputs, orig_target_sizes):
     def forward(self, outputs, orig_target_sizes: torch.Tensor):
         logits, boxes = outputs['pred_logits'], outputs['pred_boxes']
+        pred_masks = outputs.get('pred_masks', None)
         # orig_target_sizes = torch.stack([t["orig_size"] for t in targets], dim=0)        
 
         bbox_pred = torchvision.ops.box_convert(boxes, in_fmt='cxcywh', out_fmt='xyxy')
@@ -60,18 +63,30 @@ class RTDETRPostProcessor(nn.Module):
             labels = mod(index, self.num_classes)
             index = index // self.num_classes
             boxes = bbox_pred.gather(dim=1, index=index.unsqueeze(-1).repeat(1, 1, bbox_pred.shape[-1]))
+            query_index = index
             
         else:
             scores = F.softmax(logits, dim=-1)[:, :, :-1]
             scores, labels = scores.max(dim=-1)
             boxes = bbox_pred
+            query_index = torch.arange(boxes.shape[1], device=boxes.device).unsqueeze(0).tile([boxes.shape[0], 1])
             if scores.shape[1] > self.num_top_queries:
                 scores, index = torch.topk(scores, self.num_top_queries, dim=-1)
                 labels = torch.gather(labels, dim=1, index=index)
                 boxes = torch.gather(boxes, dim=1, index=index.unsqueeze(-1).tile(1, 1, boxes.shape[-1]))
+                query_index = index
+
+        masks = None
+        if pred_masks is not None:
+            masks = pred_masks.gather(
+                dim=1,
+                index=query_index.unsqueeze(-1).unsqueeze(-1).repeat(1, 1, pred_masks.shape[-2], pred_masks.shape[-1]),
+            )
         
         # TODO for onnx export
         if self.deploy_mode:
+            if masks is not None:
+                return labels, boxes, scores, masks
             return labels, boxes, scores
 
         # TODO
@@ -80,9 +95,24 @@ class RTDETRPostProcessor(nn.Module):
             labels = torch.tensor([mscoco_label2category[int(x.item())] for x in labels.flatten()])\
                 .to(boxes.device).reshape(labels.shape)
 
+        if masks is not None:
+            processed_masks = []
+            for img_masks, target_size in zip(masks, orig_target_sizes):
+                target_w, target_h = target_size.unbind(0)
+                img_masks = F.interpolate(
+                    img_masks.unsqueeze(1),
+                    size=(int(target_h.item()), int(target_w.item())),
+                    mode='bilinear',
+                    align_corners=False,
+                ).squeeze(1)
+                processed_masks.append((img_masks.sigmoid() > self.mask_threshold).unsqueeze(1))
+            masks = processed_masks
+
         results = []
-        for lab, box, sco in zip(labels, boxes, scores):
+        for i, (lab, box, sco) in enumerate(zip(labels, boxes, scores)):
             result = dict(labels=lab, boxes=box, scores=sco)
+            if masks is not None:
+                result['masks'] = masks[i]
             results.append(result)
         
         return results

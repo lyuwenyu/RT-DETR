@@ -13,12 +13,13 @@ import torch.nn.init as init
 from typing import List
 
 from .denoising import get_contrastive_denoising_training_group
+from .box_ops import box_xyxy_to_cxcywh, masks_to_boxes
 from .utils import deformable_attention_core_func_v2, get_activation, inverse_sigmoid
 from .utils import bias_init_with_prob
 
 from ...core import register
 
-__all__ = ['RTDETRTransformerv2']
+__all__ = ['RTDETRTransformerv2', 'MaskRTDETRTransformerv2']
 
 
 class MLP(nn.Module):
@@ -262,7 +263,15 @@ class TransformerDecoder(nn.Module):
             ref_points_input = ref_points_detach.unsqueeze(2)
             query_pos_embed = query_pos_head(ref_points_detach)
 
-            output = layer(output, ref_points_input, memory, memory_spatial_shapes, attn_mask, memory_mask, query_pos_embed)
+            output = layer(
+                output,
+                ref_points_input,
+                memory,
+                memory_spatial_shapes,
+                attn_mask,
+                memory_mask,
+                query_pos_embed,
+            )
 
             inter_ref_bbox = F.sigmoid(bbox_head[i](output) + inverse_sigmoid(ref_points_detach))
 
@@ -282,6 +291,109 @@ class TransformerDecoder(nn.Module):
             ref_points_detach = inter_ref_bbox.detach()
 
         return torch.stack(dec_out_bboxes), torch.stack(dec_out_logits)
+
+
+def _get_pred_mask(query_embed, mask_feat, dec_norm, mask_query_head):
+    out_query = dec_norm(query_embed)
+    mask_query_embed = mask_query_head(out_query)
+    bs, num_queries, _ = mask_query_embed.shape
+    _, _, mask_h, mask_w = mask_feat.shape
+    out_mask = torch.bmm(mask_query_embed, mask_feat.flatten(2))
+    return out_mask.reshape(bs, num_queries, mask_h, mask_w)
+
+
+def _get_pred_class_and_mask(query_embed, mask_feat, dec_norm, score_head, mask_query_head):
+    out_query = dec_norm(query_embed)
+    out_logits = score_head(out_query)
+    mask_query_embed = mask_query_head(out_query)
+    bs, num_queries, _ = mask_query_embed.shape
+    _, _, mask_h, mask_w = mask_feat.shape
+    out_mask = torch.bmm(mask_query_embed, mask_feat.flatten(2))
+    return out_logits, out_mask.reshape(bs, num_queries, mask_h, mask_w)
+
+
+def _mask_to_box_coordinate(masks, fallback_boxes=None):
+    bs, num_queries, h, w = masks.shape
+    flat_masks = masks.flatten(0, 1)
+    empty = flat_masks.flatten(1).sum(-1) == 0
+
+    boxes = masks_to_boxes(flat_masks)
+    boxes = boxes / torch.tensor([w, h, w, h], dtype=boxes.dtype, device=boxes.device)
+    boxes = box_xyxy_to_cxcywh(boxes).reshape(bs, num_queries, 4)
+    boxes = boxes.clamp(min=0.0, max=1.0)
+
+    empty = empty.reshape(bs, num_queries)
+    if fallback_boxes is not None:
+        boxes = torch.where(empty.unsqueeze(-1), fallback_boxes, boxes)
+
+    return boxes, empty
+
+
+class MaskTransformerDecoder(nn.Module):
+    def __init__(self, hidden_dim, decoder_layer, num_layers, eval_idx=-1):
+        super(MaskTransformerDecoder, self).__init__()
+        self.layers = nn.ModuleList([copy.deepcopy(decoder_layer) for _ in range(num_layers)])
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.eval_idx = eval_idx if eval_idx >= 0 else num_layers + eval_idx
+
+    def forward(
+        self,
+        target,
+        ref_points_unact,
+        memory,
+        memory_spatial_shapes,
+        mask_feat,
+        bbox_head,
+        score_head,
+        query_pos_head,
+        mask_query_head,
+        dec_norm,
+        attn_mask=None,
+        memory_mask=None,
+    ):
+        dec_out_bboxes = []
+        dec_out_logits = []
+        dec_out_masks = []
+        ref_points_detach = F.sigmoid(ref_points_unact)
+
+        output = target
+        for i, layer in enumerate(self.layers):
+            ref_points_input = ref_points_detach.unsqueeze(2)
+            query_pos_embed = query_pos_head(ref_points_detach)
+
+            output = layer(
+                output,
+                ref_points_input,
+                memory,
+                memory_spatial_shapes,
+                attn_mask,
+                memory_mask,
+                query_pos_embed,
+            )
+
+            inter_ref_bbox = F.sigmoid(bbox_head[i](output) + inverse_sigmoid(ref_points_detach))
+
+            if self.training:
+                logits, masks = _get_pred_class_and_mask(output, mask_feat, dec_norm, score_head[i], mask_query_head)
+                dec_out_logits.append(logits)
+                dec_out_masks.append(masks)
+                if i == 0:
+                    dec_out_bboxes.append(inter_ref_bbox)
+                else:
+                    dec_out_bboxes.append(F.sigmoid(bbox_head[i](output) + inverse_sigmoid(ref_points)))
+
+            elif i == self.eval_idx:
+                logits, masks = _get_pred_class_and_mask(output, mask_feat, dec_norm, score_head[i], mask_query_head)
+                dec_out_logits.append(logits)
+                dec_out_masks.append(masks)
+                dec_out_bboxes.append(inter_ref_bbox)
+                break
+
+            ref_points = inter_ref_bbox
+            ref_points_detach = inter_ref_bbox.detach()
+
+        return torch.stack(dec_out_bboxes), torch.stack(dec_out_logits), torch.stack(dec_out_masks)
 
 
 @register()
@@ -607,3 +719,197 @@ class RTDETRTransformerv2(nn.Module):
         # as a dict having both a Tensor and a list.
         return [{'pred_logits': a, 'pred_boxes': b}
                 for a, b in zip(outputs_class, outputs_coord)]
+
+
+@register()
+class MaskRTDETRTransformerv2(RTDETRTransformerv2):
+    __share__ = ['num_classes', 'eval_spatial_size']
+
+    def __init__(
+        self,
+        num_classes=80,
+        hidden_dim=256,
+        num_queries=300,
+        feat_channels=[512, 1024, 2048],
+        feat_strides=[8, 16, 32],
+        num_levels=3,
+        num_points=4,
+        nhead=8,
+        num_layers=6,
+        dim_feedforward=1024,
+        dropout=0.,
+        activation="relu",
+        num_denoising=100,
+        label_noise_ratio=0.5,
+        box_noise_scale=1.0,
+        learn_query_content=False,
+        eval_spatial_size=None,
+        eval_idx=-1,
+        eps=1e-2,
+        aux_loss=True,
+        cross_attn_method='default',
+        query_select_method='default',
+        num_prototypes=32,
+        mask_enhanced=True,
+    ):
+        super().__init__(
+            num_classes=num_classes,
+            hidden_dim=hidden_dim,
+            num_queries=num_queries,
+            feat_channels=feat_channels,
+            feat_strides=list(feat_strides),
+            num_levels=num_levels,
+            num_points=num_points,
+            nhead=nhead,
+            num_layers=num_layers,
+            dim_feedforward=dim_feedforward,
+            dropout=dropout,
+            activation=activation,
+            num_denoising=num_denoising,
+            label_noise_ratio=label_noise_ratio,
+            box_noise_scale=box_noise_scale,
+            learn_query_content=learn_query_content,
+            eval_spatial_size=eval_spatial_size,
+            eval_idx=eval_idx,
+            eps=eps,
+            aux_loss=aux_loss,
+            cross_attn_method=cross_attn_method,
+            query_select_method=query_select_method,
+        )
+
+        decoder_layer = TransformerDecoderLayer(
+            hidden_dim,
+            nhead,
+            dim_feedforward,
+            dropout,
+            activation,
+            num_levels,
+            num_points,
+            cross_attn_method=cross_attn_method,
+        )
+        self.decoder = MaskTransformerDecoder(hidden_dim, decoder_layer, num_layers, eval_idx)
+
+        self.num_prototypes = num_prototypes
+        self.mask_enhanced = mask_enhanced
+        self.mask_query_head = MLP(hidden_dim, hidden_dim, num_prototypes, 3)
+        self.dec_norm = nn.LayerNorm(hidden_dim)
+
+    def _get_decoder_input(
+        self,
+        memory: torch.Tensor,
+        mask_feat: torch.Tensor,
+        spatial_shapes,
+        denoising_logits=None,
+        denoising_bbox_unact=None,
+    ):
+        # prepare input for decoder
+        if self.training or self.eval_spatial_size is None:
+            anchors, valid_mask = self._generate_anchors(spatial_shapes, device=memory.device)
+        else:
+            anchors = self.anchors
+            valid_mask = self.valid_mask
+
+        memory = valid_mask.to(memory.dtype) * memory
+
+        output_memory: torch.Tensor = self.enc_output(memory)
+        enc_outputs_logits: torch.Tensor = self.enc_score_head(output_memory)
+        enc_outputs_coord_unact: torch.Tensor = self.enc_bbox_head(output_memory) + anchors
+
+        enc_topk_bboxes_list, enc_topk_logits_list, enc_topk_masks_list = [], [], []
+        enc_topk_memory, enc_topk_logits, enc_topk_bbox_unact = \
+            self._select_topk(output_memory, enc_outputs_logits, enc_outputs_coord_unact, self.num_queries)
+
+        enc_topk_masks = _get_pred_mask(enc_topk_memory, mask_feat, self.dec_norm, self.mask_query_head)
+        enc_topk_bboxes = F.sigmoid(enc_topk_bbox_unact)
+
+        if self.training:
+            enc_topk_bboxes_list.append(enc_topk_bboxes)
+            enc_topk_logits_list.append(enc_topk_logits)
+            enc_topk_masks_list.append(enc_topk_masks)
+
+        if self.learn_query_content:
+            content = self.tgt_embed.weight.unsqueeze(0).tile([memory.shape[0], 1, 1])
+        else:
+            content = enc_topk_memory.detach()
+
+        if self.mask_enhanced:
+            mask_ref_points, _ = _mask_to_box_coordinate(enc_topk_masks > 0, fallback_boxes=enc_topk_bboxes)
+            enc_topk_bbox_unact = inverse_sigmoid(mask_ref_points)
+
+        enc_topk_bbox_unact = enc_topk_bbox_unact.detach()
+
+        if denoising_bbox_unact is not None:
+            enc_topk_bbox_unact = torch.concat([denoising_bbox_unact, enc_topk_bbox_unact], dim=1)
+            content = torch.concat([denoising_logits, content], dim=1)
+
+        return content, enc_topk_bbox_unact, enc_topk_bboxes_list, enc_topk_logits_list, enc_topk_masks_list
+
+    def forward(self, feats, targets=None):
+        if not isinstance(feats, (list, tuple)) or len(feats) != 2:
+            raise ValueError('MaskRTDETRTransformerv2 expects encoder output as (encoded_feats, mask_feat).')
+
+        enc_feats, mask_feat = feats
+
+        # input projection and embedding
+        memory, spatial_shapes = self._get_encoder_input(enc_feats)
+
+        # prepare denoising training
+        if self.training and self.num_denoising > 0:
+            denoising_logits, denoising_bbox_unact, attn_mask, dn_meta = \
+                get_contrastive_denoising_training_group(targets, \
+                    self.num_classes,
+                    self.num_queries,
+                    self.denoising_class_embed,
+                    num_denoising=self.num_denoising,
+                    label_noise_ratio=self.label_noise_ratio,
+                    box_noise_scale=self.box_noise_scale, )
+        else:
+            denoising_logits, denoising_bbox_unact, attn_mask, dn_meta = None, None, None, None
+
+        init_ref_contents, init_ref_points_unact, enc_topk_bboxes_list, enc_topk_logits_list, enc_topk_masks_list = \
+            self._get_decoder_input(memory, mask_feat, spatial_shapes, denoising_logits, denoising_bbox_unact)
+
+        # decoder
+        out_bboxes, out_logits, out_masks = self.decoder(
+            init_ref_contents,
+            init_ref_points_unact,
+            memory,
+            spatial_shapes,
+            mask_feat,
+            self.dec_bbox_head,
+            self.dec_score_head,
+            self.query_pos_head,
+            self.mask_query_head,
+            self.dec_norm,
+            attn_mask=attn_mask)
+
+        if self.training and dn_meta is not None:
+            dn_out_bboxes, out_bboxes = torch.split(out_bboxes, dn_meta['dn_num_split'], dim=2)
+            dn_out_logits, out_logits = torch.split(out_logits, dn_meta['dn_num_split'], dim=2)
+            dn_out_masks, out_masks = torch.split(out_masks, dn_meta['dn_num_split'], dim=2)
+
+        out = {'pred_logits': out_logits[-1], 'pred_boxes': out_bboxes[-1], 'pred_masks': out_masks[-1]}
+
+        if self.training and self.aux_loss:
+            out['aux_outputs'] = self._set_aux_loss(out_logits[:-1], out_bboxes[:-1], out_masks[:-1])
+            out['enc_aux_outputs'] = self._set_aux_loss(
+                enc_topk_logits_list, enc_topk_bboxes_list, enc_topk_masks_list
+            )
+            out['enc_meta'] = {'class_agnostic': self.query_select_method == 'agnostic'}
+
+            if dn_meta is not None:
+                out['dn_aux_outputs'] = self._set_aux_loss(dn_out_logits, dn_out_bboxes, dn_out_masks)
+                out['dn_meta'] = dn_meta
+
+        return out
+
+    @torch.jit.unused
+    def _set_aux_loss(self, outputs_class, outputs_coord, outputs_masks=None):
+        # this is a workaround to make torchscript happy, as torchscript
+        # doesn't support dictionary with non-homogeneous values, such
+        # as a dict having both a Tensor and a list.
+        if outputs_masks is None:
+            return super()._set_aux_loss(outputs_class, outputs_coord)
+
+        return [{'pred_logits': a, 'pred_boxes': b, 'pred_masks': c}
+                for a, b, c in zip(outputs_class, outputs_coord, outputs_masks)]
