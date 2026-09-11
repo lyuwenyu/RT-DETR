@@ -29,6 +29,50 @@ The following is the corresponding `torch` and `torchvision` versions.
 </details>
 
 
+## Optional COCO evaluation backend
+
+RT-DETRv2's PyTorch evaluator uses `faster-coco-eval` by default. To select
+[ultrafast-pycocotools](https://github.com/developer0hye/ultrafast-pycocotools), install:
+
+```shell
+pip install "ultrafast-pycocotools>=0.1.11,<0.2"
+```
+
+Then add the backend to your evaluator configuration:
+
+```yaml
+evaluator:
+  type: CocoEvaluator
+  iou_types: ['bbox']
+  backend: ultrafast
+```
+
+Alternatively, append `-u evaluator.backend=ultrafast` to a training or
+`--test-only` command. The default dependencies, including faster-coco-eval for
+COCO datasets and summary formatting, are still required.
+
+The optional backend performs native matching and accumulation after gathering
+prepared predictions and removing duplicate image IDs in rank/batch order.
+It retains the existing `stats`, `stats_as_dict`, custom detection caps, area ranges
+and cleanup between evaluation epochs. Mask encoding is batched per image.
+The existing faster-coco-eval summary implementation is reused, including its
+custom maxDets and LVIS-style output semantics. `lvis_style=True` uses
+ultrafast's `coco` protocol to match faster-coco-eval, rather than the separate
+LVIS evaluator's global detection-cap protocol.
+
+This option applies to `rtdetrv2_pytorch`. Evaluation results become available
+through the usual synchronize/accumulate/summarize calls. Backend selection is
+local to the evaluator and does not replace process-wide imports. This changes
+where evaluation work happens; compare the complete evaluation lifecycle when
+measuring performance.
+
+With both evaluators and pytest installed, run the parity and CPU/Gloo tests from
+this directory:
+
+```shell
+PYTHONPATH=. python -m pytest tests/test_coco_backend.py
+```
+
 ## Model Zoo
 
 ### Base models

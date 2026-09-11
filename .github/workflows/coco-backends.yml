@@ -1,0 +1,38 @@
+name: COCO evaluation backends
+
+on:
+  pull_request:
+    paths:
+      - "rtdetrv2_pytorch/src/**"
+      - "rtdetrv2_pytorch/tests/**"
+      - ".github/workflows/coco-backends.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+        faster-coco-eval: ["1.6.6", "1.7.2"]
+    env:
+      PYTHONPATH: .
+      RAYON_NUM_THREADS: "2"
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install CPU evaluation test dependencies
+        run: |
+          python -m pip install torch==2.10.0 torchvision==0.25.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install pytest numpy scipy pillow packaging pyyaml tensorboard pycocotools "faster-coco-eval==${{ matrix.faster-coco-eval }}" "ultrafast-pycocotools>=0.1.11,<0.2"
+      - name: Test arrays, summaries, YAML, cleanup and distributed aggregation
+        working-directory: rtdetrv2_pytorch
+        run: python -m pytest -v tests/test_coco_backend.py
