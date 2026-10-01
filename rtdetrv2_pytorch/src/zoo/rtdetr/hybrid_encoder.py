@@ -278,7 +278,8 @@ class HybridEncoder(nn.Module):
         """
         grid_w = torch.arange(int(w), dtype=torch.float32)
         grid_h = torch.arange(int(h), dtype=torch.float32)
-        grid_w, grid_h = torch.meshgrid(grid_w, grid_h, indexing='ij')
+        # tokens are flattened row-major from [B, C, H, W], so the grid must be (h, w)
+        grid_h, grid_w = torch.meshgrid(grid_h, grid_w, indexing='ij')
         assert embed_dim % 4 == 0, \
             'Embed dimension must be divisible by 4 for 2D sin-cos position embedding'
         pos_dim = embed_dim // 4
@@ -288,7 +289,8 @@ class HybridEncoder(nn.Module):
         out_w = grid_w.flatten()[..., None] @ omega[None]
         out_h = grid_h.flatten()[..., None] @ omega[None]
 
-        return torch.concat([out_w.sin(), out_w.cos(), out_h.sin(), out_h.cos()], dim=1)[None, :, :]
+        # row encoding first keeps square inputs identical to the original layout
+        return torch.concat([out_h.sin(), out_h.cos(), out_w.sin(), out_w.cos()], dim=1)[None, :, :]
 
     def forward(self, feats):
         assert len(feats) == len(self.in_channels)

@@ -206,7 +206,8 @@ class HybridEncoder(nn.Layer):
                                            temperature=10000.):
         grid_w = paddle.arange(int(w), dtype=paddle.float32)
         grid_h = paddle.arange(int(h), dtype=paddle.float32)
-        grid_w, grid_h = paddle.meshgrid(grid_w, grid_h)
+        # tokens are flattened row-major from [B, C, H, W], so the grid must be (h, w)
+        grid_h, grid_w = paddle.meshgrid(grid_h, grid_w)
         assert embed_dim % 4 == 0, \
             'Embed dimension must be divisible by 4 for 2D sin-cos position embedding'
         pos_dim = embed_dim // 4
@@ -216,10 +217,11 @@ class HybridEncoder(nn.Layer):
         out_w = grid_w.flatten()[..., None] @omega[None]
         out_h = grid_h.flatten()[..., None] @omega[None]
 
+        # row encoding first keeps square inputs identical to the original layout
         return paddle.concat(
             [
-                paddle.sin(out_w), paddle.cos(out_w), paddle.sin(out_h),
-                paddle.cos(out_h)
+                paddle.sin(out_h), paddle.cos(out_h), paddle.sin(out_w),
+                paddle.cos(out_w)
             ],
             axis=1)[None, :, :]
 

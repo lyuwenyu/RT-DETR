@@ -450,9 +450,10 @@ class VisionTransformer(nn.Layer):
                     load_state_dict[pos_embed_name], dtype="float32")
                 if self.pos_embed.shape != load_pos_embed.shape:
                     pos_size = int(math.sqrt(load_pos_embed.shape[1] - 1))
+                    # patch_shape is the (rows, cols) grid that forward and interpolate_pos_encoding use
                     model_state_dict[pos_embed_name] = self.resize_pos_embed(
                         load_pos_embed, (pos_size, pos_size),
-                        (self.pos_h, self.pos_w))
+                        self.patch_embed.patch_shape)
 
                     # self.set_state_dict(model_state_dict)
                     load_state_dict[pos_embed_name] = model_state_dict[
@@ -563,7 +564,8 @@ class VisionTransformer(nn.Layer):
         h, w = self.patch_embed.patch_shape
         grid_w = paddle.arange(w, dtype=paddle.float32)
         grid_h = paddle.arange(h, dtype=paddle.float32)
-        grid_w, grid_h = paddle.meshgrid(grid_w, grid_h)
+        # patch tokens are flattened row-major from [B, C, H, W], so the grid must be (h, w)
+        grid_h, grid_w = paddle.meshgrid(grid_h, grid_w)
         assert embed_dim % 4 == 0, 'Embed dimension must be divisible by 4 for 2D sin-cos position embedding'
         pos_dim = embed_dim // 4
         omega = paddle.arange(pos_dim, dtype=paddle.float32) / pos_dim
@@ -572,10 +574,11 @@ class VisionTransformer(nn.Layer):
         out_w = grid_w.flatten()[..., None] @omega[None]
         out_h = grid_h.flatten()[..., None] @omega[None]
 
+        # row encoding first keeps square inputs identical to the original layout
         pos_emb = paddle.concat(
             [
-                paddle.sin(out_w), paddle.cos(out_w), paddle.sin(out_h),
-                paddle.cos(out_h)
+                paddle.sin(out_h), paddle.cos(out_h), paddle.sin(out_w),
+                paddle.cos(out_w)
             ],
             axis=1)[None, :, :]
 
