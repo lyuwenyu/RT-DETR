@@ -38,7 +38,12 @@ Notes
 <details>
 <summary>Install</summary>
 
+Use **Python 3.8–3.11** (3.10 or 3.11 recommended).
+`torch==2.0.1` / `torchvision==0.15.2` are not published for Python 3.12 or 3.13.
+
 ```bash
+# example
+conda create -n rtdetr python=3.11 -y && conda activate rtdetr
 pip install -r requirements.txt
 ```
 

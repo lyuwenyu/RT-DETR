@@ -1,3 +1,5 @@
+# Requires Python 3.8–3.11 (3.10 or 3.11 recommended).
+# torch==2.0.1 has no wheels for Python 3.12+.
 torch==2.0.1
 torchvision==0.15.2
 onnx==1.14.0
